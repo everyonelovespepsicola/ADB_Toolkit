@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -43,6 +44,81 @@ class _FDroidScreenState extends State<FDroidScreen> {
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
   final Map<String, String> _installingApps = {}; // pkg -> status log
+  bool _isSyncingRepo = false;
+  String _syncStatus = "";
+
+  Future<void> _syncFDroidRepo() async {
+    setState(() {
+      _isSyncingRepo = true;
+      _syncStatus = "Syncing official F-Droid repository index (index-v1.json)...";
+    });
+
+    try {
+      final res = await http.get(
+        Uri.parse("https://f-droid.org/repo/index-v1.json"),
+        headers: {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"},
+      ).timeout(const Duration(seconds: 12));
+
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        final appsData = data['apps'] as List<dynamic>?;
+        final pkgsData = data['packages'] as Map<String, dynamic>?;
+
+        if (appsData != null && pkgsData != null) {
+          final List<FDroidApp> liveApps = [];
+          for (final a in appsData.take(200)) {
+            final pkg = a['packageName'] as String?;
+            final name = a['name'] as String? ?? a['summary'] as String? ?? pkg ?? '';
+            final summary = a['summary'] as String? ?? '';
+            final icon = a['icon'] as String? ?? '';
+            final catList = a['categories'] as List<dynamic>?;
+            final cat = (catList != null && catList.isNotEmpty) ? catList.first as String : 'System';
+
+            if (pkg != null && pkgsData.containsKey(pkg)) {
+              final pkgInfoList = pkgsData[pkg] as List<dynamic>?;
+              if (pkgInfoList != null && pkgInfoList.isNotEmpty) {
+                final pkgInfo = pkgInfoList.first;
+                final apkName = pkgInfo['apkName'] as String?;
+                final verName = pkgInfo['versionName'] as String? ?? 'v1.0';
+
+                if (apkName != null) {
+                  liveApps.add(
+                    FDroidApp(
+                      name: name,
+                      packageName: pkg,
+                      summary: summary,
+                      category: cat,
+                      iconUrl: icon.isNotEmpty ? "https://f-droid.org/repo/$pkg/en-US/$icon" : "https://f-droid.org/repo/com.termux/en-US/icon.png",
+                      apkUrl: "https://f-droid.org/repo/$apkName",
+                      version: verName.startsWith('v') ? verName : "v$verName",
+                    ),
+                  );
+                }
+              }
+            }
+          }
+
+          if (liveApps.isNotEmpty && mounted) {
+            setState(() {
+              _popularFDroidApps.clear();
+              _popularFDroidApps.addAll(liveApps);
+              _syncStatus = "🟢 Synced ${liveApps.length} live apps from F-Droid repo!";
+            });
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _syncStatus = "⚠️ Sync timeout. Loaded cached default repo catalog.";
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSyncingRepo = false);
+      }
+    }
+  }
 
   final List<String> _categories = [
     'All',
@@ -204,18 +280,37 @@ class _FDroidScreenState extends State<FDroidScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.storefront, color: Color(0xFF00FF66), size: 22),
-                  SizedBox(width: 8),
-                  Text(
+                  const Icon(Icons.storefront, color: Color(0xFF00FF66), size: 22),
+                  const SizedBox(width: 8),
+                  const Text(
                     'F-DROID OPEN-SOURCE APP STORE',
                     style: TextStyle(color: Color(0xFF00FF66), fontWeight: FontWeight.bold, fontSize: 14),
                   ),
-                  Spacer(),
-                  Text(
-                    'Official Repositories',
-                    style: TextStyle(color: Color(0xFF708090), fontSize: 11),
+                  const Spacer(),
+                  if (_syncStatus.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: Text(
+                        _syncStatus,
+                        style: const TextStyle(color: Color(0xFF4DEAEA), fontSize: 10, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1E283A),
+                      foregroundColor: const Color(0xFF00FF66),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    ),
+                    onPressed: _isSyncingRepo ? null : _syncFDroidRepo,
+                    icon: _isSyncingRepo
+                        ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF00FF66)))
+                        : const Icon(Icons.refresh, size: 14),
+                    label: Text(
+                      _isSyncingRepo ? "SYNCING REPOS..." : "REFRESH REPOS",
+                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ],
               ),
