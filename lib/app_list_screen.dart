@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'adb_manager.dart';
 
@@ -189,17 +190,23 @@ class _AppListScreenState extends State<AppListScreen> {
                               children: [
                                 Row(
                                   children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: pkg.isDisabled ? const Color(0xFF4A148C) : const Color(0xFF1E3A5F),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Icon(
-                                        pkg.isDisabled ? Icons.ac_unit : (pkg.isSystem ? Icons.settings : Icons.android),
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
+                                    FutureBuilder<List<int>?>(
+                                      future: serial != null ? AdbManager.getAppIconBytes(serial, pkg.packageName, pkg.apkPath) : null,
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasData && snapshot.data != null) {
+                                          return ClipRRect(
+                                            borderRadius: BorderRadius.circular(8),
+                                            child: Image.memory(
+                                              Uint8List.fromList(snapshot.data!),
+                                              width: 36,
+                                              height: 36,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (ctx, err, stack) => _buildFallbackIcon(pkg),
+                                            ),
+                                          );
+                                        }
+                                        return _buildFallbackIcon(pkg);
+                                      },
                                     ),
                                     const SizedBox(width: 12),
                                     Expanded(
@@ -333,6 +340,19 @@ class _AppListScreenState extends State<AppListScreen> {
             fontSize: 12,
           ),
         ),
+      ),
+    );
+  Widget _buildFallbackIcon(AppPackageInfo pkg) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: pkg.isDisabled ? const Color(0xFF4A148C) : const Color(0xFF1E3A5F),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Icon(
+        pkg.isDisabled ? Icons.ac_unit : (pkg.isSystem ? Icons.settings : Icons.android),
+        color: Colors.white,
+        size: 20,
       ),
     );
   }

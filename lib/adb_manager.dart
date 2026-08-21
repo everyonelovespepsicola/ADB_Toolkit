@@ -330,6 +330,48 @@ class AdbManager {
     }
   }
 
+  static final Map<String, List<int>> _iconCache = {};
+
+  // Extract App Icon bytes from target device APK
+  static Future<List<int>?> getAppIconBytes(String serial, String packageName, String apkPath) async {
+    final cacheKey = "$serial:$packageName";
+    if (_iconCache.containsKey(cacheKey)) {
+      return _iconCache[cacheKey];
+    }
+
+    try {
+      final tempDir = await getTemporaryDirectory();
+      final tempApk = File("${tempDir.path}\\${packageName}_temp.apk");
+
+      final pullRes = await runAdb(['-s', serial, 'pull', apkPath, tempApk.path]);
+      if (pullRes.exitCode == 0 && tempApk.existsSync()) {
+        final bytes = await tempApk.readAsBytes();
+        final archive = ZipDecoder().decodeBytes(bytes);
+
+        try { tempApk.deleteSync(); } catch (_) {}
+
+        ArchiveFile? iconFile;
+        for (final file in archive) {
+          final name = file.name.toLowerCase();
+          if ((name.contains('ic_launcher') || name.contains('icon') || name.contains('logo')) &&
+              (name.endsWith('.png') || name.endsWith('.webp'))) {
+            if (iconFile == null || name.contains('xxxhdpi') || name.contains('xxhdpi')) {
+              iconFile = file;
+            }
+          }
+        }
+
+        if (iconFile != null) {
+          final iconBytes = iconFile.content as List<int>;
+          _iconCache[cacheKey] = iconBytes;
+          return iconBytes;
+        }
+      }
+    } catch (_) {}
+
+    return null;
+  }
+
   // Clear App Cache & Data (pm clear)
   static Future<bool> clearPackageData(String serial, String packageName) async {
     try {
