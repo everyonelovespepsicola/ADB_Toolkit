@@ -375,6 +375,16 @@ class _FDroidScreenState extends State<FDroidScreen> {
             onPressed: () => Navigator.of(ctx).pop(),
             child: const Text('Close', style: TextStyle(color: Colors.grey)),
           ),
+          if (_installedPackageNames.contains(app.packageName))
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD32F2F), foregroundColor: Colors.white),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                _uninstallFDroidApp(app);
+              },
+              icon: const Icon(Icons.delete_forever, size: 16),
+              label: const Text('UNINSTALL FROM PHONE', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00FF66), foregroundColor: Colors.black),
             onPressed: () {
@@ -382,11 +392,41 @@ class _FDroidScreenState extends State<FDroidScreen> {
               _installFDroidApp(app);
             },
             icon: const Icon(Icons.download, size: 16),
-            label: const Text('INSTALL TO CONNECTED PHONE', style: TextStyle(fontWeight: FontWeight.bold)),
+            label: Text(_installedPackageNames.contains(app.packageName) ? 'RE-INSTALL / UPDATE' : 'INSTALL TO PHONE', style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _uninstallFDroidApp(FDroidApp app) async {
+    final serial = widget.selectedDeviceSerial ?? (widget.connectedDevices.isNotEmpty ? widget.connectedDevices.first.serial : null);
+    if (serial == null) return;
+
+    setState(() => _installingApps[app.packageName] = "Uninstalling...");
+
+    try {
+      final success = await AdbManager.uninstallPackage(serial, app.packageName);
+      if (mounted) {
+        setState(() {
+          _installingApps.remove(app.packageName);
+        });
+        if (success) {
+          _loadInstalledPackages();
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              success ? "🟢 Uninstalled ${app.name} from $serial!" : "🔴 Failed to uninstall ${app.name}!",
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _installingApps.remove(app.packageName));
+      }
+    }
   }
 
   Future<void> _installFDroidApp(FDroidApp app) async {
@@ -680,25 +720,39 @@ class _FDroidScreenState extends State<FDroidScreen> {
                               app.mainCategory,
                               style: const TextStyle(color: Color(0xFF506070), fontSize: 10, fontWeight: FontWeight.bold),
                             ),
-                            ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: isInstalling
-                                    ? const Color(0xFFFFB74D)
-                                    : (isInstalled ? const Color(0xFF1B3828) : const Color(0xFF00FF66)),
-                                foregroundColor: isInstalled ? const Color(0xFF00FF66) : Colors.black,
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                side: isInstalled ? const BorderSide(color: Color(0xFF00FF66)) : BorderSide.none,
-                              ),
-                              onPressed: isInstalling ? null : () => _installFDroidApp(app),
-                              icon: isInstalling
-                                  ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-                                  : Icon(isInstalled ? Icons.check_circle : Icons.download, size: 14),
-                              label: Text(
-                                isInstalling
-                                    ? (statusText ?? "INSTALLING...")
-                                    : (isInstalled ? "INSTALLED" : "INSTALL TO PHONE"),
-                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
-                              ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (isInstalled && !isInstalling)
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 6),
+                                    child: IconButton(
+                                      icon: const Icon(Icons.delete_forever, color: Color(0xFFFF5252), size: 16),
+                                      onPressed: () => _uninstallFDroidApp(app),
+                                      tooltip: 'Uninstall ${app.name} from phone',
+                                    ),
+                                  ),
+                                ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: isInstalling
+                                        ? const Color(0xFFFFB74D)
+                                        : (isInstalled ? const Color(0xFF1B3828) : const Color(0xFF00FF66)),
+                                    foregroundColor: isInstalled ? const Color(0xFF00FF66) : Colors.black,
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    side: isInstalled ? const BorderSide(color: Color(0xFF00FF66)) : BorderSide.none,
+                                  ),
+                                  onPressed: isInstalling ? null : () => _installFDroidApp(app),
+                                  icon: isInstalling
+                                      ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                                      : Icon(isInstalled ? Icons.check_circle : Icons.download, size: 14),
+                                  label: Text(
+                                    isInstalling
+                                        ? (statusText ?? "INSTALLING...")
+                                        : (isInstalled ? "INSTALLED" : "INSTALL TO PHONE"),
+                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -772,6 +826,15 @@ class _FDroidScreenState extends State<FDroidScreen> {
                   child: Text(app.version, style: const TextStyle(color: Color(0xFF00FF66), fontSize: 10, fontWeight: FontWeight.bold)),
                 ),
                 const SizedBox(width: 12),
+                if (isInstalled && !isInstalling)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: IconButton(
+                      icon: const Icon(Icons.delete_forever, color: Color(0xFFFF5252), size: 18),
+                      onPressed: () => _uninstallFDroidApp(app),
+                      tooltip: 'Uninstall ${app.name} from phone',
+                    ),
+                  ),
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isInstalling
