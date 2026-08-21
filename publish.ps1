@@ -42,8 +42,7 @@ if (Test-Path $CMAKE_FILE) {
 
 # 4. Compile Windows Desktop EXE & Web HTML Packages
 Write-Host "[3/4] Compiling Windows Desktop EXE & Web HTML5 Packages..." -ForegroundColor Yellow
-flutter build windows
-flutter build windows --target=lib/theme_creator_main.dart
+flutter build windows --target=lib/main.dart
 flutter build web
 
 # 5. Copy Output Binaries to local bin directory
@@ -52,15 +51,28 @@ if (-not (Test-Path $BIN_OUT)) { New-Item -ItemType Directory -Path $BIN_OUT -Fo
 
 $BUILT_EXE_DIR = "$SCRIPT_DIR\build\windows\x64\runner\Release"
 $TARGET_EXE_DIR = "$BIN_OUT\appmanager-windows-release"
+$TARGET_THEME_DIR = "$BIN_OUT\theme-creator-windows-release"
 
 $BUILT_WEB_DIR = "$SCRIPT_DIR\build\web"
 $TARGET_WEB_DIR = "$BIN_OUT\appmanager-web-release"
 
 if (Test-Path $BUILT_EXE_DIR) {
     Stop-Process -Name "app_manager" -ErrorAction SilentlyContinue
+    Stop-Process -Name "theme_creator" -ErrorAction SilentlyContinue
     Start-Sleep -Milliseconds 500
     if (-not (Test-Path $TARGET_EXE_DIR)) { New-Item -ItemType Directory -Path $TARGET_EXE_DIR -Force | Out-Null }
     Copy-Item -Path "$BUILT_EXE_DIR\*" -Destination $TARGET_EXE_DIR -Recurse -Force
+}
+
+# Build Theme Creator Studio target
+Write-Host "    [+] Compiling Theme Creator Studio executable..." -ForegroundColor Yellow
+flutter build windows --target=lib/theme_creator_main.dart
+if (Test-Path $BUILT_EXE_DIR) {
+    if (-not (Test-Path $TARGET_THEME_DIR)) { New-Item -ItemType Directory -Path $TARGET_THEME_DIR -Force | Out-Null }
+    Copy-Item -Path "$BUILT_EXE_DIR\*" -Destination $TARGET_THEME_DIR -Recurse -Force
+    if (Test-Path "$TARGET_THEME_DIR\app_manager.exe") {
+        Rename-Item -Path "$TARGET_THEME_DIR\app_manager.exe" -NewName "theme_creator.exe" -Force
+    }
 }
 
 if (Test-Path $BUILT_WEB_DIR) {
