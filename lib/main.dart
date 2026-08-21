@@ -5,6 +5,7 @@ import 'dropzone_installer.dart';
 import 'app_list_screen.dart';
 import 'wifi_adb_screen.dart';
 import 'fdroid_screen.dart';
+import 'theme.dart';
 
 void main() {
   runApp(const AppManagerApp());
@@ -15,18 +16,12 @@ class AppManagerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const materialTheme = MaterialTheme(TextTheme());
+
     return MaterialApp(
       title: 'Android App Manager',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF0B0C10),
-        primaryColor: const Color(0xFF4DEAEA),
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFF4DEAEA),
-          secondary: Color(0xFF2196F3),
-          surface: Color(0xFF141824),
-        ),
-      ),
+      theme: materialTheme.dark(),
       home: const MainTabShell(),
     );
   }
