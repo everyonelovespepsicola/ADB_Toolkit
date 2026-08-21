@@ -332,7 +332,7 @@ class _AppListScreenState extends State<AppListScreen> {
                                           const SizedBox(height: 2),
                                           SelectableText(
                                             pkg.packageName,
-                                            style: const TextStyle(color: Color(0xFF4DEAEA), fontSize: 12),
+                                            style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 12),
                                           ),
                                         ],
                                       ),
@@ -342,7 +342,7 @@ class _AppListScreenState extends State<AppListScreen> {
                                 const SizedBox(height: 8),
                                 SelectableText(
                                   "Path: ${pkg.apkPath}",
-                                  style: const TextStyle(color: Color(0xFF607080), fontSize: 10),
+                                  style: const TextStyle(color: Color(0xFF6B7280), fontSize: 10),
                                 ),
                                 const SizedBox(height: 10),
 
@@ -353,8 +353,8 @@ class _AppListScreenState extends State<AppListScreen> {
                                     if (pkg.isDisabled)
                                       ElevatedButton.icon(
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFF4CAF50),
-                                          foregroundColor: Colors.white,
+                                          backgroundColor: Colors.white,
+                                          foregroundColor: Colors.black,
                                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                         ),
                                         onPressed: serial == null
@@ -365,13 +365,13 @@ class _AppListScreenState extends State<AppListScreen> {
                                                   onConfirm: () => AdbManager.enablePackage(serial, pkg.packageName),
                                                 ),
                                         icon: const Icon(Icons.wb_sunny, size: 14),
-                                        label: const Text("Enable", style: TextStyle(fontSize: 11)),
+                                        label: const Text("Enable", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                                       )
                                     else
                                       ElevatedButton.icon(
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: _isCriticalApp(pkg.packageName) ? const Color(0xFFE65100) : const Color(0xFF9C27B0),
-                                          foregroundColor: Colors.white,
+                                          backgroundColor: _isCriticalApp(pkg.packageName) ? const Color(0xFFFFB74D) : Colors.white,
+                                          foregroundColor: Colors.black,
                                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                         ),
                                         onPressed: serial == null
@@ -385,12 +385,12 @@ class _AppListScreenState extends State<AppListScreen> {
                                                   onConfirm: () => AdbManager.disablePackage(serial, pkg.packageName),
                                                 ),
                                         icon: Icon(_isCriticalApp(pkg.packageName) ? Icons.warning : Icons.ac_unit, size: 14),
-                                        label: const Text("Freeze", style: TextStyle(fontSize: 11)),
+                                        label: const Text("Freeze", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                                       ),
                                     const SizedBox(width: 6),
                                     ElevatedButton.icon(
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFF333A4C),
+                                        backgroundColor: const Color(0xFF1E2638),
                                         foregroundColor: Colors.white,
                                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                       ),

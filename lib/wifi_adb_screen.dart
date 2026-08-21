@@ -133,27 +133,27 @@ class _WifiAdbScreenState extends State<WifiAdbScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF141D2D),
+              color: const Color(0xFF121622),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF1E3A5F)),
+              border: Border.all(color: const Color(0xFF1F2636)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.usb, color: Color(0xFF4DEAEA)),
+                    Icon(Icons.usb, color: Colors.white),
                     SizedBox(width: 8),
                     Text(
                       'ONE-CLICK USB-TO-WIRELESS SWITCH (PORT 5555)',
-                      style: TextStyle(color: Color(0xFF4DEAEA), fontWeight: FontWeight.bold, fontSize: 13),
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                     ),
                   ],
                 ),
                 const SizedBox(height: 6),
                 const Text(
                   'Plug in USB cable once, click button to enable wireless port 5555, then unplug USB!',
-                  style: TextStyle(color: Color(0xFF8090A0), fontSize: 11),
+                  style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 11),
                 ),
                 const SizedBox(height: 12),
                 if (usbDevices.isEmpty)
@@ -164,13 +164,13 @@ class _WifiAdbScreenState extends State<WifiAdbScreen> {
                       Expanded(
                         child: DropdownButtonFormField<String>(
                           value: _selectedUsbSerial ?? usbDevices.first.serial,
-                          dropdownColor: const Color(0xFF1A1D28),
+                          dropdownColor: const Color(0xFF121622),
                           style: const TextStyle(color: Colors.white, fontSize: 13),
                           decoration: InputDecoration(
                             filled: true,
-                            fillColor: const Color(0xFF0D0F16),
+                            fillColor: const Color(0xFF0B0C10),
                             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF1F2636))),
                           ),
                           items: usbDevices.map((d) => DropdownMenuItem(value: d.serial, child: Text(d.displayName))).toList(),
                           onChanged: (val) => setState(() => _selectedUsbSerial = val),
@@ -179,7 +179,7 @@ class _WifiAdbScreenState extends State<WifiAdbScreen> {
                       const SizedBox(width: 10),
                       ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00FF66),
+                          backgroundColor: Colors.white,
                           foregroundColor: Colors.black,
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         ),
@@ -199,26 +199,27 @@ class _WifiAdbScreenState extends State<WifiAdbScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF121520),
+              color: const Color(0xFF121622),
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF1F2636)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.phonelink_setup, color: Color(0xFFFFB74D)),
+                    Icon(Icons.phonelink_setup, color: Colors.white),
                     SizedBox(width: 8),
                     Text(
                       'ANDROID 11+ WIRELESS PAIRING (NO CABLE NEEDED)',
-                      style: TextStyle(color: Color(0xFFFFB74D), fontWeight: FontWeight.bold, fontSize: 13),
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                     ),
                   ],
                 ),
                 const SizedBox(height: 6),
                 const Text(
                   'On Phone: Settings -> Developer Options -> Wireless Debugging -> Pair with pairing code',
-                  style: TextStyle(color: Color(0xFF8090A0), fontSize: 11),
+                  style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 11),
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -230,11 +231,11 @@ class _WifiAdbScreenState extends State<WifiAdbScreen> {
                         style: const TextStyle(color: Colors.white, fontSize: 13),
                         decoration: InputDecoration(
                           hintText: 'IP:Port (e.g. 192.168.1.50:38291)',
-                          hintStyle: const TextStyle(color: Color(0xFF506070)),
+                          hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
                           filled: true,
-                          fillColor: const Color(0xFF0A0C12),
+                          fillColor: const Color(0xFF0B0C10),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF1F2636))),
                         ),
                       ),
                     ),
@@ -247,18 +248,18 @@ class _WifiAdbScreenState extends State<WifiAdbScreen> {
                         style: const TextStyle(color: Colors.white, fontSize: 13),
                         decoration: InputDecoration(
                           hintText: '6-Digit Code (e.g. 849201)',
-                          hintStyle: const TextStyle(color: Color(0xFF506070)),
+                          hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
                           filled: true,
-                          fillColor: const Color(0xFF0A0C12),
+                          fillColor: const Color(0xFF0B0C10),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF1F2636))),
                         ),
                       ),
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFFB74D),
+                        backgroundColor: Colors.white,
                         foregroundColor: Colors.black,
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       ),
@@ -278,19 +279,20 @@ class _WifiAdbScreenState extends State<WifiAdbScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF121520),
+              color: const Color(0xFF121622),
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF1F2636)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.wifi, color: Color(0xFF2196F3)),
+                    Icon(Icons.wifi, color: Colors.white),
                     SizedBox(width: 8),
                     Text(
                       'CONNECT WIRELESS DEVICE (DIRECT IP)',
-                      style: TextStyle(color: Color(0xFF2196F3), fontWeight: FontWeight.bold, fontSize: 13),
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                     ),
                   ],
                 ),
@@ -303,19 +305,19 @@ class _WifiAdbScreenState extends State<WifiAdbScreen> {
                         style: const TextStyle(color: Colors.white, fontSize: 13),
                         decoration: InputDecoration(
                           hintText: 'IP:Port (e.g. 192.168.1.50:5555 or 192.168.1.50:41203)',
-                          hintStyle: const TextStyle(color: Color(0xFF506070)),
+                          hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
                           filled: true,
-                          fillColor: const Color(0xFF0A0C12),
+                          fillColor: const Color(0xFF0B0C10),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF1F2636))),
                         ),
                       ),
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2196F3),
-                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       ),
                       onPressed: _isConnecting ? null : () => _handleConnect(),
@@ -334,8 +336,9 @@ class _WifiAdbScreenState extends State<WifiAdbScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF121520),
+              color: const Color(0xFF121622),
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF1F2636)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -345,16 +348,16 @@ class _WifiAdbScreenState extends State<WifiAdbScreen> {
                   children: [
                     const Row(
                       children: [
-                        Icon(Icons.radar, color: Color(0xFF9C27B0)),
+                        Icon(Icons.radar, color: Colors.white),
                         SizedBox(width: 8),
                         Text(
                           'mDNS LOCAL WI-FI BROADCAST SCANNER',
-                          style: TextStyle(color: Color(0xFF9C27B0), fontWeight: FontWeight.bold, fontSize: 13),
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                         ),
                       ],
                     ),
                     IconButton(
-                      icon: const Icon(Icons.refresh, color: Color(0xFF4DEAEA)),
+                      icon: const Icon(Icons.refresh, color: Colors.white),
                       onPressed: _scanMdns,
                       tooltip: 'Re-scan local Wi-Fi mDNS broadcasts',
                     ),
@@ -363,11 +366,11 @@ class _WifiAdbScreenState extends State<WifiAdbScreen> {
                 const SizedBox(height: 6),
                 const Text(
                   'Auto-detects phones broadcasting Wireless Debugging signals on your local Wi-Fi network',
-                  style: TextStyle(color: Color(0xFF8090A0), fontSize: 11),
+                  style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 11),
                 ),
                 const SizedBox(height: 10),
                 if (_isScanningMdns)
-                  const Center(child: CircularProgressIndicator(color: Color(0xFF9C27B0)))
+                  const Center(child: CircularProgressIndicator(color: Colors.white))
                 else if (_mdnsServices.isEmpty)
                   const Text('No mDNS broadcasting devices found on local Wi-Fi.', style: TextStyle(color: Colors.grey, fontSize: 12))
                 else

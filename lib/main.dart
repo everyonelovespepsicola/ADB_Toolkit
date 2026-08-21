@@ -201,35 +201,35 @@ class _MainTabShellState extends State<MainTabShell> {
               child: _buildDockButton(
                 label: '📥 INSTALLER',
                 index: 0,
-                activeColor: const Color(0xFF2196F3),
+                activeColor: Colors.white,
               ),
             ),
             Expanded(
               child: _buildDockButton(
                 label: '📱 APP MANAGER',
                 index: 1,
-                activeColor: const Color(0xFF4DEAEA),
+                activeColor: Colors.white,
               ),
             ),
             Expanded(
               child: _buildDockButton(
                 label: '🛍️ F-DROID STORE',
                 index: 2,
-                activeColor: const Color(0xFF00FF66),
+                activeColor: Colors.white,
               ),
             ),
             Expanded(
               child: _buildDockButton(
                 label: '📶 WI-FI ADB',
                 index: 3,
-                activeColor: const Color(0xFFFFB74D),
+                activeColor: Colors.white,
               ),
             ),
             Expanded(
               child: _buildDockButton(
                 label: '⚙️ SETTINGS',
                 index: 4,
-                activeColor: const Color(0xFF9C27B0),
+                activeColor: Colors.white,
               ),
             ),
           ],
@@ -250,13 +250,13 @@ class _MainTabShellState extends State<MainTabShell> {
         alignment: Alignment.center,
         margin: const EdgeInsets.all(4.0),
         decoration: BoxDecoration(
-          color: isSelected ? activeColor : Theme.of(context).colorScheme.primaryContainer,
+          color: isSelected ? Colors.white : const Color(0xFF1E2638),
           borderRadius: BorderRadius.circular(6),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.black : Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+            color: isSelected ? Colors.black : const Color(0xFF9CA3AF),
             fontSize: 11,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
@@ -273,28 +273,29 @@ class _MainTabShellState extends State<MainTabShell> {
         children: [
           const Text(
             'SETTINGS & PORTABLE ADB ENVIRONMENT',
-            style: TextStyle(color: Color(0xFF4DEAEA), fontSize: 16, fontWeight: FontWeight.bold),
+            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 14),
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF141824),
+              color: const Color(0xFF121622),
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF1F2636)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('PORTABLE ADB BINARY PATH:', style: TextStyle(color: Color(0xFF8090A0), fontSize: 12, fontWeight: FontWeight.bold)),
+                const Text('PORTABLE ADB BINARY PATH:', style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 12, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 SelectableText(_adbPathStatus, style: const TextStyle(color: Colors.white, fontSize: 13)),
                 const SizedBox(height: 12),
                 ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2196F3), foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black),
                   onPressed: _initAdb,
                   icon: const Icon(Icons.refresh, size: 16),
-                  label: const Text('Re-resolve Local ADB'),
+                  label: const Text('Re-resolve Local ADB', style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -304,8 +305,9 @@ class _MainTabShellState extends State<MainTabShell> {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF141824),
+              color: const Color(0xFF121622),
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF1F2636)),
             ),
             child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -314,7 +316,7 @@ class _MainTabShellState extends State<MainTabShell> {
                 SizedBox(height: 6),
                 Text(
                   'All APK installations automatically execute with flags:\n  adb install -r -g --bypass-low-target-sdk-block <apk_path>\n\n-r: Replace existing app\n-g: Auto-grant all requested runtime permissions\n--bypass-low-target-sdk-block: Bypasses Android 14/15 legacy Target SDK blocks',
-                  style: TextStyle(color: Color(0xFFB0C0D0), fontSize: 12),
+                  style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 12),
                 ),
               ],
             ),
