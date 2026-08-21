@@ -380,23 +380,26 @@ class _WifiAdbScreenState extends State<WifiAdbScreen> {
                       return Card(
                         color: const Color(0xFF1A1F2C),
                         margin: const EdgeInsets.only(bottom: 6),
-                        child: ListTile(
-                          leading: const Icon(Icons.cell_wifi, color: Color(0xFF9C27B0)),
-                          title: Text(service, style: const TextStyle(color: Colors.white, fontSize: 12)),
-                          trailing: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF9C27B0),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: ListTile(
+                            leading: const Icon(Icons.cell_wifi, color: Color(0xFF9C27B0)),
+                            title: Text(service, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                            trailing: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF9C27B0),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              ),
+                              onPressed: () {
+                                final parts = service.split(RegExp(r'\s+'));
+                                if (parts.length >= 2) {
+                                  _connectIpPortController.text = parts.last;
+                                  _handleConnect(parts.last);
+                                }
+                              },
+                              child: const Text('Connect', style: TextStyle(fontSize: 11)),
                             ),
-                            onPressed: () {
-                              final parts = service.split(RegExp(r'\s+'));
-                              if (parts.length >= 2) {
-                                _connectIpPortController.text = parts.last;
-                                _handleConnect(parts.last);
-                              }
-                            },
-                            child: const Text('Connect', style: TextStyle(fontSize: 11)),
                           ),
                         ),
                       );

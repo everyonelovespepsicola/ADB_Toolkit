@@ -147,12 +147,15 @@ class _DropzoneInstallerState extends State<DropzoneInstaller> {
                     ],
                   ),
                 ),
-                SwitchListTile(
-                  dense: true,
-                  title: const Text('Batch All Devices', style: TextStyle(color: Colors.white, fontSize: 12)),
-                  value: _batchAllDevices,
-                  activeColor: const Color(0xFF00FF66),
-                  onChanged: (val) => setState(() => _batchAllDevices = val),
+                Material(
+                  color: Colors.transparent,
+                  child: SwitchListTile(
+                    dense: true,
+                    title: const Text('Batch All Devices', style: TextStyle(color: Colors.white, fontSize: 12)),
+                    value: _batchAllDevices,
+                    activeColor: const Color(0xFF00FF66),
+                    onChanged: (val) => setState(() => _batchAllDevices = val),
+                  ),
                 ),
               ],
             ),

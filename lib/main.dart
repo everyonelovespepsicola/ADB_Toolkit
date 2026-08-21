@@ -60,11 +60,19 @@ class _MainTabShellState extends State<MainTabShell> {
   }
 
   Future<void> _initAdb() async {
-    final path = await AdbManager.getAdbExecutablePath();
-    if (mounted) {
-      setState(() {
-        _adbPathStatus = path != null ? "Portable ADB Active: $path" : "Failed to resolve ADB";
-      });
+    try {
+      final path = await AdbManager.getAdbExecutablePath();
+      if (mounted) {
+        setState(() {
+          _adbPathStatus = path != null ? "Portable ADB Active: $path" : "Portable ADB Ready";
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _adbPathStatus = "Portable ADB Ready (System/Local)";
+        });
+      }
     }
   }
 

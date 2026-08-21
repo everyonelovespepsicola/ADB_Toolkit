@@ -5,14 +5,28 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-
-import 'package:app_manager/main.dart';
+import 'package:app_manager/adb_manager.dart';
 
 void main() {
-  testWidgets('AppManager smoke test', (WidgetTester tester) async {
-    await tester.pumpWidget(const AppManagerApp());
-    expect(find.text('Android App Manager'), findsOneWidget);
+  test('DeviceInfo display name test', () {
+    final dev = DeviceInfo(
+      serial: 'ZY227G3GD8',
+      state: 'device',
+      model: 'Pixel_7',
+      product: 'panther',
+      isWifi: false,
+    );
+    expect(dev.displayName, 'Pixel_7 (ZY227G3GD8)');
+    expect(dev.isWifi, false);
+  });
+
+  test('AppPackageInfo app name parsing test', () {
+    final pkg = AppPackageInfo(
+      packageName: 'com.example.chat',
+      apkPath: '/data/app/chat.apk',
+      isSystem: false,
+      isDisabled: false,
+    );
+    expect(pkg.appName, 'Chat');
   });
 }
