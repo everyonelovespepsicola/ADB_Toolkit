@@ -338,8 +338,8 @@ class _AppListScreenState extends State<AppListScreen> {
             color: Colors.white,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             fontSize: 12,
-          ),
         ),
+      ),
     );
   }
 
