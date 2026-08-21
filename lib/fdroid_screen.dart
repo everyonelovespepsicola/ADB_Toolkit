@@ -146,7 +146,22 @@ class _FDroidScreenState extends State<FDroidScreen> {
             final description = a['description'] as String? ?? summary;
             final license = a['license'] as String? ?? 'Open Source';
             final author = a['authorName'] as String? ?? a['authorEmail'] as String? ?? 'F-Droid Contributor';
-            final icon = a['icon'] as String? ?? '';
+            String icon = a['icon'] as String? ?? '';
+            if (icon.isEmpty && a['localized'] != null && a['localized']['en-US'] != null) {
+              icon = a['localized']['en-US']['icon'] as String? ?? '';
+            }
+
+            String fullIconUrl = '';
+            if (icon.isNotEmpty) {
+              if (icon.startsWith('http://') || icon.startsWith('https://')) {
+                fullIconUrl = icon;
+              } else if (icon.contains('/')) {
+                fullIconUrl = "$activeBaseUrl/$icon";
+              } else {
+                // F-Droid official mirror icon directory
+                fullIconUrl = "$activeBaseUrl/icons-640/$icon";
+              }
+            }
 
             final catList = (a['categories'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? ['System'];
 
@@ -167,7 +182,7 @@ class _FDroidScreenState extends State<FDroidScreen> {
                       license: license,
                       author: author,
                       categories: catList,
-                      iconUrl: icon.isNotEmpty ? "$activeBaseUrl/$pkg/en-US/$icon" : "$activeBaseUrl/com.termux/en-US/icon.png",
+                      iconUrl: fullIconUrl,
                       apkUrl: "$activeBaseUrl/$apkName",
                       version: verName.startsWith('v') ? verName : "v$verName",
                     ),
@@ -669,18 +684,25 @@ class _FDroidScreenState extends State<FDroidScreen> {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: Image.network(
-                      app.iconUrl,
-                      width: 48,
-                      height: 48,
-                      fit: BoxFit.cover,
-                      errorBuilder: (c, e, s) => Container(
-                        width: 48,
-                        height: 48,
-                        color: const Color(0xFF1E3A5F),
-                        child: const Icon(Icons.android, color: Colors.white),
-                      ),
-                    ),
+                    child: app.iconUrl.isNotEmpty
+                        ? Image.network(
+                            app.iconUrl,
+                            width: 48,
+                            height: 48,
+                            fit: BoxFit.cover,
+                            errorBuilder: (c, e, s) => Container(
+                              width: 48,
+                              height: 48,
+                              color: const Color(0xFF1E3A5F),
+                              child: const Icon(Icons.android, color: Colors.white),
+                            ),
+                          )
+                        : Container(
+                            width: 48,
+                            height: 48,
+                            color: const Color(0xFF1E3A5F),
+                            child: const Icon(Icons.android, color: Colors.white),
+                          ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
