@@ -117,6 +117,8 @@ class _AppListScreenState extends State<AppListScreen> {
     );
   }
 
+  String _sortBy = 'date_desc'; // 'date_desc', 'date_asc', 'name_asc', 'name_desc'
+
   @override
   Widget build(BuildContext context) {
     final serial = widget.selectedDeviceSerial ?? (widget.connectedDevices.isNotEmpty ? widget.connectedDevices.first.serial : null);
@@ -126,9 +128,22 @@ class _AppListScreenState extends State<AppListScreen> {
       return p.packageName.toLowerCase().contains(q) || p.appName.toLowerCase().contains(q);
     }).toList();
 
+    filtered.sort((a, b) {
+      if (_sortBy == 'name_asc') {
+        return a.appName.toLowerCase().compareTo(b.appName.toLowerCase());
+      } else if (_sortBy == 'name_desc') {
+        return b.appName.toLowerCase().compareTo(a.appName.toLowerCase());
+      } else if (_sortBy == 'date_desc') {
+        return b.installTimestamp.compareTo(a.installTimestamp);
+      } else if (_sortBy == 'date_asc') {
+        return a.installTimestamp.compareTo(b.installTimestamp);
+      }
+      return 0;
+    });
+
     return Column(
       children: [
-        // Controls Header (Tabs & Search Bar)
+        // Controls Header (Tabs & Search Bar & Sort Dropdown)
         Container(
           padding: const EdgeInsets.all(12),
           color: const Color(0xFF10131C),
@@ -150,28 +165,66 @@ class _AppListScreenState extends State<AppListScreen> {
                 ],
               ),
               const SizedBox(height: 10),
-              TextField(
-                controller: _searchController,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
-                onChanged: (val) => setState(() => _searchQuery = val),
-                decoration: InputDecoration(
-                  hintText: 'Search packages (e.g. facebook, chrome)...',
-                  hintStyle: const TextStyle(color: Color(0xFF506070)),
-                  prefixIcon: const Icon(Icons.search, color: Color(0xFF4DEAEA)),
-                  suffixIcon: _searchQuery.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear, color: Colors.grey),
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() => _searchQuery = "");
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                      onChanged: (val) => setState(() => _searchQuery = val),
+                      decoration: InputDecoration(
+                        hintText: 'Search packages (e.g. facebook, chrome)...',
+                        hintStyle: const TextStyle(color: Color(0xFF506070)),
+                        prefixIcon: const Icon(Icons.search, color: Color(0xFF4DEAEA)),
+                        suffixIcon: _searchQuery.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear, color: Colors.grey),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() => _searchQuery = "");
+                                },
+                              )
+                            : null,
+                        filled: true,
+                        fillColor: const Color(0xFF0A0C12),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+
+                  // Sort Dropdown
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E283A),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFF4DEAEA).withOpacity(0.5)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.sort, color: Color(0xFF4DEAEA), size: 16),
+                        const SizedBox(width: 6),
+                        DropdownButton<String>(
+                          value: _sortBy,
+                          underline: const SizedBox(),
+                          dropdownColor: const Color(0xFF1E283A),
+                          style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                          items: const [
+                            DropdownMenuItem(value: 'date_desc', child: Text('📅 Installed (Newest First)')),
+                            DropdownMenuItem(value: 'date_asc', child: Text('📅 Installed (Oldest First)')),
+                            DropdownMenuItem(value: 'name_asc', child: Text('🔤 Name (A - Z)')),
+                            DropdownMenuItem(value: 'name_desc', child: Text('🔤 Name (Z - A)')),
+                          ],
+                          onChanged: (val) {
+                            if (val != null) setState(() => _sortBy = val);
                           },
-                        )
-                      : null,
-                  filled: true,
-                  fillColor: const Color(0xFF0A0C12),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
-                ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

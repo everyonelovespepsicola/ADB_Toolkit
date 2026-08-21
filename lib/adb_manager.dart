@@ -36,12 +36,14 @@ class AppPackageInfo {
   final String apkPath;
   final bool isSystem;
   final bool isDisabled;
+  final int installTimestamp;
 
   AppPackageInfo({
     required this.packageName,
     required this.apkPath,
     required this.isSystem,
     required this.isDisabled,
+    this.installTimestamp = 0,
   });
 
   String get appName {
@@ -300,6 +302,7 @@ class AdbManager {
       final res = await runAdb(['-s', serial, 'shell', 'pm', 'list', 'packages', '-f', flag]);
       if (res.exitCode == 0) {
         final lines = res.stdout.toString().split('\n');
+        int index = 0;
         for (final line in lines) {
           final trimmed = line.trim();
           if (trimmed.startsWith('package:')) {
@@ -308,12 +311,14 @@ class AdbManager {
             if (eqIdx != -1) {
               final path = raw.substring(0, eqIdx);
               final pkg = raw.substring(eqIdx + 1);
+              index++;
               list.add(
                 AppPackageInfo(
                   packageName: pkg,
                   apkPath: path,
                   isSystem: filter == 'system',
                   isDisabled: filter == 'disabled',
+                  installTimestamp: index,
                 ),
               );
             }
