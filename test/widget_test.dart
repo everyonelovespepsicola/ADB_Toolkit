@@ -17,7 +17,7 @@ void main() {
       product: 'panther',
       isWifi: false,
     );
-    expect(dev.displayName, 'Pixel_7 (ZY227G3GD8)');
+    expect(dev.displayName, 'Pixel_7 [Android 11] (ZY227G3GD8)');
     expect(dev.isWifi, false);
   });
 

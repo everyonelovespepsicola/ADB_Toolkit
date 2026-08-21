@@ -11,6 +11,8 @@ class DeviceInfo {
   final String model;
   final String product;
   final bool isWifi;
+  final int sdkVersion; // e.g. 29 for Android 10, 34 for Android 14
+  final String androidVersion; // e.g. "10", "14", "15"
 
   DeviceInfo({
     required this.serial,
@@ -18,11 +20,14 @@ class DeviceInfo {
     required this.model,
     required this.product,
     required this.isWifi,
+    this.sdkVersion = 30,
+    this.androidVersion = "11",
   });
 
   String get displayName {
-    if (model.isNotEmpty) return "$model ($serial)";
-    return serial;
+    final verStr = androidVersion.isNotEmpty ? " [Android $androidVersion]" : "";
+    if (model.isNotEmpty) return "$model$verStr ($serial)";
+    return "$serial$verStr";
   }
 }
 
@@ -153,7 +158,7 @@ class AdbManager {
     return await Process.run(adbPath, args);
   }
 
-  // List connected devices (USB & Wi-Fi)
+  // List connected devices (USB & Wi-Fi) with Android Version & SDK detection
   static Future<List<DeviceInfo>> getConnectedDevices() async {
     final devices = <DeviceInfo>[];
     try {
@@ -168,13 +173,32 @@ class AdbManager {
           if (parts.length >= 2) {
             final serial = parts[0];
             final state = parts[1];
+            if (state != "device") continue;
+
             String model = "";
             String product = "";
+            int sdkVer = 30;
+            String androidVer = "11";
 
             for (final p in parts) {
               if (p.startsWith('model:')) model = p.substring(6);
               if (p.startsWith('product:')) product = p.substring(8);
             }
+
+            // Query Android SDK Level and OS Release Version
+            try {
+              final sdkRes = await runAdb(['-s', serial, 'shell', 'getprop', 'ro.build.version.sdk']);
+              final sdkStr = sdkRes.stdout.toString().trim();
+              if (sdkStr.isNotEmpty) {
+                sdkVer = int.tryParse(sdkStr) ?? 30;
+              }
+
+              final relRes = await runAdb(['-s', serial, 'shell', 'getprop', 'ro.build.version.release']);
+              final relStr = relRes.stdout.toString().trim();
+              if (relStr.isNotEmpty) {
+                androidVer = relStr;
+              }
+            } catch (_) {}
 
             final isWifi = serial.contains(':') || serial.contains('.');
             devices.add(
@@ -184,6 +208,8 @@ class AdbManager {
                 model: model,
                 product: product,
                 isWifi: isWifi,
+                sdkVersion: sdkVer,
+                androidVersion: androidVer,
               ),
             );
           }
@@ -244,33 +270,20 @@ class AdbManager {
     return discovered;
   }
 
-  // Install APK with Android 15 bypass flags
-  static Future<Map<String, dynamic>> installApk(String serial, String apkPath) async {
+  // Install APK with version-aware flags (Android 14+ vs Android 10-13)
+  static Future<Map<String, dynamic>> installApk(String serial, String apkPath, {int? sdkVersion}) async {
     try {
-      var res = await runAdb([
-        '-s',
-        serial,
-        'install',
-        '-r',
-        '-g',
-        '--bypass-low-target-sdk-block',
-        apkPath,
-      ]);
+      final List<String> args = ['-s', serial, 'install', '-r', '-g'];
 
-      var out = res.stdout.toString() + res.stderr.toString();
-
-      // If older Android version (Android 10-13) throws 'Unknown option --bypass-low-target-sdk-block', retry standard install
-      if (out.contains("Unknown option") || out.contains("IllegalArgumentException")) {
-        res = await runAdb([
-          '-s',
-          serial,
-          'install',
-          '-r',
-          '-g',
-          apkPath,
-        ]);
-        out = res.stdout.toString() + res.stderr.toString();
+      // Include --bypass-low-target-sdk-block only on Android 14+ (API 34+)
+      if (sdkVersion != null && sdkVersion >= 34) {
+        args.add('--bypass-low-target-sdk-block');
       }
+
+      args.add(apkPath);
+
+      var res = await runAdb(args);
+      var out = res.stdout.toString() + res.stderr.toString();
 
       final success = out.contains("Success") || res.exitCode == 0;
       return {"success": success, "message": out.trim()};

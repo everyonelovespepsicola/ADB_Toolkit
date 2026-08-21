@@ -91,7 +91,7 @@ class _DropzoneInstallerState extends State<DropzoneInstaller> {
       });
 
       for (final dev in activeTarget) {
-        final result = await AdbManager.installApk(dev.serial, item.filePath);
+        final result = await AdbManager.installApk(dev.serial, item.filePath, sdkVersion: dev.sdkVersion);
         setState(() {
           if (result['success'] == true) {
             item.status = "success";
