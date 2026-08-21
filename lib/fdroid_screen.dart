@@ -57,7 +57,7 @@ class _FDroidScreenState extends State<FDroidScreen> {
       final res = await http.get(
         Uri.parse("https://f-droid.org/repo/index-v1.json"),
         headers: {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"},
-      ).timeout(const Duration(seconds: 12));
+      ).timeout(const Duration(seconds: 30));
 
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
@@ -66,7 +66,7 @@ class _FDroidScreenState extends State<FDroidScreen> {
 
         if (appsData != null && pkgsData != null) {
           final List<FDroidApp> liveApps = [];
-          for (final a in appsData.take(200)) {
+          for (final a in appsData) {
             final pkg = a['packageName'] as String?;
             final name = a['name'] as String? ?? a['summary'] as String? ?? pkg ?? '';
             final summary = a['summary'] as String? ?? '';
