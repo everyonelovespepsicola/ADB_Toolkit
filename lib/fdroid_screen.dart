@@ -53,8 +53,40 @@ class _FDroidScreenState extends State<FDroidScreen> {
   String _viewMode = 'grid'; // 'grid' or 'column'
   final TextEditingController _searchController = TextEditingController();
   final Map<String, String> _installingApps = {}; // pkg -> status log
+  Set<String> _installedPackageNames = {};
   bool _isSyncingRepo = false;
   String _syncStatus = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInstalledPackages();
+  }
+
+  @override
+  void didUpdateWidget(covariant FDroidScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selectedDeviceSerial != widget.selectedDeviceSerial) {
+      _loadInstalledPackages();
+    }
+  }
+
+  Future<void> _loadInstalledPackages() async {
+    final serial = widget.selectedDeviceSerial ?? (widget.connectedDevices.isNotEmpty ? widget.connectedDevices.first.serial : null);
+    if (serial == null || serial.isEmpty) {
+      if (mounted) setState(() => _installedPackageNames = {});
+      return;
+    }
+
+    try {
+      final list = await AdbManager.listPackages(serial, filter: 'all');
+      if (mounted) {
+        setState(() {
+          _installedPackageNames = list.map((p) => p.packageName).toSet();
+        });
+      }
+    } catch (_) {}
+  }
 
   final List<String> _repoMirrors = [
     "https://f-droid.org/repo",
@@ -171,12 +203,13 @@ class _FDroidScreenState extends State<FDroidScreen> {
 
   final List<String> _categories = [
     'All',
+    'Installed',
+    'Games',
     'Multimedia',
     'Internet',
     'System',
     'Security',
     'Development',
-    'Games',
     'Graphics',
     'Science & Education',
     'Time',
@@ -387,6 +420,9 @@ class _FDroidScreenState extends State<FDroidScreen> {
           setState(() {
             _installingApps.remove(app.packageName);
           });
+          if (result['success'] == true) {
+            _loadInstalledPackages();
+          }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -418,11 +454,17 @@ class _FDroidScreenState extends State<FDroidScreen> {
 
       if (!matchesSearch) return false;
       if (_selectedCategory == 'All') return true;
+      if (_selectedCategory == 'Installed') {
+        return _installedPackageNames.contains(app.packageName);
+      }
 
-      // Fuzzy case-insensitive category matching (e.g. Games, Game, Multimedia, System)
+      // Fuzzy case-insensitive category matching (Games, Multimedia, System, etc.)
       final selLower = _selectedCategory.toLowerCase();
       return app.categories.any((c) {
         final cLower = c.toLowerCase();
+        if (selLower == 'games' || selLower == 'game') {
+          return cLower == 'games' || cLower == 'game' || cLower.contains('game');
+        }
         return cLower == selLower || cLower.contains(selLower) || selLower.contains(cLower);
       });
     }).toList();
@@ -570,6 +612,7 @@ class _FDroidScreenState extends State<FDroidScreen> {
         final app = apps[idx];
         final isInstalling = _installingApps.containsKey(app.packageName);
         final statusText = _installingApps[app.packageName];
+        final isInstalled = _installedPackageNames.contains(app.packageName);
 
         return InkWell(
           onTap: () => _showAppDetailsModal(app),
@@ -577,7 +620,7 @@ class _FDroidScreenState extends State<FDroidScreen> {
             color: const Color(0xFF121622),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: Color(0xFF1E2638)),
+              side: BorderSide(color: isInstalled ? const Color(0xFF00FF66).withOpacity(0.5) : const Color(0xFF1E2638)),
             ),
             child: Padding(
               padding: const EdgeInsets.all(12),
@@ -639,16 +682,21 @@ class _FDroidScreenState extends State<FDroidScreen> {
                             ),
                             ElevatedButton.icon(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: isInstalling ? const Color(0xFFFFB74D) : const Color(0xFF00FF66),
-                                foregroundColor: Colors.black,
+                                backgroundColor: isInstalling
+                                    ? const Color(0xFFFFB74D)
+                                    : (isInstalled ? const Color(0xFF1B3828) : const Color(0xFF00FF66)),
+                                foregroundColor: isInstalled ? const Color(0xFF00FF66) : Colors.black,
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                side: isInstalled ? const BorderSide(color: Color(0xFF00FF66)) : BorderSide.none,
                               ),
                               onPressed: isInstalling ? null : () => _installFDroidApp(app),
                               icon: isInstalling
                                   ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-                                  : const Icon(Icons.download, size: 14),
+                                  : Icon(isInstalled ? Icons.check_circle : Icons.download, size: 14),
                               label: Text(
-                                isInstalling ? (statusText ?? "INSTALLING...") : "INSTALL TO PHONE",
+                                isInstalling
+                                    ? (statusText ?? "INSTALLING...")
+                                    : (isInstalled ? "INSTALLED" : "INSTALL TO PHONE"),
                                 style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
                               ),
                             ),
@@ -675,6 +723,7 @@ class _FDroidScreenState extends State<FDroidScreen> {
         final app = apps[idx];
         final isInstalling = _installingApps.containsKey(app.packageName);
         final statusText = _installingApps[app.packageName];
+        final isInstalled = _installedPackageNames.contains(app.packageName);
 
         return InkWell(
           onTap: () => _showAppDetailsModal(app),
@@ -683,7 +732,7 @@ class _FDroidScreenState extends State<FDroidScreen> {
             decoration: BoxDecoration(
               color: const Color(0xFF121622),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFF1E2638)),
+              border: Border.all(color: isInstalled ? const Color(0xFF00FF66).withOpacity(0.5) : const Color(0xFF1E2638)),
             ),
             child: Row(
               children: [
@@ -725,16 +774,21 @@ class _FDroidScreenState extends State<FDroidScreen> {
                 const SizedBox(width: 12),
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isInstalling ? const Color(0xFFFFB74D) : const Color(0xFF00FF66),
-                    foregroundColor: Colors.black,
+                    backgroundColor: isInstalling
+                        ? const Color(0xFFFFB74D)
+                        : (isInstalled ? const Color(0xFF1B3828) : const Color(0xFF00FF66)),
+                    foregroundColor: isInstalled ? const Color(0xFF00FF66) : Colors.black,
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    side: isInstalled ? const BorderSide(color: Color(0xFF00FF66)) : BorderSide.none,
                   ),
                   onPressed: isInstalling ? null : () => _installFDroidApp(app),
                   icon: isInstalling
                       ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-                      : const Icon(Icons.download, size: 14),
+                      : Icon(isInstalled ? Icons.check_circle : Icons.download, size: 14),
                   label: Text(
-                    isInstalling ? (statusText ?? "INSTALLING...") : "INSTALL",
+                    isInstalling
+                        ? (statusText ?? "INSTALLING...")
+                        : (isInstalled ? "INSTALLED" : "INSTALL"),
                     style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
                   ),
                 ),
