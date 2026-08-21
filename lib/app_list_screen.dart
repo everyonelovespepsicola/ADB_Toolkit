@@ -340,8 +340,9 @@ class _AppListScreenState extends State<AppListScreen> {
             fontSize: 12,
           ),
         ),
-      ),
     );
+  }
+
   Widget _buildFallbackIcon(AppPackageInfo pkg) {
     return Container(
       padding: const EdgeInsets.all(8),
