@@ -746,4 +746,3 @@ class _FDroidScreenState extends State<FDroidScreen> {
     );
   }
 }
-}
