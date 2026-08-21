@@ -330,15 +330,27 @@ class AdbManager {
     }
   }
 
-  static final Map<String, String?> _playStoreIconUrlCache = {};
+  static final Map<String, List<int>?> _memoryIconCache = {};
 
-  // Fetch official HD App Icon URL from Google Play Store web API by package name
-  static Future<String?> getPlayStoreIconUrl(String packageName) async {
-    if (_playStoreIconUrlCache.containsKey(packageName)) {
-      return _playStoreIconUrlCache[packageName];
+  // Fetch official HD App Icon from Google Play Store with persistent local disk caching
+  static Future<List<int>?> getCachedPlayStoreIconBytes(String packageName) async {
+    if (_memoryIconCache.containsKey(packageName)) {
+      return _memoryIconCache[packageName];
     }
 
     try {
+      final appDir = await getApplicationSupportDirectory();
+      final iconCacheDir = Directory("${appDir.path}\\icon_cache");
+      if (!iconCacheDir.existsSync()) iconCacheDir.createSync(recursive: true);
+
+      final cachedFile = File("${iconCacheDir.path}\\$packageName.png");
+      if (cachedFile.existsSync()) {
+        final bytes = await cachedFile.readAsBytes();
+        _memoryIconCache[packageName] = bytes;
+        return bytes;
+      }
+
+      // Download from Google Play Store Web
       final url = Uri.parse("https://play.google.com/store/apps/details?id=$packageName");
       final response = await http.get(
         url,
@@ -352,14 +364,19 @@ class AdbManager {
         final regExp = RegExp(r'https:\/\/play-lh\.googleusercontent\.com\/[a-zA-Z0-9_\-=\/]+');
         final match = regExp.firstMatch(html);
         if (match != null) {
-          final imageUrl = match.group(0);
-          _playStoreIconUrlCache[packageName] = imageUrl;
-          return imageUrl;
+          final imageUrl = match.group(0)!;
+          final imgResponse = await http.get(Uri.parse(imageUrl)).timeout(const Duration(seconds: 4));
+          if (imgResponse.statusCode == 200) {
+            final imgBytes = imgResponse.bodyBytes;
+            await cachedFile.writeAsBytes(imgBytes);
+            _memoryIconCache[packageName] = imgBytes;
+            return imgBytes;
+          }
         }
       }
     } catch (_) {}
 
-    _playStoreIconUrlCache[packageName] = null;
+    _memoryIconCache[packageName] = null;
     return null;
   }
 
