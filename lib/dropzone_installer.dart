@@ -138,9 +138,9 @@ class _DropzoneInstallerState extends State<DropzoneInstaller> {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: const Color(0xFF141824),
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF1E283A)),
+              border: Border.all(color: Theme.of(context).colorScheme.outline),
             ),
             child: Column(
               children: [
@@ -150,16 +150,16 @@ class _DropzoneInstallerState extends State<DropzoneInstaller> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'INSTALL TARGET DEVICE:',
-                            style: TextStyle(color: Color(0xFF8090A0), fontSize: 11, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontSize: 11, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             _batchAllDevices
                                 ? "🚀 ALL CONNECTED DEVICES (${widget.connectedDevices.length})"
                                 : (widget.selectedDeviceSerial ?? "Select target device above"),
-                            style: const TextStyle(color: Color(0xFF4DEAEA), fontSize: 14, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 14, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -167,26 +167,26 @@ class _DropzoneInstallerState extends State<DropzoneInstaller> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text('Batch All Devices', style: TextStyle(color: Colors.white, fontSize: 12)),
+                        Text('Batch All Devices', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12)),
                         const SizedBox(width: 6),
                         Switch(
                           value: _batchAllDevices,
-                          activeColor: const Color(0xFF00FF66),
+                          activeColor: Theme.of(context).colorScheme.primary,
                           onChanged: (val) => setState(() => _batchAllDevices = val),
                         ),
                       ],
                     ),
                   ],
                 ),
-                const Divider(color: Color(0xFF1F2636), height: 16),
+                const Divider(color: Colors.white12, height: 16),
                 Row(
                   children: [
                     const Icon(Icons.security, color: Color(0xFFFFB74D), size: 16),
                     const SizedBox(width: 6),
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         'Set as Full Enterprise Device Owner (dpm set-device-owner)',
-                        style: TextStyle(color: Color(0xFFFFB74D), fontSize: 12, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12, fontWeight: FontWeight.bold),
                       ),
                     ),
                     Switch(

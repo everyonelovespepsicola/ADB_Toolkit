@@ -121,13 +121,13 @@ class _MainTabShellState extends State<MainTabShell> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Android App Manager',
-                  style: TextStyle(color: Color(0xFF4DEAEA), fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 Text(
                   _adbPathStatus,
-                  style: const TextStyle(color: Color(0xFF708090), fontSize: 10),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontSize: 10),
                 ),
               ],
             ),
@@ -141,19 +141,19 @@ class _MainTabShellState extends State<MainTabShell> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1C2234),
+                  color: Theme.of(context).colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFF00FF66), width: 1),
+                  border: Border.all(color: Theme.of(context).colorScheme.primary, width: 1),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.circle, color: Color(0xFF00FF66), size: 10),
+                    Icon(Icons.circle, color: Theme.of(context).colorScheme.primary, size: 10),
                     const SizedBox(width: 6),
                     DropdownButton<String>(
                       value: _selectedDeviceSerial,
                       underline: const SizedBox(),
-                      dropdownColor: const Color(0xFF1C2234),
-                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                      dropdownColor: Theme.of(context).colorScheme.primaryContainer,
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12, fontWeight: FontWeight.bold),
                       items: _connectedDevices.map((d) {
                         return DropdownMenuItem(
                           value: d.serial,
@@ -171,15 +171,15 @@ class _MainTabShellState extends State<MainTabShell> {
               margin: const EdgeInsets.only(right: 12.0),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: const Color(0xFF2A1C20),
+                color: Theme.of(context).colorScheme.errorContainer,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFFF5252), width: 1),
+                border: Border.all(color: Theme.of(context).colorScheme.error, width: 1),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.circle, color: Color(0xFFFF5252), size: 10),
-                  SizedBox(width: 6),
-                  Text('No Devices Connected', style: TextStyle(color: Color(0xFFFF5252), fontSize: 11, fontWeight: FontWeight.bold)),
+                  Icon(Icons.circle, color: Theme.of(context).colorScheme.error, size: 10),
+                  const SizedBox(width: 6),
+                  Text('No Devices Connected', style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 11, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -191,9 +191,9 @@ class _MainTabShellState extends State<MainTabShell> {
       ),
       bottomNavigationBar: Container(
         height: 56,
-        decoration: const BoxDecoration(
-          color: Color(0xFF0F1118),
-          border: Border(top: BorderSide(color: Color(0xFF1A1F2C), width: 1)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outline, width: 1)),
         ),
         child: Row(
           children: [
@@ -250,13 +250,13 @@ class _MainTabShellState extends State<MainTabShell> {
         alignment: Alignment.center,
         margin: const EdgeInsets.all(4.0),
         decoration: BoxDecoration(
-          color: isSelected ? activeColor : const Color(0xFF141722),
+          color: isSelected ? activeColor : Theme.of(context).colorScheme.primaryContainer,
           borderRadius: BorderRadius.circular(6),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? (activeColor == const Color(0xFFFFB74D) ? Colors.black : Colors.white) : const Color(0xFF8090A0),
+            color: isSelected ? Colors.black : Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
             fontSize: 11,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
