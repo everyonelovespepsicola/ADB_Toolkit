@@ -47,19 +47,40 @@ class _FDroidScreenState extends State<FDroidScreen> {
   bool _isSyncingRepo = false;
   String _syncStatus = "";
 
+  final List<String> _repoMirrors = [
+    "https://f-droid.org/repo",
+    "https://ftp.fau.de/fdroid/repo",
+    "https://mirror.fcix.net/fdroid/repo",
+    "https://ftp.gwdg.de/pub/android/fdroid/repo",
+  ];
+
   Future<void> _syncFDroidRepo() async {
     setState(() {
       _isSyncingRepo = true;
-      _syncStatus = "Syncing official F-Droid repository index (index-v1.json)...";
+      _syncStatus = "Syncing official F-Droid repository index...";
     });
 
-    try {
-      final res = await http.get(
-        Uri.parse("https://f-droid.org/repo/index-v1.json"),
-        headers: {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"},
-      ).timeout(const Duration(seconds: 30));
+    http.Response? res;
+    String activeBaseUrl = _repoMirrors.first;
 
-      if (res.statusCode == 200) {
+    for (final mirror in _repoMirrors) {
+      try {
+        setState(() => _syncStatus = "Connecting to ${Uri.parse(mirror).host}...");
+        final response = await http.get(
+          Uri.parse("$mirror/index-v1.json"),
+          headers: {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"},
+        ).timeout(const Duration(seconds: 15));
+
+        if (response.statusCode == 200) {
+          res = response;
+          activeBaseUrl = mirror;
+          break;
+        }
+      } catch (_) {}
+    }
+
+    try {
+      if (res != null && res.statusCode == 200) {
         final data = jsonDecode(res.body);
         final appsData = data['apps'] as List<dynamic>?;
         final pkgsData = data['packages'] as Map<String, dynamic>?;
@@ -88,8 +109,8 @@ class _FDroidScreenState extends State<FDroidScreen> {
                       packageName: pkg,
                       summary: summary,
                       category: cat,
-                      iconUrl: icon.isNotEmpty ? "https://f-droid.org/repo/$pkg/en-US/$icon" : "https://f-droid.org/repo/com.termux/en-US/icon.png",
-                      apkUrl: "https://f-droid.org/repo/$apkName",
+                      iconUrl: icon.isNotEmpty ? "$activeBaseUrl/$pkg/en-US/$icon" : "$activeBaseUrl/com.termux/en-US/icon.png",
+                      apkUrl: "$activeBaseUrl/$apkName",
                       version: verName.startsWith('v') ? verName : "v$verName",
                     ),
                   );
@@ -102,15 +123,17 @@ class _FDroidScreenState extends State<FDroidScreen> {
             setState(() {
               _popularFDroidApps.clear();
               _popularFDroidApps.addAll(liveApps);
-              _syncStatus = "🟢 Synced ${liveApps.length} live apps from F-Droid repo!";
+              _syncStatus = "🟢 Synced ${liveApps.length} live apps via ${Uri.parse(activeBaseUrl).host}!";
             });
           }
         }
+      } else {
+        throw "Failed to connect to F-Droid mirrors";
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _syncStatus = "⚠️ Sync timeout. Loaded cached default repo catalog.";
+          _syncStatus = "⚠️ Mirror sync fallback active.";
         });
       }
     } finally {
