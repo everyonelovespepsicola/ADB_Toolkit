@@ -4,6 +4,7 @@ import 'adb_manager.dart';
 import 'dropzone_installer.dart';
 import 'app_list_screen.dart';
 import 'wifi_adb_screen.dart';
+import 'fdroid_screen.dart';
 
 void main() {
   runApp(const AppManagerApp());
@@ -100,6 +101,10 @@ class _MainTabShellState extends State<MainTabShell> {
         selectedDeviceSerial: _selectedDeviceSerial,
       ),
       AppListScreen(
+        connectedDevices: _connectedDevices,
+        selectedDeviceSerial: _selectedDeviceSerial,
+      ),
+      FDroidScreen(
         connectedDevices: _connectedDevices,
         selectedDeviceSerial: _selectedDeviceSerial,
       ),
@@ -213,15 +218,22 @@ class _MainTabShellState extends State<MainTabShell> {
             ),
             Expanded(
               child: _buildDockButton(
-                label: '📶 WI-FI ADB',
+                label: '🛍️ F-DROID STORE',
                 index: 2,
+                activeColor: const Color(0xFF00FF66),
+              ),
+            ),
+            Expanded(
+              child: _buildDockButton(
+                label: '📶 WI-FI ADB',
+                index: 3,
                 activeColor: const Color(0xFFFFB74D),
               ),
             ),
             Expanded(
               child: _buildDockButton(
                 label: '⚙️ SETTINGS',
-                index: 3,
+                index: 4,
                 activeColor: const Color(0xFF9C27B0),
               ),
             ),
