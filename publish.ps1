@@ -43,6 +43,7 @@ if (Test-Path $CMAKE_FILE) {
 # 4. Compile Windows Desktop EXE & Web HTML Packages
 Write-Host "[3/4] Compiling Windows Desktop EXE & Web HTML5 Packages..." -ForegroundColor Yellow
 flutter build windows
+flutter build windows --target=lib/theme_creator_main.dart
 flutter build web
 
 # 5. Copy Output Binaries to local bin directory
