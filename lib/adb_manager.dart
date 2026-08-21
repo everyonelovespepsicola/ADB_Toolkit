@@ -380,6 +380,29 @@ class AdbManager {
     return null;
   }
 
+  // Set App as Enterprise Device Owner via ADB (dpm set-device-owner)
+  static Future<Map<String, dynamic>> setDeviceOwner(String serial, String packageName, [String? adminComponent]) async {
+    try {
+      final receiver = adminComponent ?? "$packageName/.AdminReceiver";
+      final res = await runAdb(['-s', serial, 'shell', 'dpm', 'set-device-owner', receiver]);
+      final out = res.stdout.toString() + res.stderr.toString();
+      final success = out.contains("Success") || out.contains("active admin set");
+      return {"success": success, "message": out.trim()};
+    } catch (e) {
+      return {"success": false, "message": e.toString()};
+    }
+  }
+
+  // List Active Device Owners on phone
+  static Future<String> getDeviceOwners(String serial) async {
+    try {
+      final res = await runAdb(['-s', serial, 'shell', 'dpm', 'list-owners']);
+      return (res.stdout.toString() + res.stderr.toString()).trim();
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
   // Clear App Cache & Data (pm clear)
   static Future<bool> clearPackageData(String serial, String packageName) async {
     try {

@@ -34,6 +34,7 @@ class DropzoneInstaller extends StatefulWidget {
 class _DropzoneInstallerState extends State<DropzoneInstaller> {
   bool _isDragging = false;
   bool _batchAllDevices = false;
+  bool _setAsDeviceOwner = false;
   final List<ApkInstallItem> _queue = [];
   bool _isInstalling = false;
 
@@ -94,12 +95,26 @@ class _DropzoneInstallerState extends State<DropzoneInstaller> {
         setState(() {
           if (result['success'] == true) {
             item.status = "success";
-            item.log = "🟢 Success on ${dev.displayName}";
+            item.log = "🟢 Installed on ${dev.displayName}";
           } else {
             item.status = "failed";
             item.log = "🔴 Failed on ${dev.displayName}: ${result['message']}";
           }
         });
+
+        // Optional: Execute Enterprise Device Owner Setup (dpm set-device-owner)
+        if (result['success'] == true && _setAsDeviceOwner) {
+          // Infer package name from filename or APK path
+          final rawName = item.fileName.replaceAll('.apk', '');
+          final dpmResult = await AdbManager.setDeviceOwner(dev.serial, rawName);
+          setState(() {
+            if (dpmResult['success'] == true) {
+              item.log += " | 👑 Device Owner Granted!";
+            } else {
+              item.log += " | ⚠️ DPM: ${dpmResult['message']}";
+            }
+          });
+        }
       }
     }
 
@@ -127,35 +142,67 @@ class _DropzoneInstallerState extends State<DropzoneInstaller> {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: const Color(0xFF1E283A)),
             ),
-            child: Row(
+            child: Column(
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'INSTALL TARGET DEVICE:',
-                        style: TextStyle(color: Color(0xFF8090A0), fontSize: 11, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        _batchAllDevices
-                            ? "🚀 ALL CONNECTED DEVICES (${widget.connectedDevices.length})"
-                            : (widget.selectedDeviceSerial ?? "Select target device above"),
-                        style: const TextStyle(color: Color(0xFF4DEAEA), fontSize: 14, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
                 Row(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Batch All Devices', style: TextStyle(color: Colors.white, fontSize: 12)),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'INSTALL TARGET DEVICE:',
+                            style: TextStyle(color: Color(0xFF8090A0), fontSize: 11, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _batchAllDevices
+                                ? "🚀 ALL CONNECTED DEVICES (${widget.connectedDevices.length})"
+                                : (widget.selectedDeviceSerial ?? "Select target device above"),
+                            style: const TextStyle(color: Color(0xFF4DEAEA), fontSize: 14, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text('Batch All Devices', style: TextStyle(color: Colors.white, fontSize: 12)),
+                        const SizedBox(width: 6),
+                        Switch(
+                          value: _batchAllDevices,
+                          activeColor: const Color(0xFF00FF66),
+                          onChanged: (val) => setState(() => _batchAllDevices = val),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const Divider(color: Color(0xFF1F2636), height: 16),
+                Row(
+                  children: [
+                    const Icon(Icons.security, color: Color(0xFFFFB74D), size: 16),
                     const SizedBox(width: 6),
+                    const Expanded(
+                      child: Text(
+                        'Set as Full Enterprise Device Owner (dpm set-device-owner)',
+                        style: TextStyle(color: Color(0xFFFFB74D), fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                    ),
                     Switch(
-                      value: _batchAllDevices,
-                      activeColor: const Color(0xFF00FF66),
-                      onChanged: (val) => setState(() => _batchAllDevices = val),
+                      value: _setAsDeviceOwner,
+                      activeColor: const Color(0xFFFFB74D),
+                      onChanged: (val) {
+                        setState(() => _setAsDeviceOwner = val);
+                        if (val) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('👑 Device Owner Mode Enabled! App will execute dpm set-device-owner after installation.'),
+                              duration: Duration(seconds: 4),
+                            ),
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
