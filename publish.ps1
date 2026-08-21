@@ -70,6 +70,9 @@ flutter build windows --target=lib/theme_creator_main.dart
 if (Test-Path $BUILT_EXE_DIR) {
     if (-not (Test-Path $TARGET_THEME_DIR)) { New-Item -ItemType Directory -Path $TARGET_THEME_DIR -Force | Out-Null }
     Copy-Item -Path "$BUILT_EXE_DIR\*" -Destination $TARGET_THEME_DIR -Recurse -Force
+    if (Test-Path "$TARGET_THEME_DIR\theme_creator.exe") {
+        Remove-Item "$TARGET_THEME_DIR\theme_creator.exe" -Force
+    }
     if (Test-Path "$TARGET_THEME_DIR\app_manager.exe") {
         Rename-Item -Path "$TARGET_THEME_DIR\app_manager.exe" -NewName "theme_creator.exe" -Force
     }
