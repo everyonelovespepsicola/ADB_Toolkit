@@ -54,24 +54,52 @@ class _AppListScreenState extends State<AppListScreen> {
     }
   }
 
+  bool _isCriticalApp(String packageName) {
+    final pkg = packageName.toLowerCase();
+    final criticalList = [
+      'com.android.systemui',
+      'android',
+      'com.google.android.gms',
+      'com.android.phone',
+      'com.android.settings',
+      'com.android.keyguard',
+      'com.android.providers.telephony',
+      'com.motorola.launcher3',
+      'com.google.android.apps.nexuslauncher',
+      'com.sec.android.app.launcher',
+      'com.miui.home',
+      'com.huawei.android.launcher',
+      'com.oppo.launcher',
+      'com.android.launcher3',
+    ];
+    return criticalList.any((c) => pkg == c || pkg.contains('launcher') || pkg.contains('systemui'));
+  }
+
   Future<void> _confirmAction({
     required String title,
     required String content,
     required Future<bool> Function() onConfirm,
+    bool isWarning = false,
   }) async {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF141824),
-        title: Text(title, style: const TextStyle(color: Colors.white)),
-        content: Text(content, style: const TextStyle(color: Color(0xFF90A0B0))),
+        title: Row(
+          children: [
+            if (isWarning) const Icon(Icons.warning_amber_rounded, color: Color(0xFFFF5252), size: 24),
+            if (isWarning) const SizedBox(width: 8),
+            Expanded(child: Text(title, style: TextStyle(color: isWarning ? const Color(0xFFFF5252) : Colors.white, fontWeight: FontWeight.bold))),
+          ],
+        ),
+        content: Text(content, style: const TextStyle(color: Color(0xFFB0C0D0))),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
             child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD32F2F)),
+            style: ElevatedButton.styleFrom(backgroundColor: isWarning ? const Color(0xFFFF5252) : const Color(0xFFD32F2F)),
             onPressed: () async {
               Navigator.of(ctx).pop();
               final success = await onConfirm();
@@ -82,7 +110,7 @@ class _AppListScreenState extends State<AppListScreen> {
                 _loadPackages();
               }
             },
-            child: const Text('Confirm'),
+            child: Text(isWarning ? 'Proceed & Freeze' : 'Confirm'),
           ),
         ],
       ),
@@ -213,9 +241,35 @@ class _AppListScreenState extends State<AppListScreen> {
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            pkg.appName,
-                                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  pkg.appName,
+                                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                                                ),
+                                              ),
+                                              if (_isCriticalApp(pkg.packageName))
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                                  decoration: BoxDecoration(
+                                                    color: const Color(0xFF3E1F00),
+                                                    borderRadius: BorderRadius.circular(10),
+                                                    border: Border.all(color: const Color(0xFFFFB74D)),
+                                                  ),
+                                                  child: const Row(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      Icon(Icons.warning_amber_rounded, color: Color(0xFFFFB74D), size: 12),
+                                                      SizedBox(width: 4),
+                                                      Text(
+                                                        'CRITICAL SYSTEM / LAUNCHER',
+                                                        style: TextStyle(color: Color(0xFFFFB74D), fontSize: 9, fontWeight: FontWeight.bold),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                            ],
                                           ),
                                           const SizedBox(height: 2),
                                           SelectableText(
@@ -258,18 +312,21 @@ class _AppListScreenState extends State<AppListScreen> {
                                     else
                                       ElevatedButton.icon(
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFF9C27B0),
+                                          backgroundColor: _isCriticalApp(pkg.packageName) ? const Color(0xFFE65100) : const Color(0xFF9C27B0),
                                           foregroundColor: Colors.white,
                                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                         ),
                                         onPressed: serial == null
                                             ? null
                                             : () => _confirmAction(
-                                                  title: "Freeze / Disable App",
-                                                  content: "Disable package ${pkg.packageName} without root (pm disable-user)?",
+                                                  title: _isCriticalApp(pkg.packageName) ? "⚠️ Freeze Core App / Launcher" : "Freeze / Disable App",
+                                                  content: _isCriticalApp(pkg.packageName)
+                                                      ? "⛔ WARNING: ${pkg.packageName} is a Home Screen Launcher or Core System Component.\n\nFreezing this app may remove your home screen icons or require unfreezing via the 'Disabled Apps' tab. Are you sure you want to freeze it?"
+                                                      : "Disable package ${pkg.packageName} without root (pm disable-user)?",
+                                                  isWarning: _isCriticalApp(pkg.packageName),
                                                   onConfirm: () => AdbManager.disablePackage(serial, pkg.packageName),
                                                 ),
-                                        icon: const Icon(Icons.ac_unit, size: 14),
+                                        icon: Icon(_isCriticalApp(pkg.packageName) ? Icons.warning : Icons.ac_unit, size: 14),
                                         label: const Text("Freeze", style: TextStyle(fontSize: 11)),
                                       ),
                                     const SizedBox(width: 6),
