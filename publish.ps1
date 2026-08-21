@@ -56,6 +56,8 @@ $BUILT_WEB_DIR = "$SCRIPT_DIR\build\web"
 $TARGET_WEB_DIR = "$BIN_OUT\appmanager-web-release"
 
 if (Test-Path $BUILT_EXE_DIR) {
+    Stop-Process -Name "app_manager" -ErrorAction SilentlyContinue
+    Start-Sleep -Milliseconds 500
     if (-not (Test-Path $TARGET_EXE_DIR)) { New-Item -ItemType Directory -Path $TARGET_EXE_DIR -Force | Out-Null }
     Copy-Item -Path "$BUILT_EXE_DIR\*" -Destination $TARGET_EXE_DIR -Recurse -Force
 }
