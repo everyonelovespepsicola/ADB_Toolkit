@@ -247,7 +247,7 @@ class AdbManager {
   // Install APK with Android 15 bypass flags
   static Future<Map<String, dynamic>> installApk(String serial, String apkPath) async {
     try {
-      final res = await runAdb([
+      var res = await runAdb([
         '-s',
         serial,
         'install',
@@ -257,7 +257,21 @@ class AdbManager {
         apkPath,
       ]);
 
-      final out = res.stdout.toString() + res.stderr.toString();
+      var out = res.stdout.toString() + res.stderr.toString();
+
+      // If older Android version (Android 10-13) throws 'Unknown option --bypass-low-target-sdk-block', retry standard install
+      if (out.contains("Unknown option") || out.contains("IllegalArgumentException")) {
+        res = await runAdb([
+          '-s',
+          serial,
+          'install',
+          '-r',
+          '-g',
+          apkPath,
+        ]);
+        out = res.stdout.toString() + res.stderr.toString();
+      }
+
       final success = out.contains("Success") || res.exitCode == 0;
       return {"success": success, "message": out.trim()};
     } catch (e) {
