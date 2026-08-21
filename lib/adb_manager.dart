@@ -330,45 +330,36 @@ class AdbManager {
     }
   }
 
-  static final Map<String, List<int>> _iconCache = {};
+  static final Map<String, String?> _playStoreIconUrlCache = {};
 
-  // Extract App Icon bytes from target device APK
-  static Future<List<int>?> getAppIconBytes(String serial, String packageName, String apkPath) async {
-    final cacheKey = "$serial:$packageName";
-    if (_iconCache.containsKey(cacheKey)) {
-      return _iconCache[cacheKey];
+  // Fetch official HD App Icon URL from Google Play Store web API by package name
+  static Future<String?> getPlayStoreIconUrl(String packageName) async {
+    if (_playStoreIconUrlCache.containsKey(packageName)) {
+      return _playStoreIconUrlCache[packageName];
     }
 
     try {
-      final tempDir = await getTemporaryDirectory();
-      final tempApk = File("${tempDir.path}\\${packageName}_temp.apk");
+      final url = Uri.parse("https://play.google.com/store/apps/details?id=$packageName");
+      final response = await http.get(
+        url,
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        },
+      ).timeout(const Duration(seconds: 4));
 
-      final pullRes = await runAdb(['-s', serial, 'pull', apkPath, tempApk.path]);
-      if (pullRes.exitCode == 0 && tempApk.existsSync()) {
-        final bytes = await tempApk.readAsBytes();
-        final archive = ZipDecoder().decodeBytes(bytes);
-
-        try { tempApk.deleteSync(); } catch (_) {}
-
-        ArchiveFile? iconFile;
-        for (final file in archive) {
-          final name = file.name.toLowerCase();
-          if ((name.contains('ic_launcher') || name.contains('icon') || name.contains('logo')) &&
-              (name.endsWith('.png') || name.endsWith('.webp'))) {
-            if (iconFile == null || name.contains('xxxhdpi') || name.contains('xxhdpi')) {
-              iconFile = file;
-            }
-          }
-        }
-
-        if (iconFile != null) {
-          final iconBytes = iconFile.content as List<int>;
-          _iconCache[cacheKey] = iconBytes;
-          return iconBytes;
+      if (response.statusCode == 200) {
+        final html = response.body;
+        final regExp = RegExp(r'https:\/\/play-lh\.googleusercontent\.com\/[a-zA-Z0-9_\-=\/]+');
+        final match = regExp.firstMatch(html);
+        if (match != null) {
+          final imageUrl = match.group(0);
+          _playStoreIconUrlCache[packageName] = imageUrl;
+          return imageUrl;
         }
       }
     } catch (_) {}
 
+    _playStoreIconUrlCache[packageName] = null;
     return null;
   }
 

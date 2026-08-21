@@ -190,14 +190,14 @@ class _AppListScreenState extends State<AppListScreen> {
                               children: [
                                 Row(
                                   children: [
-                                    FutureBuilder<List<int>?>(
-                                      future: serial != null ? AdbManager.getAppIconBytes(serial, pkg.packageName, pkg.apkPath) : null,
+                                    FutureBuilder<String?>(
+                                      future: AdbManager.getPlayStoreIconUrl(pkg.packageName),
                                       builder: (context, snapshot) {
-                                        if (snapshot.hasData && snapshot.data != null) {
+                                        if (snapshot.hasData && snapshot.data != null && snapshot.data!.isNotEmpty) {
                                           return ClipRRect(
                                             borderRadius: BorderRadius.circular(8),
-                                            child: Image.memory(
-                                              Uint8List.fromList(snapshot.data!),
+                                            child: Image.network(
+                                              snapshot.data!,
                                               width: 36,
                                               height: 36,
                                               fit: BoxFit.cover,
