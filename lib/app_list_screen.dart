@@ -146,19 +146,19 @@ class _AppListScreenState extends State<AppListScreen> {
         // Controls Header (Tabs & Search Bar & Sort Dropdown)
         Container(
           padding: const EdgeInsets.all(12),
-          color: const Color(0xFFE5E7EB),
+          color: const Color(0xFF10131B),
           child: Column(
             children: [
               Row(
                 children: [
-                  _buildTabButton("User Apps", "user", Colors.black),
+                  _buildTabButton("User Apps", "user", Colors.white),
                   const SizedBox(width: 8),
-                  _buildTabButton("System Apps", "system", Colors.orange.shade800),
+                  _buildTabButton("System Apps", "system", const Color(0xFFFFB74D)),
                   const SizedBox(width: 8),
-                  _buildTabButton("Disabled / Frozen", "disabled", Colors.purple.shade800),
+                  _buildTabButton("Disabled / Frozen", "disabled", const Color(0xFFBD93F9)),
                   const Spacer(),
                   IconButton(
-                    icon: const Icon(Icons.refresh, color: Colors.black),
+                    icon: const Icon(Icons.refresh, color: Colors.white),
                     onPressed: _loadPackages,
                     tooltip: 'Refresh Package List',
                   ),
@@ -170,12 +170,12 @@ class _AppListScreenState extends State<AppListScreen> {
                   Expanded(
                     child: TextField(
                       controller: _searchController,
-                      style: const TextStyle(color: Colors.black, fontSize: 14),
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
                       onChanged: (val) => setState(() => _searchQuery = val),
                       decoration: InputDecoration(
                         hintText: 'Search packages (e.g. facebook, chrome)...',
-                        hintStyle: const TextStyle(color: Color(0xFF6B7280)),
-                        prefixIcon: const Icon(Icons.search, color: Colors.black),
+                        hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
+                        prefixIcon: const Icon(Icons.search, color: Colors.white),
                         suffixIcon: _searchQuery.isNotEmpty
                             ? IconButton(
                                 icon: const Icon(Icons.clear, color: Colors.grey),
@@ -186,9 +186,9 @@ class _AppListScreenState extends State<AppListScreen> {
                               )
                             : null,
                         filled: true,
-                        fillColor: Colors.white,
+                        fillColor: const Color(0xFF121622),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: const BorderSide(color: Color(0xFFD1D5DB))),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: const BorderSide(color: Color(0xFF1F2636))),
                       ),
                     ),
                   ),
@@ -198,19 +198,19 @@ class _AppListScreenState extends State<AppListScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: const Color(0xFF121622),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFD1D5DB)),
+                      border: Border.all(color: const Color(0xFF1F2636)),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.sort, color: Colors.black, size: 16),
+                        const Icon(Icons.sort, color: Colors.white, size: 16),
                         const SizedBox(width: 6),
                         DropdownButton<String>(
                           value: _sortBy,
                           underline: const SizedBox(),
-                          dropdownColor: Colors.white,
-                          style: const TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold),
+                          dropdownColor: const Color(0xFF121622),
+                          style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                           items: const [
                             DropdownMenuItem(value: 'date_desc', child: Text('📅 Installed (Newest First)')),
                             DropdownMenuItem(value: 'date_asc', child: Text('📅 Installed (Oldest First)')),
@@ -262,11 +262,11 @@ class _AppListScreenState extends State<AppListScreen> {
                       itemBuilder: (ctx, idx) {
                         final pkg = filtered[idx];
                         return Card(
-                          color: Colors.white,
+                          color: const Color(0xFF121622),
                           elevation: 1,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
-                            side: const BorderSide(color: Color(0xFFE5E7EB)),
+                            side: const BorderSide(color: Color(0xFF1F2636)),
                           ),
                           margin: const EdgeInsets.only(bottom: 8),
                           child: Padding(
@@ -304,7 +304,7 @@ class _AppListScreenState extends State<AppListScreen> {
                                               Expanded(
                                                 child: Text(
                                                   pkg.appName,
-                                                  style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 14),
+                                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                                                 ),
                                               ),
                                               if (_isCriticalApp(pkg.packageName))

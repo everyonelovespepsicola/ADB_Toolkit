@@ -529,17 +529,17 @@ class _FDroidScreenState extends State<FDroidScreen> {
         // Header & Category Bar
         Container(
           padding: const EdgeInsets.all(14),
-          color: const Color(0xFFE5E7EB),
+          color: const Color(0xFF10131B),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  const Icon(Icons.storefront, color: Colors.black, size: 22),
+                  const Icon(Icons.storefront, color: Colors.white, size: 22),
                   const SizedBox(width: 8),
                   const Text(
                     'F-DROID OPEN-SOURCE APP STORE',
-                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 14),
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                   ),
                   const Spacer(),
                   if (_syncStatus.isNotEmpty)
@@ -547,24 +547,24 @@ class _FDroidScreenState extends State<FDroidScreen> {
                       padding: const EdgeInsets.only(right: 10),
                       child: Text(
                         _syncStatus,
-                        style: const TextStyle(color: Colors.black87, fontSize: 10, fontWeight: FontWeight.bold),
+                        style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 10, fontWeight: FontWeight.bold),
                       ),
                     ),
 
                   // View Mode Toggle (Grid vs List/Column)
                   Container(
                     margin: const EdgeInsets.only(right: 8),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8), border: Border.all(color: const Color(0xFFD1D5DB))),
+                    decoration: BoxDecoration(color: const Color(0xFF121622), borderRadius: BorderRadius.circular(8), border: Border.all(color: const Color(0xFF1F2636))),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: Icon(Icons.grid_view, size: 16, color: _viewMode == 'grid' ? Colors.black : Colors.grey),
+                          icon: Icon(Icons.grid_view, size: 16, color: _viewMode == 'grid' ? Colors.white : Colors.grey),
                           onPressed: () => setState(() => _viewMode = 'grid'),
                           tooltip: 'Grid View',
                         ),
                         IconButton(
-                          icon: Icon(Icons.view_list, size: 16, color: _viewMode == 'column' ? Colors.black : Colors.grey),
+                          icon: Icon(Icons.view_list, size: 16, color: _viewMode == 'column' ? Colors.white : Colors.grey),
                           onPressed: () => setState(() => _viewMode = 'column'),
                           tooltip: 'Column / List View',
                         ),
@@ -574,13 +574,13 @@ class _FDroidScreenState extends State<FDroidScreen> {
 
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     ),
                     onPressed: _isSyncingRepo ? null : _syncFDroidRepo,
                     icon: _isSyncingRepo
-                        ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
                         : const Icon(Icons.refresh, size: 14),
                     label: Text(
                       _isSyncingRepo ? "SYNCING REPOS..." : "REFRESH REPOS",
@@ -594,12 +594,12 @@ class _FDroidScreenState extends State<FDroidScreen> {
               // Search Bar
               TextField(
                 controller: _searchController,
-                style: const TextStyle(color: Colors.black, fontSize: 13),
+                style: const TextStyle(color: Colors.white, fontSize: 13),
                 onChanged: (val) => setState(() => _searchQuery = val),
                 decoration: InputDecoration(
                   hintText: 'Search open-source apps (e.g. NewPipe, Droidify, Termux)...',
-                  hintStyle: const TextStyle(color: Color(0xFF6B7280)),
-                  prefixIcon: const Icon(Icons.search, color: Colors.black),
+                  hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
+                  prefixIcon: const Icon(Icons.search, color: Colors.white),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? IconButton(
                           icon: const Icon(Icons.clear, color: Colors.grey),
@@ -610,9 +610,9 @@ class _FDroidScreenState extends State<FDroidScreen> {
                         )
                       : null,
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: const Color(0xFF121622),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: const BorderSide(color: Color(0xFFD1D5DB))),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: const BorderSide(color: Color(0xFF1F2636))),
                 ),
               ),
               const SizedBox(height: 10),
@@ -629,10 +629,10 @@ class _FDroidScreenState extends State<FDroidScreen> {
                     return Padding(
                       padding: const EdgeInsets.only(right: 6.0),
                       child: ChoiceChip(
-                        label: Text(cat, style: TextStyle(color: isSelected ? Colors.white : Colors.black, fontSize: 11, fontWeight: FontWeight.bold)),
+                        label: Text(cat, style: TextStyle(color: isSelected ? Colors.black : Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                         selected: isSelected,
-                        selectedColor: Colors.black,
-                        backgroundColor: Colors.white,
+                        selectedColor: Colors.white,
+                        backgroundColor: const Color(0xFF121622),
                         onSelected: (val) => setState(() => _selectedCategory = cat),
                       ),
                     );
@@ -672,11 +672,11 @@ class _FDroidScreenState extends State<FDroidScreen> {
         return InkWell(
           onTap: () => _showAppDetailsModal(app),
           child: Card(
-            color: Colors.white,
+            color: const Color(0xFF121622),
             elevation: 1,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
-              side: BorderSide(color: isInstalled ? const Color(0xFF10B981) : const Color(0xFFE5E7EB), width: isInstalled ? 2 : 1),
+              side: BorderSide(color: isInstalled ? const Color(0xFF10B981) : const Color(0xFF1F2636), width: isInstalled ? 2 : 1),
             ),
             child: Padding(
               padding: const EdgeInsets.all(12),
@@ -694,15 +694,15 @@ class _FDroidScreenState extends State<FDroidScreen> {
                             errorBuilder: (c, e, s) => Container(
                               width: 48,
                               height: 48,
-                              color: const Color(0xFFE5E7EB),
-                              child: const Icon(Icons.android, color: Colors.black),
+                              color: const Color(0xFF1F2636),
+                              child: const Icon(Icons.android, color: Colors.white),
                             ),
                           )
                         : Container(
                             width: 48,
                             height: 48,
-                            color: const Color(0xFFE5E7EB),
-                            child: const Icon(Icons.android, color: Colors.black),
+                            color: const Color(0xFF1F2636),
+                            child: const Icon(Icons.android, color: Colors.white),
                           ),
                   ),
                   const SizedBox(width: 10),
@@ -716,22 +716,22 @@ class _FDroidScreenState extends State<FDroidScreen> {
                             Expanded(
                               child: Text(
                                 app.name,
-                                style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 14),
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(6)),
-                              child: Text(app.version, style: const TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold)),
+                              decoration: BoxDecoration(color: const Color(0xFF1F2636), borderRadius: BorderRadius.circular(6)),
+                              child: Text(app.version, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                             ),
                           ],
                         ),
                         const SizedBox(height: 2),
                         Text(
                           app.summary,
-                          style: const TextStyle(color: Color(0xFF4B5563), fontSize: 11),
+                          style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 11),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -759,8 +759,8 @@ class _FDroidScreenState extends State<FDroidScreen> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: isInstalling
                                         ? const Color(0xFFFFB74D)
-                                        : (isInstalled ? const Color(0xFFECFDF5) : Colors.black),
-                                    foregroundColor: isInstalled ? const Color(0xFF059669) : Colors.white,
+                                        : (isInstalled ? const Color(0xFF064E3B) : Colors.white),
+                                    foregroundColor: isInstalled ? const Color(0xFF34D399) : Colors.black,
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                     side: isInstalled ? const BorderSide(color: Color(0xFF10B981)) : BorderSide.none,
                                   ),
@@ -807,9 +807,9 @@ class _FDroidScreenState extends State<FDroidScreen> {
           child: Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: const Color(0xFF121622),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: isInstalled ? const Color(0xFF10B981) : const Color(0xFFE5E7EB), width: isInstalled ? 2 : 1),
+              border: Border.all(color: isInstalled ? const Color(0xFF10B981) : const Color(0xFF1F2636), width: isInstalled ? 2 : 1),
             ),
             child: Row(
               children: [
@@ -824,15 +824,15 @@ class _FDroidScreenState extends State<FDroidScreen> {
                           errorBuilder: (c, e, s) => Container(
                             width: 40,
                             height: 40,
-                            color: const Color(0xFFE5E7EB),
-                            child: const Icon(Icons.android, color: Colors.black, size: 20),
+                            color: const Color(0xFF1F2636),
+                            child: const Icon(Icons.android, color: Colors.white, size: 20),
                           ),
                         )
                       : Container(
                           width: 40,
                           height: 40,
-                          color: const Color(0xFFE5E7EB),
-                          child: const Icon(Icons.android, color: Colors.black, size: 20),
+                          color: const Color(0xFF1F2636),
+                          child: const Icon(Icons.android, color: Colors.white, size: 20),
                         ),
                 ),
                 const SizedBox(width: 12),
@@ -841,8 +841,8 @@ class _FDroidScreenState extends State<FDroidScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(app.name, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 13)),
-                      SelectableText(app.packageName, style: const TextStyle(color: Color(0xFF4B5563), fontSize: 11)),
+                      Text(app.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                      SelectableText(app.packageName, style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 11)),
                     ],
                   ),
                 ),
@@ -852,8 +852,8 @@ class _FDroidScreenState extends State<FDroidScreen> {
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(6)),
-                  child: Text(app.version, style: const TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold)),
+                  decoration: BoxDecoration(color: const Color(0xFF1F2636), borderRadius: BorderRadius.circular(6)),
+                  child: Text(app.version, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                 ),
                 const SizedBox(width: 12),
                 if (isInstalled && !isInstalling)
@@ -869,8 +869,8 @@ class _FDroidScreenState extends State<FDroidScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isInstalling
                         ? const Color(0xFFFFB74D)
-                        : (isInstalled ? const Color(0xFFECFDF5) : Colors.black),
-                    foregroundColor: isInstalled ? const Color(0xFF059669) : Colors.white,
+                        : (isInstalled ? const Color(0xFF064E3B) : Colors.white),
+                    foregroundColor: isInstalled ? const Color(0xFF34D399) : Colors.black,
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     side: isInstalled ? const BorderSide(color: Color(0xFF10B981)) : BorderSide.none,
                   ),

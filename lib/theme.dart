@@ -5,62 +5,62 @@ class MaterialTheme {
 
   const MaterialTheme(this.textTheme);
 
-  static ColorScheme offWhiteScheme() {
+  static ColorScheme offBlackScheme() {
     return const ColorScheme(
-      brightness: Brightness.light,
-      primary: Color(0xFF000000),
-      surfaceTint: Color(0xFF000000),
-      onPrimary: Color(0xFFFFFFFF),
-      primaryContainer: Color(0xFFE5E7EB),
-      onPrimaryContainer: Color(0xFF000000),
-      secondary: Color(0xFF111827),
-      onSecondary: Color(0xFFFFFFFF),
-      secondaryContainer: Color(0xFFE5E7EB),
-      onSecondaryContainer: Color(0xFF000000),
-      tertiary: Color(0xFF1F2937),
-      onTertiary: Color(0xFFFFFFFF),
-      tertiaryContainer: Color(0xFFE5E7EB),
-      onTertiaryContainer: Color(0xFF000000),
+      brightness: Brightness.dark,
+      primary: Color(0xFFFFFFFF),
+      surfaceTint: Color(0xFFFFFFFF),
+      onPrimary: Color(0xFF000000),
+      primaryContainer: Color(0xFF1E2638),
+      onPrimaryContainer: Color(0xFFFFFFFF),
+      secondary: Color(0xFFE5E7EB),
+      onSecondary: Color(0xFF000000),
+      secondaryContainer: Color(0xFF1E2638),
+      onSecondaryContainer: Color(0xFFFFFFFF),
+      tertiary: Color(0xFFD1D5DB),
+      onTertiary: Color(0xFF000000),
+      tertiaryContainer: Color(0xFF1E2638),
+      onTertiaryContainer: Color(0xFFFFFFFF),
       error: Color(0xFFFF5252),
-      onError: Color(0xFFFFFFFF),
-      errorContainer: Color(0xFFFFEBEE),
-      onErrorContainer: Color(0xFFDC2626),
-      surface: Color(0xFFFFFFFF),
-      onSurface: Color(0xFF000000),
-      onSurfaceVariant: Color(0xFF4B5563),
-      outline: Color(0xFFD1D5DB),
-      outlineVariant: Color(0xFFE5E7EB),
+      onError: Color(0xFF000000),
+      errorContainer: Color(0xFF3E1418),
+      onErrorContainer: Color(0xFFFF5252),
+      surface: Color(0xFF121622),
+      onSurface: Color(0xFFFFFFFF),
+      onSurfaceVariant: Color(0xFF9CA3AF),
+      outline: Color(0xFF1F2636),
+      outlineVariant: Color(0xFF2A3448),
       shadow: Color(0xFF000000),
       scrim: Color(0xFF000000),
-      inverseSurface: Color(0xFF111827),
-      inversePrimary: Color(0xFFFFFFFF),
+      inverseSurface: Color(0xFFFFFFFF),
+      inversePrimary: Color(0xFF0B0C10),
     );
   }
 
-  ThemeData light() {
-    final scheme = offWhiteScheme();
+  ThemeData dark() {
+    final scheme = offBlackScheme();
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.light,
+      brightness: Brightness.dark,
       colorScheme: scheme,
-      scaffoldBackgroundColor: const Color(0xFFF3F4F6),
-      canvasColor: const Color(0xFFF3F4F6),
-      cardColor: const Color(0xFFFFFFFF),
-      dialogBackgroundColor: const Color(0xFFFFFFFF),
+      scaffoldBackgroundColor: const Color(0xFF0B0C10),
+      canvasColor: const Color(0xFF0B0C10),
+      cardColor: const Color(0xFF121622),
+      dialogBackgroundColor: const Color(0xFF121622),
       appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFFE5E7EB),
-        foregroundColor: Colors.black,
+        backgroundColor: Color(0xFF10131B),
+        foregroundColor: Colors.white,
         elevation: 0,
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: const Color(0xFFE5E7EB),
-        selectedColor: Colors.black,
-        secondarySelectedColor: Colors.black,
-        labelStyle: const TextStyle(color: Colors.black),
-        secondaryLabelStyle: const TextStyle(color: Colors.white),
+        backgroundColor: const Color(0xFF1A202C),
+        selectedColor: Colors.white,
+        secondarySelectedColor: Colors.white,
+        labelStyle: const TextStyle(color: Colors.white),
+        secondaryLabelStyle: const TextStyle(color: Colors.black),
       ),
     );
   }
 
-  ThemeData dark() => light(); // Enforce clean Black on Off-White theme
+  ThemeData light() => dark();
 }

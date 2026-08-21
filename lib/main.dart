@@ -21,7 +21,7 @@ class AppManagerApp extends StatelessWidget {
     return MaterialApp(
       title: 'Android App Manager',
       debugShowCheckedModeBanner: false,
-      theme: materialTheme.light(),
+      theme: materialTheme.dark(),
       home: const MainTabShell(),
     );
   }
