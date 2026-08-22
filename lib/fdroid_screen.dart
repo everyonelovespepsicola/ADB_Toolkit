@@ -305,7 +305,12 @@ class _FDroidScreenState extends State<FDroidScreen> {
     ),
   ];
 
+  bool _isShowingDetailsModal = false;
+
   void _showAppDetailsModal(FDroidApp app) {
+    if (_isShowingDetailsModal) return;
+    _isShowingDetailsModal = true;
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -418,7 +423,9 @@ class _FDroidScreenState extends State<FDroidScreen> {
           ),
         ],
       ),
-    );
+    ).then((_) {
+      _isShowingDetailsModal = false;
+    });
   }
 
   Future<void> _uninstallFDroidApp(FDroidApp app) async {

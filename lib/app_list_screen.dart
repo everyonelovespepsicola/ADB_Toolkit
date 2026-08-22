@@ -444,9 +444,17 @@ class _AppListScreenState extends State<AppListScreen> {
     );
   }
 
+  bool _isShowingPermissionsModal = false;
+
   void _showPermissionsModal(AppPackageInfo pkg) {
+    if (_isShowingPermissionsModal) return;
+    _isShowingPermissionsModal = true;
+
     final serial = widget.selectedDeviceSerial ?? (widget.connectedDevices.isNotEmpty ? widget.connectedDevices.first.serial : null);
-    if (serial == null) return;
+    if (serial == null) {
+      _isShowingPermissionsModal = false;
+      return;
+    }
 
     final permCtrl = TextEditingController();
 
@@ -551,7 +559,9 @@ class _AppListScreenState extends State<AppListScreen> {
           ),
         ],
       ),
-    );
+    ).then((_) {
+      _isShowingPermissionsModal = false;
+    });
   }
 
   Widget _buildPermPresetChip(BuildContext ctx, String serial, String pkg, String label, String fullPerm) {
