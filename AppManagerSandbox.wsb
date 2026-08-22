@@ -1,0 +1,14 @@
+<Configuration>
+  <VGpu>Enable</VGpu>
+  <Networking>Enable</Networking>
+  <MappedFolders>
+    <MappedFolder>
+      <HostFolder>c:\projects\android_apps\app_manager\bin\appmanager-windows-release</HostFolder>
+      <SandboxFolder>C:\Users\WDAGUtilityAccount\Desktop\appmanager-windows-release</SandboxFolder>
+      <ReadOnly>false</ReadOnly>
+    </MappedFolder>
+  </MappedFolders>
+  <LogonCommand>
+    <Command>explorer.exe C:\Users\WDAGUtilityAccount\Desktop\appmanager-windows-release</Command>
+  </LogonCommand>
+</Configuration>
