@@ -509,4 +509,28 @@ class AdbManager {
     } catch (_) {}
     return null;
   }
+
+  // Grant any elevated Android permission via ADB (pm grant)
+  static Future<Map<String, dynamic>> grantPermission(String serial, String packageName, String permission) async {
+    try {
+      final res = await runAdb(['-s', serial, 'shell', 'pm', 'grant', packageName, permission.trim()]);
+      final out = res.stdout.toString() + res.stderr.toString();
+      final success = res.exitCode == 0 && !out.contains("Error") && !out.contains("Exception");
+      return {"success": success, "message": out.isEmpty ? "Permission granted successfully!" : out.trim()};
+    } catch (e) {
+      return {"success": false, "message": e.toString()};
+    }
+  }
+
+  // Revoke any elevated Android permission via ADB (pm revoke)
+  static Future<Map<String, dynamic>> revokePermission(String serial, String packageName, String permission) async {
+    try {
+      final res = await runAdb(['-s', serial, 'shell', 'pm', 'revoke', packageName, permission.trim()]);
+      final out = res.stdout.toString() + res.stderr.toString();
+      final success = res.exitCode == 0 && !out.contains("Error") && !out.contains("Exception");
+      return {"success": success, "message": out.isEmpty ? "Permission revoked successfully!" : out.trim()};
+    } catch (e) {
+      return {"success": false, "message": e.toString()};
+    }
+  }
 }

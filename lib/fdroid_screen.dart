@@ -315,18 +315,25 @@ class _FDroidScreenState extends State<FDroidScreen> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                app.iconUrl,
-                width: 48,
-                height: 48,
-                fit: BoxFit.cover,
-                errorBuilder: (c, e, s) => Container(
-                  width: 48,
-                  height: 48,
-                  color: const Color(0xFF1E3A5F),
-                  child: const Icon(Icons.android, color: Colors.white),
-                ),
-              ),
+              child: app.iconUrl.isNotEmpty
+                  ? Image.network(
+                      app.iconUrl,
+                      width: 48,
+                      height: 48,
+                      fit: BoxFit.cover,
+                      errorBuilder: (c, e, s) => Container(
+                        width: 48,
+                        height: 48,
+                        color: const Color(0xFF1E3A5F),
+                        child: const Icon(Icons.android, color: Colors.white),
+                      ),
+                    )
+                  : Container(
+                      width: 48,
+                      height: 48,
+                      color: const Color(0xFF1E3A5F),
+                      child: const Icon(Icons.android, color: Colors.white),
+                    ),
             ),
             const SizedBox(width: 12),
             Expanded(

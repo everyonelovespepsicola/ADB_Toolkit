@@ -387,6 +387,16 @@ class _AppListScreenState extends State<AppListScreen> {
                                         icon: Icon(_isCriticalApp(pkg.packageName) ? Icons.warning : Icons.ac_unit, size: 14),
                                         label: const Text("Freeze", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                                       ),
+                                    ElevatedButton.icon(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFF1E2638),
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                      ),
+                                      onPressed: serial == null ? null : () => _showPermissionsModal(pkg),
+                                      icon: const Icon(Icons.vpn_key, size: 14),
+                                      label: const Text("Permissions", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                    ),
                                     const SizedBox(width: 6),
                                     ElevatedButton.icon(
                                       style: ElevatedButton.styleFrom(
@@ -431,6 +441,132 @@ class _AppListScreenState extends State<AppListScreen> {
                     ),
         ),
       ],
+    );
+  }
+
+  void _showPermissionsModal(AppPackageInfo pkg) {
+    final serial = widget.selectedDeviceSerial ?? (widget.connectedDevices.isNotEmpty ? widget.connectedDevices.first.serial : null);
+    if (serial == null) return;
+
+    final permCtrl = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF121622),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Color(0xFF1F2636))),
+        title: Row(
+          children: [
+            const Icon(Icons.vpn_key, color: Colors.white),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('GRANT / REVOKE ELEVATED PERMISSIONS', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 2),
+                  Text(pkg.packageName, style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 11)),
+                ],
+              ),
+            ),
+          ],
+        ),
+        content: SizedBox(
+          width: 520,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('ONE-CLICK POWER-USER PRESETS:', style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 11, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _buildPermPresetChip(ctx, serial, pkg.packageName, 'WRITE_SECURE_SETTINGS', 'android.permission.WRITE_SECURE_SETTINGS'),
+                  _buildPermPresetChip(ctx, serial, pkg.packageName, 'BATTERY_STATS', 'android.permission.BATTERY_STATS'),
+                  _buildPermPresetChip(ctx, serial, pkg.packageName, 'PACKAGE_USAGE_STATS', 'android.permission.PACKAGE_USAGE_STATS'),
+                  _buildPermPresetChip(ctx, serial, pkg.packageName, 'READ_LOGS', 'android.permission.READ_LOGS'),
+                  _buildPermPresetChip(ctx, serial, pkg.packageName, 'DUMP', 'android.permission.DUMP'),
+                  _buildPermPresetChip(ctx, serial, pkg.packageName, 'SYSTEM_ALERT_WINDOW', 'android.permission.SYSTEM_ALERT_WINDOW'),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Text('GRANT OR REVOKE ANY CUSTOM PERMISSION:', style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 11, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 6),
+              TextField(
+                controller: permCtrl,
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+                decoration: const InputDecoration(
+                  hintText: 'e.g. android.permission.CHANGE_CONFIGURATION',
+                  hintStyle: TextStyle(color: Color(0xFF6B7280)),
+                  filled: true,
+                  fillColor: Color(0xFF0B0C10),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8)), borderSide: BorderSide(color: Color(0xFF1F2636))),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E2638), foregroundColor: Colors.white),
+                    onPressed: () async {
+                      final perm = permCtrl.text.trim();
+                      if (perm.isNotEmpty) {
+                        final res = await AdbManager.revokePermission(serial, pkg.packageName, perm);
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(res['message'] ?? 'Done')));
+                        }
+                      }
+                    },
+                    icon: const Icon(Icons.remove_circle_outline, size: 14),
+                    label: const Text('REVOKE VIA ADB', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black),
+                    onPressed: () async {
+                      final perm = permCtrl.text.trim();
+                      if (perm.isNotEmpty) {
+                        final res = await AdbManager.grantPermission(serial, pkg.packageName, perm);
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(res['message'] ?? 'Done')));
+                        }
+                      }
+                    },
+                    icon: const Icon(Icons.check_circle_outline, size: 14),
+                    label: const Text('GRANT VIA ADB', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Close', style: TextStyle(color: Colors.grey)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPermPresetChip(BuildContext ctx, String serial, String pkg, String label, String fullPerm) {
+    return ActionChip(
+      backgroundColor: const Color(0xFF1E2638),
+      side: const BorderSide(color: Color(0xFF2A3448)),
+      label: Text(label, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+      onPressed: () async {
+        final res = await AdbManager.grantPermission(serial, pkg, fullPerm);
+        if (mounted) {
+          ScaffoldMessenger.of(ctx).showSnackBar(
+            SnackBar(content: Text(res['success'] == true ? "🟢 Granted $label to $pkg!" : "🔴 ${res['message']}")),
+          );
+        }
+      },
     );
   }
 
