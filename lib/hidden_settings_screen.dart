@@ -95,6 +95,15 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
   bool _autoRotate = true;
   String _privateDnsHost = '';
 
+  bool _showTouches = false;
+  bool _pointerLocation = false;
+  bool _highRefreshRate = false;
+  bool _bypassHotspotDun = false;
+  bool _disableVolumeWarning = false;
+  bool _disableBannerToasts = false;
+  bool _cleanDemoMode = false;
+  bool _forceSplitScreen = false;
+
   @override
   void initState() {
     super.initState();
@@ -154,6 +163,16 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
       defSecure = Map<String, String>.from(secureSettings);
       defSystem = Map<String, String>.from(systemSettings);
 
+      // Populate default fallback keys for featured tweaks if missing
+      defSystem['show_touches'] ??= '0';
+      defSystem['pointer_location'] ??= '0';
+      defSystem['peak_refresh_rate'] ??= '60.0';
+      defGlobal['tether_dun_required'] ??= '1';
+      defGlobal['audio_safe_volume_state'] ??= '2';
+      defGlobal['heads_up_notifications_enabled'] ??= '1';
+      defGlobal['sysui_demo_allowed'] ??= '0';
+      defGlobal['force_resizable_activities'] ??= '0';
+
       final baselineMap = {
         'global': defGlobal,
         'secure': defSecure,
@@ -182,6 +201,15 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
         _stayAwake = (globalSettings['stay_on_while_plugged_in'] ?? '0') != '0';
         _autoRotate = (systemSettings['accelerometer_rotation'] ?? '1') == '1';
         _privateDnsHost = globalSettings['private_dns_specifier'] ?? '';
+
+        _showTouches = (systemSettings['show_touches'] ?? '0') == '1';
+        _pointerLocation = (systemSettings['pointer_location'] ?? '0') == '1';
+        _highRefreshRate = (double.tryParse(systemSettings['peak_refresh_rate'] ?? '60.0') ?? 60.0) >= 90.0;
+        _bypassHotspotDun = (globalSettings['tether_dun_required'] ?? '1') == '0';
+        _disableVolumeWarning = (globalSettings['audio_safe_volume_state'] ?? '2') == '0';
+        _disableBannerToasts = (globalSettings['heads_up_notifications_enabled'] ?? '1') == '0';
+        _cleanDemoMode = (globalSettings['sysui_demo_allowed'] ?? '0') == '1';
+        _forceSplitScreen = (globalSettings['force_resizable_activities'] ?? '0') == '1';
 
         _isLoading = false;
       });
@@ -393,6 +421,30 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
     final defPrivateDns = defaultMap['private_dns_specifier'] ?? _defaultsCache['global']?['private_dns_specifier'] ?? '';
     final privateDnsModified = _privateDnsHost != defPrivateDns;
 
+    final defTouches = (defaultMap['show_touches'] ?? _defaultsCache['system']?['show_touches'] ?? '0') == '1';
+    final touchesModified = _showTouches != defTouches;
+
+    final defPointer = (defaultMap['pointer_location'] ?? _defaultsCache['system']?['pointer_location'] ?? '0') == '1';
+    final pointerModified = _pointerLocation != defPointer;
+
+    final defRefresh = (double.tryParse(defaultMap['peak_refresh_rate'] ?? _defaultsCache['system']?['peak_refresh_rate'] ?? '60.0') ?? 60.0) >= 90.0;
+    final refreshModified = _highRefreshRate != defRefresh;
+
+    final defDun = (defaultMap['tether_dun_required'] ?? _defaultsCache['global']?['tether_dun_required'] ?? '1') == '0';
+    final dunModified = _bypassHotspotDun != defDun;
+
+    final defVolWarn = (defaultMap['audio_safe_volume_state'] ?? _defaultsCache['global']?['audio_safe_volume_state'] ?? '2') == '0';
+    final volWarnModified = _disableVolumeWarning != defVolWarn;
+
+    final defBanner = (defaultMap['heads_up_notifications_enabled'] ?? _defaultsCache['global']?['heads_up_notifications_enabled'] ?? '1') == '0';
+    final bannerModified = _disableBannerToasts != defBanner;
+
+    final defDemo = (defaultMap['sysui_demo_allowed'] ?? _defaultsCache['global']?['sysui_demo_allowed'] ?? '0') == '1';
+    final demoModified = _cleanDemoMode != defDemo;
+
+    final defSplit = (defaultMap['force_resizable_activities'] ?? _defaultsCache['global']?['force_resizable_activities'] ?? '0') == '1';
+    final splitModified = _forceSplitScreen != defSplit;
+
     return Column(
       children: [
         // Top Section: Header & Featured System Quick Tweaks
@@ -407,7 +459,7 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                   const Icon(Icons.tune, color: Colors.white, size: 22),
                   const SizedBox(width: 8),
                   const Text(
-                    'HIDDEN SETTINGS & SYSTEM TWEAKS',
+                    'HIDDEN SETTINGS & FEATURED SYSTEM TWEAKS',
                     style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                   ),
                   const SizedBox(width: 10),
@@ -452,6 +504,7 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                     // 🚀 Animation Scale Card
                     _buildQuickTweakCard(
                       title: '🚀 UI ANIMATION SCALE',
+                      riskLevel: SettingRiskLevel.safe,
                       isModified: animModified,
                       onReset: () => _setAnimScale(defAnimScale),
                       defaultHint: "${defAnimScale.toStringAsFixed(1)}x",
@@ -476,9 +529,182 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                     ),
                     const SizedBox(width: 10),
 
+                    // 👉 Show Touch Dots Card
+                    _buildQuickTweakCard(
+                      title: '👉 SHOW TOUCH DOTS',
+                      riskLevel: SettingRiskLevel.safe,
+                      isModified: touchesModified,
+                      onReset: () {
+                        setState(() => _showTouches = defTouches);
+                        _updateSetting('system', 'show_touches', defTouches ? '1' : '0');
+                      },
+                      defaultHint: defTouches ? 'On' : 'Off',
+                      child: Switch(
+                        value: _showTouches,
+                        activeColor: touchesModified ? const Color(0xFF10B981) : Colors.white,
+                        onChanged: (val) {
+                          setState(() => _showTouches = val);
+                          _updateSetting('system', 'show_touches', val ? '1' : '0');
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+
+                    // 🎯 Pointer Coordinates Card
+                    _buildQuickTweakCard(
+                      title: '🎯 POINTER COORDINATES',
+                      riskLevel: SettingRiskLevel.safe,
+                      isModified: pointerModified,
+                      onReset: () {
+                        setState(() => _pointerLocation = defPointer);
+                        _updateSetting('system', 'pointer_location', defPointer ? '1' : '0');
+                      },
+                      defaultHint: defPointer ? 'On' : 'Off',
+                      child: Switch(
+                        value: _pointerLocation,
+                        activeColor: pointerModified ? const Color(0xFF10B981) : Colors.white,
+                        onChanged: (val) {
+                          setState(() => _pointerLocation = val);
+                          _updateSetting('system', 'pointer_location', val ? '1' : '0');
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+
+                    // 🔥 Force High Refresh Rate (120Hz) Card
+                    _buildQuickTweakCard(
+                      title: '🔥 FORCE HIGH REFRESH (120Hz)',
+                      riskLevel: SettingRiskLevel.warning,
+                      isModified: refreshModified,
+                      onReset: () {
+                        setState(() => _highRefreshRate = defRefresh);
+                        final valStr = defRefresh ? '120.0' : '60.0';
+                        _updateSetting('system', 'peak_refresh_rate', valStr);
+                        _updateSetting('system', 'min_refresh_rate', valStr);
+                      },
+                      defaultHint: defRefresh ? '120Hz' : '60Hz',
+                      child: Switch(
+                        value: _highRefreshRate,
+                        activeColor: refreshModified ? const Color(0xFF10B981) : Colors.white,
+                        onChanged: (val) {
+                          setState(() => _highRefreshRate = val);
+                          final valStr = val ? '120.0' : '60.0';
+                          _updateSetting('system', 'peak_refresh_rate', valStr);
+                          _updateSetting('system', 'min_refresh_rate', valStr);
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+
+                    // 📶 Bypass Hotspot DUN Cap Card
+                    _buildQuickTweakCard(
+                      title: '📶 BYPASS HOTSPOT DUN CAP',
+                      riskLevel: SettingRiskLevel.warning,
+                      isModified: dunModified,
+                      onReset: () {
+                        setState(() => _bypassHotspotDun = defDun);
+                        _updateSetting('global', 'tether_dun_required', defDun ? '0' : '1');
+                      },
+                      defaultHint: defDun ? 'Active' : 'Off',
+                      child: Switch(
+                        value: _bypassHotspotDun,
+                        activeColor: dunModified ? const Color(0xFF10B981) : Colors.white,
+                        onChanged: (val) {
+                          setState(() => _bypassHotspotDun = val);
+                          _updateSetting('global', 'tether_dun_required', val ? '0' : '1');
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+
+                    // 🔊 Disable Safe Volume Warning Card
+                    _buildQuickTweakCard(
+                      title: '🔊 DISABLE VOLUME WARNING',
+                      riskLevel: SettingRiskLevel.safe,
+                      isModified: volWarnModified,
+                      onReset: () {
+                        setState(() => _disableVolumeWarning = defVolWarn);
+                        _updateSetting('global', 'audio_safe_volume_state', defVolWarn ? '0' : '2');
+                      },
+                      defaultHint: defVolWarn ? 'Disabled' : 'Enabled',
+                      child: Switch(
+                        value: _disableVolumeWarning,
+                        activeColor: volWarnModified ? const Color(0xFF10B981) : Colors.white,
+                        onChanged: (val) {
+                          setState(() => _disableVolumeWarning = val);
+                          _updateSetting('global', 'audio_safe_volume_state', val ? '0' : '2');
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+
+                    // 🔕 Disable Banner Toast Popups Card
+                    _buildQuickTweakCard(
+                      title: '🔕 DISABLE BANNER TOASTS',
+                      riskLevel: SettingRiskLevel.safe,
+                      isModified: bannerModified,
+                      onReset: () {
+                        setState(() => _disableBannerToasts = defBanner);
+                        _updateSetting('global', 'heads_up_notifications_enabled', defBanner ? '0' : '1');
+                      },
+                      defaultHint: defBanner ? 'Disabled' : 'Enabled',
+                      child: Switch(
+                        value: _disableBannerToasts,
+                        activeColor: bannerModified ? const Color(0xFF10B981) : Colors.white,
+                        onChanged: (val) {
+                          setState(() => _disableBannerToasts = val);
+                          _updateSetting('global', 'heads_up_notifications_enabled', val ? '0' : '1');
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+
+                    // 📸 Clean Screenshot Demo Mode Card
+                    _buildQuickTweakCard(
+                      title: '📸 CLEAN SCREENSHOT MODE',
+                      riskLevel: SettingRiskLevel.safe,
+                      isModified: demoModified,
+                      onReset: () {
+                        setState(() => _cleanDemoMode = defDemo);
+                        _updateSetting('global', 'sysui_demo_allowed', defDemo ? '1' : '0');
+                      },
+                      defaultHint: defDemo ? 'On' : 'Off',
+                      child: Switch(
+                        value: _cleanDemoMode,
+                        activeColor: demoModified ? const Color(0xFF10B981) : Colors.white,
+                        onChanged: (val) {
+                          setState(() => _cleanDemoMode = val);
+                          _updateSetting('global', 'sysui_demo_allowed', val ? '1' : '0');
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+
+                    // 📱 Force Split-Screen Apps Card
+                    _buildQuickTweakCard(
+                      title: '📱 FORCE SPLIT-SCREEN APPS',
+                      riskLevel: SettingRiskLevel.warning,
+                      isModified: splitModified,
+                      onReset: () {
+                        setState(() => _forceSplitScreen = defSplit);
+                        _updateSetting('global', 'force_resizable_activities', defSplit ? '1' : '0');
+                      },
+                      defaultHint: defSplit ? 'Forced' : 'Default',
+                      child: Switch(
+                        value: _forceSplitScreen,
+                        activeColor: splitModified ? const Color(0xFF10B981) : Colors.white,
+                        onChanged: (val) {
+                          setState(() => _forceSplitScreen = val);
+                          _updateSetting('global', 'force_resizable_activities', val ? '1' : '0');
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+
                     // ☀️ Screen Brightness Card
                     _buildQuickTweakCard(
                       title: '☀️ SCREEN BRIGHTNESS',
+                      riskLevel: SettingRiskLevel.safe,
                       isModified: brightnessModified,
                       onReset: () {
                         setState(() => _screenBrightness = defBrightness);
@@ -511,6 +737,7 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                     // ⏱️ Screen Timeout Card
                     _buildQuickTweakCard(
                       title: '⏱️ SCREEN TIMEOUT',
+                      riskLevel: SettingRiskLevel.warning,
                       isModified: timeoutModified,
                       onReset: () {
                         setState(() => _screenTimeoutMs = defTimeout);
@@ -544,6 +771,7 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                     // ⚡ Stay Awake Card
                     _buildQuickTweakCard(
                       title: '⚡ STAY AWAKE ON USB',
+                      riskLevel: SettingRiskLevel.warning,
                       isModified: stayAwakeModified,
                       onReset: () {
                         setState(() => _stayAwake = defStayAwake);
@@ -564,6 +792,7 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                     // 🔄 Auto-Rotate Card
                     _buildQuickTweakCard(
                       title: '🔄 AUTO-ROTATE SCREEN',
+                      riskLevel: SettingRiskLevel.safe,
                       isModified: autoRotateModified,
                       onReset: () {
                         setState(() => _autoRotate = defAutoRotate);
@@ -584,6 +813,7 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                     // 🛡️ Private AdBlock DNS Card
                     _buildQuickTweakCard(
                       title: '🛡️ AD-BLOCK PRIVATE DNS',
+                      riskLevel: SettingRiskLevel.warning,
                       isModified: privateDnsModified,
                       onReset: () {
                         setState(() => _privateDnsHost = defPrivateDns);
@@ -716,10 +946,22 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
   Widget _buildQuickTweakCard({
     required String title,
     required Widget child,
+    required SettingRiskLevel riskLevel,
     bool isModified = false,
     VoidCallback? onReset,
     String? defaultHint,
   }) {
+    Color riskColor = const Color(0xFF10B981); // Green (Safe)
+    IconData riskIcon = Icons.check_circle_outline;
+
+    if (riskLevel == SettingRiskLevel.critical) {
+      riskColor = const Color(0xFFEF4444); // Red (Critical)
+      riskIcon = Icons.report_problem;
+    } else if (riskLevel == SettingRiskLevel.warning) {
+      riskColor = const Color(0xFFF59E0B); // Yellow (Caution)
+      riskIcon = Icons.warning_amber_rounded;
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
@@ -744,8 +986,10 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              const SizedBox(width: 4),
+              Icon(riskIcon, color: riskColor, size: 11),
               if (isModified && onReset != null) ...[
-                const SizedBox(width: 4),
+                const SizedBox(width: 6),
                 InkWell(
                   onTap: onReset,
                   child: Tooltip(
