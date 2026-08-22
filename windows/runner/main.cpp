@@ -13,6 +13,10 @@
 #pragma comment(lib, "DbgHelp.lib")
 
 LONG WINAPI CreateCrashMinidump(EXCEPTION_POINTERS* pExceptionPointers) {
+  if (::IsDebuggerPresent()) {
+    return EXCEPTION_CONTINUE_SEARCH;
+  }
+
   wchar_t appDataPath[MAX_PATH];
   if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_APPDATA, NULL, 0, appDataPath))) {
     std::wstring crashDir = std::wstring(appDataPath) + L"\\com.appmanager.app\\app_manager\\crashes";
