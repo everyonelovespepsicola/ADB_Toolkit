@@ -52,7 +52,10 @@ class SettingRiskHelper {
 }
 
 class SettingDescriptionHelper {
-  static const Map<String, String> _descriptions = {
+  static Map<String, String> _jsonDescriptions = {};
+  static bool _isLoaded = false;
+
+  static const Map<String, String> _fallbackDescriptions = {
     'adb_enabled': 'Enables Android Debug Bridge (ADB) over USB & Wi-Fi to allow developer commands.',
     'development_settings_enabled': 'Unlocks System Developer Options menu on target Android device.',
     'device_provisioned': 'Indicates whether the initial phone setup wizard has completed.',
@@ -89,9 +92,22 @@ class SettingDescriptionHelper {
     'lockscreen_sounds_enabled': 'Enables or disables screen lock and unlock sound effects.',
   };
 
+  static Future<void> loadDescriptions(BuildContext context) async {
+    if (_isLoaded) return;
+    try {
+      final jsonString = await DefaultAssetBundle.of(context).loadString('setting_descriptions.json');
+      final Map<String, dynamic> decoded = json.decode(jsonString);
+      _jsonDescriptions = decoded.map((key, value) => MapEntry(key.toLowerCase(), value.toString()));
+      _isLoaded = true;
+    } catch (_) {
+      // Fallback to built-in fallback dictionary if asset loading fails
+    }
+  }
+
   static String? getDescription(String key) {
     final k = key.toLowerCase();
-    if (_descriptions.containsKey(k)) return _descriptions[k];
+    if (_jsonDescriptions.containsKey(k)) return _jsonDescriptions[k];
+    if (_fallbackDescriptions.containsKey(k)) return _fallbackDescriptions[k];
 
     if (k.contains('adb')) return 'Android Debug Bridge configuration setting.';
     if (k.contains('anim')) return 'UI animation speed multiplier setting.';
@@ -188,6 +204,12 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
   void initState() {
     super.initState();
     _loadSettings();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    SettingDescriptionHelper.loadDescriptions(context);
   }
 
   @override
