@@ -329,6 +329,11 @@ class _MainTabShellState extends State<MainTabShell> {
                 SizedBox(height: 6),
                 Text(
                   'All APK installations automatically execute with flags:\n  adb install -r -g --bypass-low-target-sdk-block <apk_path>\n\n-r: Replace existing app\n-g: Auto-grant all requested runtime permissions\n--bypass-low-target-sdk-block: Bypasses Android 14/15 legacy Target SDK blocks',
+                  style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 12),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 14),
           Container(
             width: double.infinity,
@@ -349,12 +354,15 @@ class _MainTabShellState extends State<MainTabShell> {
                   style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD32F2F), foregroundColor: Colors.white),
                   onPressed: () async {
                     try {
-                      final appDataPath = "${Platform.environment['APPDATA']}\\com.appmanager.app\\app_manager";
-                      final appDataDir = Directory(appDataPath);
-                      if (await appDataDir.exists()) {
-                        await for (final entity in appDataDir.list()) {
-                          if (entity is File && entity.path.toLowerCase().endsWith('.png')) {
-                            await entity.delete();
+                      final envAppData = Platform.environment['APPDATA'];
+                      if (envAppData != null) {
+                        final appDataPath = "$envAppData\\com.appmanager.app\\app_manager";
+                        final appDataDir = Directory(appDataPath);
+                        if (await appDataDir.exists()) {
+                          await for (final entity in appDataDir.list()) {
+                            if (entity is File && entity.path.toLowerCase().endsWith('.png')) {
+                              await entity.delete();
+                            }
                           }
                         }
                       }
