@@ -117,108 +117,41 @@ class _MainTabShellState extends State<MainTabShell> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> pages = [
-      DropzoneInstaller(
-        connectedDevices: _connectedDevices,
-        selectedDeviceSerial: _selectedDeviceSerial,
-      ),
-      AppListScreen(
-        connectedDevices: _connectedDevices,
-        selectedDeviceSerial: _selectedDeviceSerial,
-      ),
-      FDroidScreen(
-        connectedDevices: _connectedDevices,
-        selectedDeviceSerial: _selectedDeviceSerial,
-      ),
-      WifiAdbScreen(
-        connectedDevices: _connectedDevices,
-        onDevicesUpdated: _refreshDevices,
-      ),
-      HiddenSettingsScreen(
-        connectedDevices: _connectedDevices,
-        selectedDeviceSerial: _selectedDeviceSerial,
-      ),
-      _buildSettingsView(),
-    ];
-
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF10131B),
-        elevation: 2,
-        title: Row(
-          children: [
-            const Icon(Icons.phonelink_setup, color: Color(0xFF4DEAEA), size: 24),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Android App Manager',
-                  style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  _adbPathStatus,
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontSize: 10),
-                ),
-              ],
-            ),
-          ],
-        ),
-        actions: [
-          // Device selector dropdown in app bar
-          if (_connectedDevices.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(right: 12.0),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Theme.of(context).colorScheme.primary, width: 1),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.circle, color: Theme.of(context).colorScheme.primary, size: 10),
-                    const SizedBox(width: 6),
-                    DropdownButton<String>(
-                      value: _selectedDeviceSerial,
-                      underline: const SizedBox(),
-                      dropdownColor: Theme.of(context).colorScheme.primaryContainer,
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12, fontWeight: FontWeight.bold),
-                      items: _connectedDevices.map((d) {
-                        return DropdownMenuItem(
-                          value: d.serial,
-                          child: Text("${d.displayName} [${d.isWifi ? 'Wi-Fi' : 'USB'}]"),
-                        );
-                      }).toList(),
-                      onChanged: (val) => setState(() => _selectedDeviceSerial = val),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          else
-            Container(
-              margin: const EdgeInsets.only(right: 12.0),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.errorContainer,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Theme.of(context).colorScheme.error, width: 1),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.circle, color: Theme.of(context).colorScheme.error, size: 10),
-                  const SizedBox(width: 6),
-                  Text('No Devices Connected', style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 11, fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ),
-        ],
-      ),
       body: IndexedStack(
         index: _currentIndex,
-        children: pages,
+        children: [
+          _currentIndex == 0
+              ? DropzoneInstaller(
+                  connectedDevices: _connectedDevices,
+                  selectedDeviceSerial: _selectedDeviceSerial,
+                )
+              : const SizedBox.shrink(),
+          _currentIndex == 1
+              ? AppListScreen(
+                  connectedDevices: _connectedDevices,
+                  selectedDeviceSerial: _selectedDeviceSerial,
+                )
+              : const SizedBox.shrink(),
+          _currentIndex == 2
+              ? FDroidScreen(
+                  connectedDevices: _connectedDevices,
+                  selectedDeviceSerial: _selectedDeviceSerial,
+                )
+              : const SizedBox.shrink(),
+          _currentIndex == 3
+              ? WifiAdbScreen(
+                  connectedDevices: _connectedDevices,
+                  onDevicesUpdated: _refreshDevices,
+                )
+              : const SizedBox.shrink(),
+          _currentIndex == 4
+              ? HiddenSettingsScreen(
+                  connectedDevices: _connectedDevices,
+                  selectedDeviceSerial: _selectedDeviceSerial,
+                )
+              : const SizedBox.shrink(),
+          _currentIndex == 5 ? _buildSettingsView() : const SizedBox.shrink(),
+        ],
       ),
       bottomNavigationBar: Container(
         height: 56,
