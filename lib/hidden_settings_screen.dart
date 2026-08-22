@@ -394,7 +394,24 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final currentMap = _settingsCache[_selectedNamespace] ?? {};
+    final Map<String, String> tweaksMap = {
+      'show_touches': _settingsCache['system']?['show_touches'] ?? '0',
+      'pointer_location': _settingsCache['system']?['pointer_location'] ?? '0',
+      'peak_refresh_rate': _settingsCache['system']?['peak_refresh_rate'] ?? '60.0',
+      'tether_dun_required': _settingsCache['global']?['tether_dun_required'] ?? '1',
+      'audio_safe_volume_state': _settingsCache['global']?['audio_safe_volume_state'] ?? '2',
+      'heads_up_notifications_enabled': _settingsCache['global']?['heads_up_notifications_enabled'] ?? '1',
+      'sysui_demo_allowed': _settingsCache['global']?['sysui_demo_allowed'] ?? '0',
+      'force_resizable_activities': _settingsCache['global']?['force_resizable_activities'] ?? '0',
+      'window_animation_scale': _settingsCache['global']?['window_animation_scale'] ?? '1.0',
+      'screen_brightness': _settingsCache['system']?['screen_brightness'] ?? '128',
+      'screen_off_timeout': _settingsCache['system']?['screen_off_timeout'] ?? '60000',
+      'stay_on_while_plugged_in': _settingsCache['global']?['stay_on_while_plugged_in'] ?? '0',
+      'accelerometer_rotation': _settingsCache['system']?['accelerometer_rotation'] ?? '1',
+      'private_dns_specifier': _settingsCache['global']?['private_dns_specifier'] ?? '',
+    };
+
+    final currentMap = (_selectedNamespace == 'tweaks') ? tweaksMap : (_settingsCache[_selectedNamespace] ?? {});
     final defaultMap = _defaultsCache[_selectedNamespace] ?? {};
 
     final filteredEntries = currentMap.entries.where((e) {
@@ -868,6 +885,8 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
               // Namespace Selectors & Search Input Bar
               Row(
                 children: [
+                  _buildNamespaceTab('TWEAKS', 'tweaks'),
+                  const SizedBox(width: 8),
                   _buildNamespaceTab('GLOBAL', 'global'),
                   const SizedBox(width: 8),
                   _buildNamespaceTab('SECURE', 'secure'),
@@ -925,14 +944,17 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                       separatorBuilder: (ctx, idx) => const SizedBox(height: 6),
                       itemBuilder: (ctx, idx) {
                         final entry = filteredEntries[idx];
-                        final defVal = _defaultsCache[_selectedNamespace]?[entry.key];
+                        final targetNs = (_selectedNamespace == 'tweaks')
+                            ? (['show_touches', 'pointer_location', 'peak_refresh_rate', 'screen_brightness', 'screen_off_timeout', 'accelerometer_rotation'].contains(entry.key) ? 'system' : 'global')
+                            : _selectedNamespace;
+                        final defVal = _defaultsCache[targetNs]?[entry.key];
 
                         return _SettingRowWidget(
                           key: ValueKey("${_selectedNamespace}_${entry.key}"),
                           settingKey: entry.key,
                           settingValue: entry.value,
                           defaultValue: defVal,
-                          namespace: _selectedNamespace,
+                          namespace: targetNs,
                           onUpdate: _updateSetting,
                           onReset: _resetSettingToDefault,
                         );
