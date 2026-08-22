@@ -2,6 +2,55 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'adb_manager.dart';
 
+enum SettingRiskLevel { critical, warning, safe }
+
+class SettingRiskHelper {
+  static const Set<String> _criticalKeys = {
+    'adb_enabled',
+    'development_settings_enabled',
+    'device_provisioned',
+    'user_setup_complete',
+    'http_proxy',
+    'global_http_proxy_host',
+    'global_http_proxy_port',
+    'install_non_market_apps',
+    'package_verifier_enable',
+    'adb_wifi_enabled',
+    'secure_fbe_mode',
+    'lock_screen_allow_private_notifications',
+  };
+
+  static const Set<String> _warningKeys = {
+    'window_animation_scale',
+    'transition_animation_scale',
+    'animator_duration_scale',
+    'private_dns_mode',
+    'private_dns_specifier',
+    'mobile_data',
+    'wifi_on',
+    'bluetooth_on',
+    'stay_on_while_plugged_in',
+    'screen_off_timeout',
+    'zen_mode',
+    'airplane_mode_on',
+    'location_mode',
+    'nfc_on',
+    'screen_brightness',
+    'accelerometer_rotation',
+  };
+
+  static SettingRiskLevel getRiskLevel(String key) {
+    final k = key.toLowerCase();
+    if (_criticalKeys.contains(k) || k.contains('adb_') || k.contains('provisioned') || k.contains('proxy')) {
+      return SettingRiskLevel.critical;
+    }
+    if (_warningKeys.contains(k) || k.contains('dns') || k.contains('anim') || k.contains('timeout') || k.contains('mode')) {
+      return SettingRiskLevel.warning;
+    }
+    return SettingRiskLevel.safe;
+  }
+}
+
 class HiddenSettingsScreen extends StatefulWidget {
   final List<DeviceInfo> connectedDevices;
   final String? selectedDeviceSerial;
@@ -149,6 +198,60 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
   Future<void> _updateSetting(String namespace, String key, String value) async {
     final serial = widget.selectedDeviceSerial;
     if (serial == null) return;
+
+    final risk = SettingRiskHelper.getRiskLevel(key);
+    if (risk == SettingRiskLevel.critical) {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: const Color(0xFF1B0E14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: Color(0xFFEF4444), width: 2),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.report_problem, color: Color(0xFFEF4444), size: 24),
+              SizedBox(width: 8),
+              Text(
+                'CRITICAL SETTING WARNING',
+                style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.bold, fontSize: 14),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'You are modifying "$key" in $namespace settings.',
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                key == 'adb_enabled' && value == '0'
+                    ? '⚠️ CRITICAL: Setting adb_enabled to 0 will immediately kill USB debugging on your Android device and disconnect App Manager!'
+                    : '⚠️ WARNING: Modifying critical Android system flags can cause ADB disconnection, lock features, or system instability.',
+                style: const TextStyle(color: Color(0xFFFCA5A5), fontSize: 12),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('CANCEL (SAFE)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444), foregroundColor: Colors.white),
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text('CONFIRM RISK & APPLY', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      );
+
+      if (confirm != true) return;
+    }
 
     final success = await AdbManager.putSetting(serial, namespace, key, value);
     if (mounted) {
@@ -735,6 +838,21 @@ class _SettingRowWidgetState extends State<_SettingRowWidget> {
     final isBoolActive = widget.settingValue == '1';
     final isModified = widget.defaultValue != null && widget.defaultValue != widget.settingValue;
 
+    final risk = SettingRiskHelper.getRiskLevel(widget.settingKey);
+    Color riskColor = const Color(0xFF10B981); // Green (Safe)
+    IconData riskIcon = Icons.check_circle_outline;
+    String riskLabel = 'SAFE';
+
+    if (risk == SettingRiskLevel.critical) {
+      riskColor = const Color(0xFFEF4444); // Red (Critical)
+      riskIcon = Icons.report_problem;
+      riskLabel = 'HIGH RISK';
+    } else if (risk == SettingRiskLevel.warning) {
+      riskColor = const Color(0xFFF59E0B); // Yellow (Caution)
+      riskIcon = Icons.warning_amber_rounded;
+      riskLabel = 'CAUTION';
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
@@ -755,6 +873,23 @@ class _SettingRowWidgetState extends State<_SettingRowWidget> {
                 Row(
                   children: [
                     SelectableText(widget.settingKey, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: riskColor.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: riskColor, width: 1),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(riskIcon, color: riskColor, size: 10),
+                          const SizedBox(width: 3),
+                          Text(riskLabel, style: TextStyle(color: riskColor, fontSize: 8, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
                     if (isModified) ...[
                       const SizedBox(width: 6),
                       Container(
