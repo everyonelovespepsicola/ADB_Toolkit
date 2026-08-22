@@ -55,9 +55,15 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> {
 
     setState(() => _isLoading = true);
 
-    final globalSettings = await AdbManager.getSettingsList(serial, 'global');
-    final secureSettings = await AdbManager.getSettingsList(serial, 'secure');
-    final systemSettings = await AdbManager.getSettingsList(serial, 'system');
+    final results = await Future.wait([
+      AdbManager.getSettingsList(serial, 'global'),
+      AdbManager.getSettingsList(serial, 'secure'),
+      AdbManager.getSettingsList(serial, 'system'),
+    ]);
+
+    final globalSettings = results[0];
+    final secureSettings = results[1];
+    final systemSettings = results[2];
 
     if (mounted) {
       setState(() {
@@ -438,7 +444,13 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> {
                       separatorBuilder: (ctx, idx) => const SizedBox(height: 6),
                       itemBuilder: (ctx, idx) {
                         final entry = filteredEntries[idx];
-                        return _buildSettingRow(entry.key, entry.value);
+                        return _SettingRowWidget(
+                          key: ValueKey("${_selectedNamespace}_${entry.key}"),
+                          settingKey: entry.key,
+                          settingValue: entry.value,
+                          namespace: _selectedNamespace,
+                          onUpdate: _updateSetting,
+                        );
                       },
                     ),
         ),
@@ -487,11 +499,53 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> {
       ),
     );
   }
+}
 
-  Widget _buildSettingRow(String key, String value) {
-    final isBool = value == '0' || value == '1';
-    final isBoolActive = value == '1';
-    final textCtrl = TextEditingController(text: value);
+class _SettingRowWidget extends StatefulWidget {
+  final String settingKey;
+  final String settingValue;
+  final String namespace;
+  final Function(String ns, String key, String value) onUpdate;
+
+  const _SettingRowWidget({
+    Key? key,
+    required this.settingKey,
+    required this.settingValue,
+    required this.namespace,
+    required this.onUpdate,
+  }) : super(key: key);
+
+  @override
+  State<_SettingRowWidget> createState() => _SettingRowWidgetState();
+}
+
+class _SettingRowWidgetState extends State<_SettingRowWidget> {
+  late TextEditingController _textCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _textCtrl = TextEditingController(text: widget.settingValue);
+  }
+
+  @override
+  void didUpdateWidget(covariant _SettingRowWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.settingValue != widget.settingValue) {
+      _textCtrl.text = widget.settingValue;
+    }
+  }
+
+  @override
+  void dispose() {
+    _textCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isBool = widget.settingValue == '0' || widget.settingValue == '1';
+    final isBoolActive = widget.settingValue == '1';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -507,8 +561,8 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SelectableText(key, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                Text(_selectedNamespace.toUpperCase(), style: const TextStyle(color: Color(0xFF6B7280), fontSize: 9, fontWeight: FontWeight.bold)),
+                SelectableText(widget.settingKey, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                Text(widget.namespace.toUpperCase(), style: const TextStyle(color: Color(0xFF6B7280), fontSize: 9, fontWeight: FontWeight.bold)),
               ],
             ),
           ),
@@ -522,7 +576,7 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> {
                   value: isBoolActive,
                   activeColor: Colors.white,
                   onChanged: (val) {
-                    _updateSetting(_selectedNamespace, key, val ? '1' : '0');
+                    widget.onUpdate(widget.namespace, widget.settingKey, val ? '1' : '0');
                   },
                 ),
               ],
@@ -534,7 +588,7 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> {
                 children: [
                   Expanded(
                     child: TextField(
-                      controller: textCtrl,
+                      controller: _textCtrl,
                       style: const TextStyle(color: Colors.white, fontSize: 12),
                       decoration: InputDecoration(
                         isDense: true,
@@ -549,7 +603,7 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E2638), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6)),
                     onPressed: () {
-                      _updateSetting(_selectedNamespace, key, textCtrl.text.trim());
+                      widget.onUpdate(widget.namespace, widget.settingKey, _textCtrl.text.trim());
                     },
                     child: const Text('SAVE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
                   ),
