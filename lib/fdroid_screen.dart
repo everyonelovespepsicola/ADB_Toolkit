@@ -405,14 +405,20 @@ class _FDroidScreenState extends State<FDroidScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
+            onPressed: () {
+              if (ctx.mounted && Navigator.canPop(ctx)) {
+                Navigator.of(ctx).pop();
+              }
+            },
             child: const Text('Close', style: TextStyle(color: Colors.grey)),
           ),
           if (_installedPackageNames.contains(app.packageName))
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD32F2F), foregroundColor: Colors.white),
               onPressed: () {
-                Navigator.of(ctx).pop();
+                if (ctx.mounted && Navigator.canPop(ctx)) {
+                  Navigator.of(ctx).pop();
+                }
                 _uninstallFDroidApp(app);
               },
               icon: const Icon(Icons.delete_forever, size: 16),
@@ -421,7 +427,9 @@ class _FDroidScreenState extends State<FDroidScreen> {
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00FF66), foregroundColor: Colors.black),
             onPressed: () {
-              Navigator.of(ctx).pop();
+              if (ctx.mounted && Navigator.canPop(ctx)) {
+                Navigator.of(ctx).pop();
+              }
               _installFDroidApp(app);
             },
             icon: const Icon(Icons.download, size: 16),

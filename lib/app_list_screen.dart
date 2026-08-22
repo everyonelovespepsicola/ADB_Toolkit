@@ -95,13 +95,19 @@ class _AppListScreenState extends State<AppListScreen> {
         content: Text(content, style: const TextStyle(color: Color(0xFFB0C0D0))),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
+            onPressed: () {
+              if (ctx.mounted && Navigator.canPop(ctx)) {
+                Navigator.of(ctx).pop();
+              }
+            },
             child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: isWarning ? const Color(0xFFFF5252) : const Color(0xFFD32F2F)),
             onPressed: () async {
-              Navigator.of(ctx).pop();
+              if (ctx.mounted && Navigator.canPop(ctx)) {
+                Navigator.of(ctx).pop();
+              }
               final success = await onConfirm();
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -560,7 +566,11 @@ class _AppListScreenState extends State<AppListScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
+            onPressed: () {
+              if (ctx.mounted && Navigator.canPop(ctx)) {
+                Navigator.of(ctx).pop();
+              }
+            },
             child: const Text('Close', style: TextStyle(color: Colors.grey)),
           ),
         ],

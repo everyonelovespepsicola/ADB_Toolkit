@@ -166,7 +166,11 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
+            onPressed: () {
+              if (ctx.mounted && Navigator.canPop(ctx)) {
+                Navigator.of(ctx).pop();
+              }
+            },
             child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
@@ -175,7 +179,9 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> {
               final k = keyCtrl.text.trim();
               final v = valCtrl.text.trim();
               if (k.isNotEmpty) {
-                Navigator.of(ctx).pop();
+                if (ctx.mounted && Navigator.canPop(ctx)) {
+                  Navigator.of(ctx).pop();
+                }
                 _updateSetting(targetNamespace, k, v);
               }
             },
