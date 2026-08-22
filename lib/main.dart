@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'adb_manager.dart';
 import 'dropzone_installer.dart';
@@ -328,7 +329,50 @@ class _MainTabShellState extends State<MainTabShell> {
                 SizedBox(height: 6),
                 Text(
                   'All APK installations automatically execute with flags:\n  adb install -r -g --bypass-low-target-sdk-block <apk_path>\n\n-r: Replace existing app\n-g: Auto-grant all requested runtime permissions\n--bypass-low-target-sdk-block: Bypasses Android 14/15 legacy Target SDK blocks',
-                  style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 12),
+          const SizedBox(height: 14),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF121622),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF1F2636)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('LOCAL APPDATA STORAGE & CACHE:', style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 12, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                const Text('Clears cached app icon PNGs and temporary crash dump files from AppData while preserving platform-tools ADB executables.', style: TextStyle(color: Colors.white, fontSize: 12)),
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD32F2F), foregroundColor: Colors.white),
+                  onPressed: () async {
+                    try {
+                      final appDataPath = "${Platform.environment['APPDATA']}\\com.appmanager.app\\app_manager";
+                      final appDataDir = Directory(appDataPath);
+                      if (await appDataDir.exists()) {
+                        await for (final entity in appDataDir.list()) {
+                          if (entity is File && entity.path.toLowerCase().endsWith('.png')) {
+                            await entity.delete();
+                          }
+                        }
+                      }
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('🟢 AppData icon cache successfully cleared!')),
+                        );
+                      }
+                    } catch (e) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('🔴 Error clearing cache: $e')),
+                        );
+                      }
+                    }
+                  },
+                  icon: const Icon(Icons.cleaning_services, size: 16),
+                  label: const Text('CLEAR LOCAL APPDATA CACHE', style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
