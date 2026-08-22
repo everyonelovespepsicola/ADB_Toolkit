@@ -7,6 +7,7 @@ import 'app_list_screen.dart';
 import 'wifi_adb_screen.dart';
 import 'fdroid_screen.dart';
 import 'hidden_settings_screen.dart';
+import 'translation_service.dart';
 import 'theme.dart';
 
 void _logCrash(dynamic error, StackTrace? stackTrace) async {
@@ -322,6 +323,73 @@ class _MainTabShellState extends State<MainTabShell> {
           const Text(
             'SETTINGS & PORTABLE ADB ENVIRONMENT',
             style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 14),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF121622),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF1F2636)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.language, color: Color(0xFF4DEAEA), size: 20),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'APP DISPLAY LANGUAGE (DYNAMIC ON-THE-FLY AUTO-TRANSLATE):',
+                        style: TextStyle(color: Color(0xFF4DEAEA), fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Current Mode: ${TranslationService().selectedLanguageCode == 'auto' ? "🌐 Auto-Detecting Windows OS Default (${TranslationService().effectiveLanguageCode.toUpperCase()})" : "Selected ${TranslationService().selectedLanguageCode.toUpperCase()}"}',
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E2638),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFF4DEAEA)),
+                  ),
+                  child: DropdownButton<String>(
+                    value: TranslationService().selectedLanguageCode,
+                    underline: const SizedBox(),
+                    dropdownColor: const Color(0xFF1E2638),
+                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                    isExpanded: true,
+                    items: AppLanguageOption.options.map((opt) {
+                      return DropdownMenuItem<String>(
+                        value: opt.code,
+                        child: Row(
+                          children: [
+                            Text(opt.flagEmoji, style: const TextStyle(fontSize: 16)),
+                            const SizedBox(width: 8),
+                            Text(opt.displayName, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (val) {
+                      if (val != null) {
+                        setState(() {
+                          TranslationService().setLanguage(val);
+                        });
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 14),
           Container(
