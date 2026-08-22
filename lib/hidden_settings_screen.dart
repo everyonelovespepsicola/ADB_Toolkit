@@ -74,6 +74,20 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
   String _selectedNamespace = 'global'; // 'global', 'secure', 'system'
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _quickTweaksScrollController = ScrollController();
+
+  void _scrollQuickTweaks(double offset) {
+    if (!_quickTweaksScrollController.hasClients) return;
+    final target = (_quickTweaksScrollController.offset + offset).clamp(
+      0.0,
+      _quickTweaksScrollController.position.maxScrollExtent,
+    );
+    _quickTweaksScrollController.animateTo(
+      target,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+  }
   final Map<String, Map<String, String>> _settingsCache = {
     'global': {},
     'secure': {},
@@ -513,372 +527,389 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
               ),
               const SizedBox(height: 12),
 
-              // Featured Quick Tweaks Row (Horizontal Scroll - Zero Reflow Collisions on Window Resize)
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    // 🚀 Animation Scale Card
-                    _buildQuickTweakCard(
-                      title: '🚀 UI ANIMATION SCALE',
-                      riskLevel: SettingRiskLevel.safe,
-                      isModified: animModified,
-                      onReset: () => _setAnimScale(defAnimScale),
-                      defaultHint: "${defAnimScale.toStringAsFixed(1)}x",
+              // Featured Quick Tweaks Row with Left/Right Track Scroll Controls
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.chevron_left, color: Colors.white, size: 24),
+                    onPressed: () => _scrollQuickTweaks(-350),
+                    tooltip: 'Scroll Track Left',
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: _quickTweaksScrollController,
+                      scrollDirection: Axis.horizontal,
                       child: Row(
-                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text("${_animScale.toStringAsFixed(1)}x", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                          const SizedBox(width: 6),
-                          SizedBox(
-                            width: 120,
-                            child: Slider(
-                              value: _animScale.clamp(0.0, 2.0),
-                              min: 0.0,
-                              max: 2.0,
-                              divisions: 4,
-                              activeColor: animModified ? const Color(0xFF10B981) : Colors.white,
-                              onChanged: (val) => _setAnimScale(val),
+                          // 🚀 Animation Scale Card
+                          _buildQuickTweakCard(
+                            title: '🚀 UI ANIMATION SCALE',
+                            riskLevel: SettingRiskLevel.safe,
+                            isModified: animModified,
+                            onReset: () => _setAnimScale(defAnimScale),
+                            defaultHint: "${defAnimScale.toStringAsFixed(1)}x",
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text("${_animScale.toStringAsFixed(1)}x", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                                const SizedBox(width: 6),
+                                SizedBox(
+                                  width: 120,
+                                  child: Slider(
+                                    value: _animScale.clamp(0.0, 2.0),
+                                    min: 0.0,
+                                    max: 2.0,
+                                    divisions: 4,
+                                    activeColor: animModified ? const Color(0xFF10B981) : Colors.white,
+                                    onChanged: (val) => _setAnimScale(val),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 10),
+                          const SizedBox(width: 10),
 
-                    // 👉 Show Touch Dots Card
-                    _buildQuickTweakCard(
-                      title: '👉 SHOW TOUCH DOTS',
-                      riskLevel: SettingRiskLevel.safe,
-                      isModified: touchesModified,
-                      onReset: () {
-                        setState(() => _showTouches = defTouches);
-                        _updateSetting('system', 'show_touches', defTouches ? '1' : '0');
-                      },
-                      defaultHint: defTouches ? 'On' : 'Off',
-                      child: Switch(
-                        value: _showTouches,
-                        activeColor: touchesModified ? const Color(0xFF10B981) : Colors.white,
-                        onChanged: (val) {
-                          setState(() => _showTouches = val);
-                          _updateSetting('system', 'show_touches', val ? '1' : '0');
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-
-                    // 🎯 Pointer Coordinates Card
-                    _buildQuickTweakCard(
-                      title: '🎯 POINTER COORDINATES',
-                      riskLevel: SettingRiskLevel.safe,
-                      isModified: pointerModified,
-                      onReset: () {
-                        setState(() => _pointerLocation = defPointer);
-                        _updateSetting('system', 'pointer_location', defPointer ? '1' : '0');
-                      },
-                      defaultHint: defPointer ? 'On' : 'Off',
-                      child: Switch(
-                        value: _pointerLocation,
-                        activeColor: pointerModified ? const Color(0xFF10B981) : Colors.white,
-                        onChanged: (val) {
-                          setState(() => _pointerLocation = val);
-                          _updateSetting('system', 'pointer_location', val ? '1' : '0');
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-
-                    // 🔥 Force High Refresh Rate (120Hz) Card
-                    _buildQuickTweakCard(
-                      title: '🔥 FORCE HIGH REFRESH (120Hz)',
-                      riskLevel: SettingRiskLevel.warning,
-                      isModified: refreshModified,
-                      onReset: () {
-                        setState(() => _highRefreshRate = defRefresh);
-                        final valStr = defRefresh ? '120.0' : '60.0';
-                        _updateSetting('system', 'peak_refresh_rate', valStr);
-                        _updateSetting('system', 'min_refresh_rate', valStr);
-                      },
-                      defaultHint: defRefresh ? '120Hz' : '60Hz',
-                      child: Switch(
-                        value: _highRefreshRate,
-                        activeColor: refreshModified ? const Color(0xFF10B981) : Colors.white,
-                        onChanged: (val) {
-                          setState(() => _highRefreshRate = val);
-                          final valStr = val ? '120.0' : '60.0';
-                          _updateSetting('system', 'peak_refresh_rate', valStr);
-                          _updateSetting('system', 'min_refresh_rate', valStr);
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-
-                    // 📶 Bypass Hotspot DUN Cap Card
-                    _buildQuickTweakCard(
-                      title: '📶 BYPASS HOTSPOT DUN CAP',
-                      riskLevel: SettingRiskLevel.warning,
-                      isModified: dunModified,
-                      onReset: () {
-                        setState(() => _bypassHotspotDun = defDun);
-                        _updateSetting('global', 'tether_dun_required', defDun ? '0' : '1');
-                      },
-                      defaultHint: defDun ? 'Active' : 'Off',
-                      child: Switch(
-                        value: _bypassHotspotDun,
-                        activeColor: dunModified ? const Color(0xFF10B981) : Colors.white,
-                        onChanged: (val) {
-                          setState(() => _bypassHotspotDun = val);
-                          _updateSetting('global', 'tether_dun_required', val ? '0' : '1');
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-
-                    // 🔊 Disable Safe Volume Warning Card
-                    _buildQuickTweakCard(
-                      title: '🔊 DISABLE VOLUME WARNING',
-                      riskLevel: SettingRiskLevel.safe,
-                      isModified: volWarnModified,
-                      onReset: () {
-                        setState(() => _disableVolumeWarning = defVolWarn);
-                        _updateSetting('global', 'audio_safe_volume_state', defVolWarn ? '0' : '2');
-                      },
-                      defaultHint: defVolWarn ? 'Disabled' : 'Enabled',
-                      child: Switch(
-                        value: _disableVolumeWarning,
-                        activeColor: volWarnModified ? const Color(0xFF10B981) : Colors.white,
-                        onChanged: (val) {
-                          setState(() => _disableVolumeWarning = val);
-                          _updateSetting('global', 'audio_safe_volume_state', val ? '0' : '2');
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-
-                    // 🔕 Disable Banner Toast Popups Card
-                    _buildQuickTweakCard(
-                      title: '🔕 DISABLE BANNER TOASTS',
-                      riskLevel: SettingRiskLevel.safe,
-                      isModified: bannerModified,
-                      onReset: () {
-                        setState(() => _disableBannerToasts = defBanner);
-                        _updateSetting('global', 'heads_up_notifications_enabled', defBanner ? '0' : '1');
-                      },
-                      defaultHint: defBanner ? 'Disabled' : 'Enabled',
-                      child: Switch(
-                        value: _disableBannerToasts,
-                        activeColor: bannerModified ? const Color(0xFF10B981) : Colors.white,
-                        onChanged: (val) {
-                          setState(() => _disableBannerToasts = val);
-                          _updateSetting('global', 'heads_up_notifications_enabled', val ? '0' : '1');
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-
-                    // 📸 Clean Screenshot Demo Mode Card
-                    _buildQuickTweakCard(
-                      title: '📸 CLEAN SCREENSHOT MODE',
-                      riskLevel: SettingRiskLevel.safe,
-                      isModified: demoModified,
-                      onReset: () {
-                        setState(() => _cleanDemoMode = defDemo);
-                        _updateSetting('global', 'sysui_demo_allowed', defDemo ? '1' : '0');
-                      },
-                      defaultHint: defDemo ? 'On' : 'Off',
-                      child: Switch(
-                        value: _cleanDemoMode,
-                        activeColor: demoModified ? const Color(0xFF10B981) : Colors.white,
-                        onChanged: (val) {
-                          setState(() => _cleanDemoMode = val);
-                          _updateSetting('global', 'sysui_demo_allowed', val ? '1' : '0');
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-
-                    // 📱 Force Split-Screen Apps Card
-                    _buildQuickTweakCard(
-                      title: '📱 FORCE SPLIT-SCREEN APPS',
-                      riskLevel: SettingRiskLevel.warning,
-                      isModified: splitModified,
-                      onReset: () {
-                        setState(() => _forceSplitScreen = defSplit);
-                        _updateSetting('global', 'force_resizable_activities', defSplit ? '1' : '0');
-                      },
-                      defaultHint: defSplit ? 'Forced' : 'Default',
-                      child: Switch(
-                        value: _forceSplitScreen,
-                        activeColor: splitModified ? const Color(0xFF10B981) : Colors.white,
-                        onChanged: (val) {
-                          setState(() => _forceSplitScreen = val);
-                          _updateSetting('global', 'force_resizable_activities', val ? '1' : '0');
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-
-                    // ☀️ Screen Brightness Card
-                    _buildQuickTweakCard(
-                      title: '☀️ SCREEN BRIGHTNESS',
-                      riskLevel: SettingRiskLevel.safe,
-                      isModified: brightnessModified,
-                      onReset: () {
-                        setState(() => _screenBrightness = defBrightness);
-                        _updateSetting('system', 'screen_brightness', defBrightness.round().toString());
-                      },
-                      defaultHint: "${defBrightness.round()}",
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text("${_screenBrightness.round()}", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                          const SizedBox(width: 6),
-                          SizedBox(
-                            width: 120,
-                            child: Slider(
-                              value: _screenBrightness.clamp(0.0, 255.0),
-                              min: 0.0,
-                              max: 255.0,
-                              activeColor: brightnessModified ? const Color(0xFF10B981) : Colors.white,
+                          // 👉 Show Touch Dots Card
+                          _buildQuickTweakCard(
+                            title: '👉 SHOW TOUCH DOTS',
+                            riskLevel: SettingRiskLevel.safe,
+                            isModified: touchesModified,
+                            onReset: () {
+                              setState(() => _showTouches = defTouches);
+                              _updateSetting('system', 'show_touches', defTouches ? '1' : '0');
+                            },
+                            defaultHint: defTouches ? 'On' : 'Off',
+                            child: Switch(
+                              value: _showTouches,
+                              activeColor: touchesModified ? const Color(0xFF10B981) : Colors.white,
                               onChanged: (val) {
-                                setState(() => _screenBrightness = val);
-                                _updateSetting('system', 'screen_brightness', val.round().toString());
+                                setState(() => _showTouches = val);
+                                _updateSetting('system', 'show_touches', val ? '1' : '0');
                               },
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 10),
+                          const SizedBox(width: 10),
 
-                    // ⏱️ Screen Timeout Card
-                    _buildQuickTweakCard(
-                      title: '⏱️ SCREEN TIMEOUT',
-                      riskLevel: SettingRiskLevel.warning,
-                      isModified: timeoutModified,
-                      onReset: () {
-                        setState(() => _screenTimeoutMs = defTimeout);
-                        _updateSetting('system', 'screen_off_timeout', defTimeout.toString());
-                      },
-                      defaultHint: "${defTimeout ~/ 1000}s",
-                      child: DropdownButton<int>(
-                        value: [15000, 30000, 60000, 300000, 600000, 1800000, 86400000].contains(_screenTimeoutMs) ? _screenTimeoutMs : 60000,
-                        dropdownColor: const Color(0xFF121622),
-                        underline: const SizedBox(),
-                        style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                        items: const [
-                          DropdownMenuItem(value: 15000, child: Text('15 Seconds')),
-                          DropdownMenuItem(value: 30000, child: Text('30 Seconds')),
-                          DropdownMenuItem(value: 60000, child: Text('1 Minute')),
-                          DropdownMenuItem(value: 300000, child: Text('5 Minutes')),
-                          DropdownMenuItem(value: 600000, child: Text('10 Minutes')),
-                          DropdownMenuItem(value: 1800000, child: Text('30 Minutes')),
-                          DropdownMenuItem(value: 86400000, child: Text('Never (24 Hours)')),
-                        ],
-                        onChanged: (val) {
-                          if (val != null) {
-                            setState(() => _screenTimeoutMs = val);
-                            _updateSetting('system', 'screen_off_timeout', val.toString());
-                          }
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-
-                    // ⚡ Stay Awake Card
-                    _buildQuickTweakCard(
-                      title: '⚡ STAY AWAKE ON USB',
-                      riskLevel: SettingRiskLevel.warning,
-                      isModified: stayAwakeModified,
-                      onReset: () {
-                        setState(() => _stayAwake = defStayAwake);
-                        _updateSetting('global', 'stay_on_while_plugged_in', defStayAwake ? '3' : '0');
-                      },
-                      defaultHint: defStayAwake ? 'On' : 'Off',
-                      child: Switch(
-                        value: _stayAwake,
-                        activeColor: stayAwakeModified ? const Color(0xFF10B981) : Colors.white,
-                        onChanged: (val) {
-                          setState(() => _stayAwake = val);
-                          _updateSetting('global', 'stay_on_while_plugged_in', val ? '3' : '0');
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-
-                    // 🔄 Auto-Rotate Card
-                    _buildQuickTweakCard(
-                      title: '🔄 AUTO-ROTATE SCREEN',
-                      riskLevel: SettingRiskLevel.safe,
-                      isModified: autoRotateModified,
-                      onReset: () {
-                        setState(() => _autoRotate = defAutoRotate);
-                        _updateSetting('system', 'accelerometer_rotation', defAutoRotate ? '1' : '0');
-                      },
-                      defaultHint: defAutoRotate ? 'On' : 'Off',
-                      child: Switch(
-                        value: _autoRotate,
-                        activeColor: autoRotateModified ? const Color(0xFF10B981) : Colors.white,
-                        onChanged: (val) {
-                          setState(() => _autoRotate = val);
-                          _updateSetting('system', 'accelerometer_rotation', val ? '1' : '0');
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-
-                    // 🛡️ Private AdBlock DNS Card
-                    _buildQuickTweakCard(
-                      title: '🛡️ AD-BLOCK PRIVATE DNS',
-                      riskLevel: SettingRiskLevel.warning,
-                      isModified: privateDnsModified,
-                      onReset: () {
-                        setState(() => _privateDnsHost = defPrivateDns);
-                        if (defPrivateDns.isEmpty) {
-                          _updateSetting('global', 'private_dns_mode', 'off');
-                          _updateSetting('global', 'private_dns_specifier', '');
-                        } else {
-                          _updateSetting('global', 'private_dns_mode', 'hostname');
-                          _updateSetting('global', 'private_dns_specifier', defPrivateDns);
-                        }
-                      },
-                      defaultHint: defPrivateDns.isEmpty ? 'Off' : defPrivateDns,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            width: 140,
-                            child: Text(
-                              _privateDnsHost.isEmpty ? 'Off' : _privateDnsHost,
-                              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                              overflow: TextOverflow.ellipsis,
+                          // 🎯 Pointer Coordinates Card
+                          _buildQuickTweakCard(
+                            title: '🎯 POINTER COORDINATES',
+                            riskLevel: SettingRiskLevel.safe,
+                            isModified: pointerModified,
+                            onReset: () {
+                              setState(() => _pointerLocation = defPointer);
+                              _updateSetting('system', 'pointer_location', defPointer ? '1' : '0');
+                            },
+                            defaultHint: defPointer ? 'On' : 'Off',
+                            child: Switch(
+                              value: _pointerLocation,
+                              activeColor: pointerModified ? const Color(0xFF10B981) : Colors.white,
+                              onChanged: (val) {
+                                setState(() => _pointerLocation = val);
+                                _updateSetting('system', 'pointer_location', val ? '1' : '0');
+                              },
                             ),
                           ),
-                          PopupMenuButton<String>(
-                            icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                            color: const Color(0xFF121622),
-                            onSelected: (val) {
-                              setState(() => _privateDnsHost = val);
-                              if (val.isEmpty) {
+                          const SizedBox(width: 10),
+
+                          // 🔥 Force High Refresh Rate (120Hz) Card
+                          _buildQuickTweakCard(
+                            title: '🔥 FORCE HIGH REFRESH (120Hz)',
+                            riskLevel: SettingRiskLevel.warning,
+                            isModified: refreshModified,
+                            onReset: () {
+                              setState(() => _highRefreshRate = defRefresh);
+                              final valStr = defRefresh ? '120.0' : '60.0';
+                              _updateSetting('system', 'peak_refresh_rate', valStr);
+                              _updateSetting('system', 'min_refresh_rate', valStr);
+                            },
+                            defaultHint: defRefresh ? '120Hz' : '60Hz',
+                            child: Switch(
+                              value: _highRefreshRate,
+                              activeColor: refreshModified ? const Color(0xFF10B981) : Colors.white,
+                              onChanged: (val) {
+                                setState(() => _highRefreshRate = val);
+                                final valStr = val ? '120.0' : '60.0';
+                                _updateSetting('system', 'peak_refresh_rate', valStr);
+                                _updateSetting('system', 'min_refresh_rate', valStr);
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+
+                          // 📶 Bypass Hotspot DUN Cap Card
+                          _buildQuickTweakCard(
+                            title: '📶 BYPASS HOTSPOT DUN CAP',
+                            riskLevel: SettingRiskLevel.warning,
+                            isModified: dunModified,
+                            onReset: () {
+                              setState(() => _bypassHotspotDun = defDun);
+                              _updateSetting('global', 'tether_dun_required', defDun ? '0' : '1');
+                            },
+                            defaultHint: defDun ? 'Active' : 'Off',
+                            child: Switch(
+                              value: _bypassHotspotDun,
+                              activeColor: dunModified ? const Color(0xFF10B981) : Colors.white,
+                              onChanged: (val) {
+                                setState(() => _bypassHotspotDun = val);
+                                _updateSetting('global', 'tether_dun_required', val ? '0' : '1');
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+
+                          // 🔊 Disable Safe Volume Warning Card
+                          _buildQuickTweakCard(
+                            title: '🔊 DISABLE VOLUME WARNING',
+                            riskLevel: SettingRiskLevel.safe,
+                            isModified: volWarnModified,
+                            onReset: () {
+                              setState(() => _disableVolumeWarning = defVolWarn);
+                              _updateSetting('global', 'audio_safe_volume_state', defVolWarn ? '0' : '2');
+                            },
+                            defaultHint: defVolWarn ? 'Disabled' : 'Enabled',
+                            child: Switch(
+                              value: _disableVolumeWarning,
+                              activeColor: volWarnModified ? const Color(0xFF10B981) : Colors.white,
+                              onChanged: (val) {
+                                setState(() => _disableVolumeWarning = val);
+                                _updateSetting('global', 'audio_safe_volume_state', val ? '0' : '2');
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+
+                          // 🔕 Disable Banner Toast Popups Card
+                          _buildQuickTweakCard(
+                            title: '🔕 DISABLE BANNER TOASTS',
+                            riskLevel: SettingRiskLevel.safe,
+                            isModified: bannerModified,
+                            onReset: () {
+                              setState(() => _disableBannerToasts = defBanner);
+                              _updateSetting('global', 'heads_up_notifications_enabled', defBanner ? '0' : '1');
+                            },
+                            defaultHint: defBanner ? 'Disabled' : 'Enabled',
+                            child: Switch(
+                              value: _disableBannerToasts,
+                              activeColor: bannerModified ? const Color(0xFF10B981) : Colors.white,
+                              onChanged: (val) {
+                                setState(() => _disableBannerToasts = val);
+                                _updateSetting('global', 'heads_up_notifications_enabled', val ? '0' : '1');
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+
+                          // 📸 Clean Screenshot Demo Mode Card
+                          _buildQuickTweakCard(
+                            title: '📸 CLEAN SCREENSHOT MODE',
+                            riskLevel: SettingRiskLevel.safe,
+                            isModified: demoModified,
+                            onReset: () {
+                              setState(() => _cleanDemoMode = defDemo);
+                              _updateSetting('global', 'sysui_demo_allowed', defDemo ? '1' : '0');
+                            },
+                            defaultHint: defDemo ? 'On' : 'Off',
+                            child: Switch(
+                              value: _cleanDemoMode,
+                              activeColor: demoModified ? const Color(0xFF10B981) : Colors.white,
+                              onChanged: (val) {
+                                setState(() => _cleanDemoMode = val);
+                                _updateSetting('global', 'sysui_demo_allowed', val ? '1' : '0');
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+
+                          // 📱 Force Split-Screen Apps Card
+                          _buildQuickTweakCard(
+                            title: '📱 FORCE SPLIT-SCREEN APPS',
+                            riskLevel: SettingRiskLevel.warning,
+                            isModified: splitModified,
+                            onReset: () {
+                              setState(() => _forceSplitScreen = defSplit);
+                              _updateSetting('global', 'force_resizable_activities', defSplit ? '1' : '0');
+                            },
+                            defaultHint: defSplit ? 'Forced' : 'Default',
+                            child: Switch(
+                              value: _forceSplitScreen,
+                              activeColor: splitModified ? const Color(0xFF10B981) : Colors.white,
+                              onChanged: (val) {
+                                setState(() => _forceSplitScreen = val);
+                                _updateSetting('global', 'force_resizable_activities', val ? '1' : '0');
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+
+                          // ☀️ Screen Brightness Card
+                          _buildQuickTweakCard(
+                            title: '☀️ SCREEN BRIGHTNESS',
+                            riskLevel: SettingRiskLevel.safe,
+                            isModified: brightnessModified,
+                            onReset: () {
+                              setState(() => _screenBrightness = defBrightness);
+                              _updateSetting('system', 'screen_brightness', defBrightness.round().toString());
+                            },
+                            defaultHint: "${defBrightness.round()}",
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text("${_screenBrightness.round()}", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                                const SizedBox(width: 6),
+                                SizedBox(
+                                  width: 120,
+                                  child: Slider(
+                                    value: _screenBrightness.clamp(0.0, 255.0),
+                                    min: 0.0,
+                                    max: 255.0,
+                                    activeColor: brightnessModified ? const Color(0xFF10B981) : Colors.white,
+                                    onChanged: (val) {
+                                      setState(() => _screenBrightness = val);
+                                      _updateSetting('system', 'screen_brightness', val.round().toString());
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+
+                          // ⏱️ Screen Timeout Card
+                          _buildQuickTweakCard(
+                            title: '⏱️ SCREEN TIMEOUT',
+                            riskLevel: SettingRiskLevel.warning,
+                            isModified: timeoutModified,
+                            onReset: () {
+                              setState(() => _screenTimeoutMs = defTimeout);
+                              _updateSetting('system', 'screen_off_timeout', defTimeout.toString());
+                            },
+                            defaultHint: "${defTimeout ~/ 1000}s",
+                            child: DropdownButton<int>(
+                              value: [15000, 30000, 60000, 300000, 600000, 1800000, 86400000].contains(_screenTimeoutMs) ? _screenTimeoutMs : 60000,
+                              dropdownColor: const Color(0xFF121622),
+                              underline: const SizedBox(),
+                              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                              items: const [
+                                DropdownMenuItem(value: 15000, child: Text('15 Seconds')),
+                                DropdownMenuItem(value: 30000, child: Text('30 Seconds')),
+                                DropdownMenuItem(value: 60000, child: Text('1 Minute')),
+                                DropdownMenuItem(value: 300000, child: Text('5 Minutes')),
+                                DropdownMenuItem(value: 600000, child: Text('10 Minutes')),
+                                DropdownMenuItem(value: 1800000, child: Text('30 Minutes')),
+                                DropdownMenuItem(value: 86400000, child: Text('Never (24 Hours)')),
+                              ],
+                              onChanged: (val) {
+                                if (val != null) {
+                                  setState(() => _screenTimeoutMs = val);
+                                  _updateSetting('system', 'screen_off_timeout', val.toString());
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+
+                          // ⚡ Stay Awake Card
+                          _buildQuickTweakCard(
+                            title: '⚡ STAY AWAKE ON USB',
+                            riskLevel: SettingRiskLevel.warning,
+                            isModified: stayAwakeModified,
+                            onReset: () {
+                              setState(() => _stayAwake = defStayAwake);
+                              _updateSetting('global', 'stay_on_while_plugged_in', defStayAwake ? '3' : '0');
+                            },
+                            defaultHint: defStayAwake ? 'On' : 'Off',
+                            child: Switch(
+                              value: _stayAwake,
+                              activeColor: stayAwakeModified ? const Color(0xFF10B981) : Colors.white,
+                              onChanged: (val) {
+                                setState(() => _stayAwake = val);
+                                _updateSetting('global', 'stay_on_while_plugged_in', val ? '3' : '0');
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+
+                          // 🔄 Auto-Rotate Card
+                          _buildQuickTweakCard(
+                            title: '🔄 AUTO-ROTATE SCREEN',
+                            riskLevel: SettingRiskLevel.safe,
+                            isModified: autoRotateModified,
+                            onReset: () {
+                              setState(() => _autoRotate = defAutoRotate);
+                              _updateSetting('system', 'accelerometer_rotation', defAutoRotate ? '1' : '0');
+                            },
+                            defaultHint: defAutoRotate ? 'On' : 'Off',
+                            child: Switch(
+                              value: _autoRotate,
+                              activeColor: autoRotateModified ? const Color(0xFF10B981) : Colors.white,
+                              onChanged: (val) {
+                                setState(() => _autoRotate = val);
+                                _updateSetting('system', 'accelerometer_rotation', val ? '1' : '0');
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+
+                          // 🛡️ Private AdBlock DNS Card
+                          _buildQuickTweakCard(
+                            title: '🛡️ AD-BLOCK PRIVATE DNS',
+                            riskLevel: SettingRiskLevel.warning,
+                            isModified: privateDnsModified,
+                            onReset: () {
+                              setState(() => _privateDnsHost = defPrivateDns);
+                              if (defPrivateDns.isEmpty) {
                                 _updateSetting('global', 'private_dns_mode', 'off');
                                 _updateSetting('global', 'private_dns_specifier', '');
                               } else {
                                 _updateSetting('global', 'private_dns_mode', 'hostname');
-                                _updateSetting('global', 'private_dns_specifier', val);
+                                _updateSetting('global', 'private_dns_specifier', defPrivateDns);
                               }
                             },
-                            itemBuilder: (ctx) => const [
-                              PopupMenuItem(value: '', child: Text('Off')),
-                              PopupMenuItem(value: 'dns.adguard.com', child: Text('AdGuard (Block Ads)')),
-                              PopupMenuItem(value: 'family.adguard-dns.com', child: Text('AdGuard Family (Block Adult)')),
-                              PopupMenuItem(value: 'one.one.one.one', child: Text('Cloudflare 1.1.1.1')),
-                            ],
+                            defaultHint: defPrivateDns.isEmpty ? 'Off' : defPrivateDns,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: 140,
+                                  child: Text(
+                                    _privateDnsHost.isEmpty ? 'Off' : _privateDnsHost,
+                                    style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                PopupMenuButton<String>(
+                                  icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                                  color: const Color(0xFF121622),
+                                  onSelected: (val) {
+                                    setState(() => _privateDnsHost = val);
+                                    if (val.isEmpty) {
+                                      _updateSetting('global', 'private_dns_mode', 'off');
+                                      _updateSetting('global', 'private_dns_specifier', '');
+                                    } else {
+                                      _updateSetting('global', 'private_dns_mode', 'hostname');
+                                      _updateSetting('global', 'private_dns_specifier', val);
+                                    }
+                                  },
+                                  itemBuilder: (ctx) => const [
+                                    PopupMenuItem(value: '', child: Text('Off')),
+                                    PopupMenuItem(value: 'dns.adguard.com', child: Text('AdGuard (Block Ads)')),
+                                    PopupMenuItem(value: 'family.adguard-dns.com', child: Text('AdGuard Family (Block Adult)')),
+                                    PopupMenuItem(value: 'one.one.one.one', child: Text('Cloudflare 1.1.1.1')),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.chevron_right, color: Colors.white, size: 24),
+                    onPressed: () => _scrollQuickTweaks(350),
+                    tooltip: 'Scroll Track Right',
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
 
