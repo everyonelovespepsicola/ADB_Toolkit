@@ -67,6 +67,7 @@ class _MainTabShellState extends State<MainTabShell> {
   String? _selectedDeviceSerial;
   Timer? _devicePollTimer;
   String _adbPathStatus = "Resolving portable ADB...";
+  bool _showTooltips = false;
 
   @override
   void initState() {
@@ -223,6 +224,7 @@ class _MainTabShellState extends State<MainTabShell> {
               ? HiddenSettingsScreen(
                   connectedDevices: _connectedDevices,
                   selectedDeviceSerial: _selectedDeviceSerial,
+                  showTooltips: _showTooltips,
                 )
               : const SizedBox.shrink(),
           _currentIndex == 5 ? _buildSettingsView() : const SizedBox.shrink(),
@@ -320,6 +322,44 @@ class _MainTabShellState extends State<MainTabShell> {
           const Text(
             'SETTINGS & PORTABLE ADB ENVIRONMENT',
             style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 14),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF121622),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF1F2636)),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'SHOW SETTING EXPLANATION TOOLTIPS:',
+                        style: TextStyle(color: Color(0xFF4DEAEA), fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        _showTooltips
+                            ? '🟢 Enabled: Explanatory tooltips & descriptions will appear next to Android settings keys across the app.'
+                            : '🔴 Disabled (Default): Tooltip descriptions are hidden for a clean, minimal interface.',
+                        style: const TextStyle(color: Colors.white, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Switch(
+                  value: _showTooltips,
+                  activeThumbColor: const Color(0xFF4DEAEA),
+                  onChanged: (val) => setState(() => _showTooltips = val),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 14),
           Container(

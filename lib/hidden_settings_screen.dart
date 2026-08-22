@@ -51,14 +51,73 @@ class SettingRiskHelper {
   }
 }
 
+class SettingDescriptionHelper {
+  static const Map<String, String> _descriptions = {
+    'adb_enabled': 'Enables Android Debug Bridge (ADB) over USB & Wi-Fi to allow developer commands.',
+    'development_settings_enabled': 'Unlocks System Developer Options menu on target Android device.',
+    'device_provisioned': 'Indicates whether the initial phone setup wizard has completed.',
+    'user_setup_complete': 'Indicates whether Google Account and user setup wizard is finished.',
+    'http_proxy': 'Configures global network HTTP proxy address and port for web traffic.',
+    'install_non_market_apps': 'Allows sideloading APK installation packages from sources outside Google Play Store.',
+    'package_verifier_enable': 'Scans APK files with Google Play Protect before installation.',
+    'window_animation_scale': 'Controls speed of window opening & closing animations (0.0 = Instant, 0.5 = 2x Speed, 1.0 = Normal).',
+    'transition_animation_scale': 'Controls speed of screen transition animations between applications.',
+    'animator_duration_scale': 'Controls duration of UI button animations, ripples, and loading spinners.',
+    'private_dns_mode': 'Sets system Private DNS security mode (off, opportunistic, or hostname).',
+    'private_dns_specifier': 'Custom Encrypted Private DNS provider hostname (e.g. dns.adguard.com to block ads).',
+    'stay_on_while_plugged_in': 'Keeps phone display active while connected to USB or AC charger.',
+    'screen_off_timeout': 'Inactivity delay in milliseconds before phone screen automatically turns off.',
+    'screen_brightness': 'Backlight display brightness level (0 = Minimum, 255 = Maximum).',
+    'show_touches': 'Displays visual white touch indicator dots on screen wherever your finger taps.',
+    'pointer_location': 'Displays real-time X/Y screen coordinates, touch pressure, and gesture path bars on top of screen.',
+    'peak_refresh_rate': 'Forces maximum high refresh rate (120Hz/90Hz) for ultra-smooth scrolling.',
+    'min_refresh_rate': 'Sets minimum display refresh rate threshold.',
+    'tether_dun_required': 'Bypasses mobile carrier hotspot data caps by disguising DUN tethering traffic.',
+    'audio_safe_volume_state': 'Disables high-volume hearing protection popups when plugging in headphones.',
+    'heads_up_notifications_enabled': 'Enables/disables banner toast notifications that slide down from top of screen.',
+    'sysui_demo_allowed': 'Enables System UI Demo Mode for clean status bar screenshots.',
+    'force_resizable_activities': 'Forces all installed Android apps to support multi-window split-screen mode.',
+    'accelerometer_rotation': 'Toggles automatic screen rotation based on physical phone orientation sensor.',
+    'mobile_data': 'Enables or disables cellular mobile data network connection.',
+    'wifi_on': 'Enables or disables Wi-Fi network adapter.',
+    'bluetooth_on': 'Enables or disables Bluetooth radio.',
+    'airplane_mode_on': 'Toggles Airplane Mode (disables all cellular, Wi-Fi, and Bluetooth radios).',
+    'zen_mode': 'Controls Do Not Disturb (DND) notification silencer mode.',
+    'location_mode': 'Controls GPS location tracking accuracy and battery saving modes.',
+    'nfc_on': 'Enables or disables Near Field Communication (NFC) chip for contactless payments.',
+    'power_notifications_enabled': 'Enables or disables audio notification when connecting/disconnecting charger.',
+    'lockscreen_sounds_enabled': 'Enables or disables screen lock and unlock sound effects.',
+  };
+
+  static String? getDescription(String key) {
+    final k = key.toLowerCase();
+    if (_descriptions.containsKey(k)) return _descriptions[k];
+
+    if (k.contains('adb')) return 'Android Debug Bridge configuration setting.';
+    if (k.contains('anim')) return 'UI animation speed multiplier setting.';
+    if (k.contains('proxy')) return 'Network HTTP proxy configuration flag.';
+    if (k.contains('dns')) return 'Domain Name System (DNS) security & provider setting.';
+    if (k.contains('brightness')) return 'Display backlight intensity setting.';
+    if (k.contains('timeout')) return 'Screen lock inactivity timer setting.';
+    if (k.contains('volume') || k.contains('audio') || k.contains('sound')) return 'Audio volume and notification sound setting.';
+    if (k.contains('wifi')) return 'Wi-Fi wireless networking configuration.';
+    if (k.contains('bluetooth')) return 'Bluetooth wireless radio configuration.';
+    if (k.contains('battery') || k.contains('power') || k.contains('charge')) return 'Power management & charging setting.';
+
+    return null;
+  }
+}
+
 class HiddenSettingsScreen extends StatefulWidget {
   final List<DeviceInfo> connectedDevices;
   final String? selectedDeviceSerial;
+  final bool showTooltips;
 
   const HiddenSettingsScreen({
     Key? key,
     required this.connectedDevices,
     this.selectedDeviceSerial,
+    this.showTooltips = false,
   }) : super(key: key);
 
   @override
@@ -1071,6 +1130,7 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                           settingValue: entry.value,
                           defaultValue: defVal,
                           namespace: targetNs,
+                          showTooltips: widget.showTooltips,
                           onUpdate: _updateSetting,
                           onReset: _resetSettingToDefault,
                         );
@@ -1174,6 +1234,7 @@ class _SettingRowWidget extends StatefulWidget {
   final String settingValue;
   final String? defaultValue;
   final String namespace;
+  final bool showTooltips;
   final Function(String ns, String key, String value) onUpdate;
   final Function(String ns, String key) onReset;
 
@@ -1183,6 +1244,7 @@ class _SettingRowWidget extends StatefulWidget {
     required this.settingValue,
     this.defaultValue,
     required this.namespace,
+    this.showTooltips = false,
     required this.onUpdate,
     required this.onReset,
   }) : super(key: key);
@@ -1219,6 +1281,7 @@ class _SettingRowWidgetState extends State<_SettingRowWidget> {
     final isBool = widget.settingValue == '0' || widget.settingValue == '1';
     final isBoolActive = widget.settingValue == '1';
     final isModified = widget.defaultValue != null && widget.defaultValue != widget.settingValue;
+    final description = SettingDescriptionHelper.getDescription(widget.settingKey);
 
     final risk = SettingRiskHelper.getRiskLevel(widget.settingKey);
     Color riskColor = const Color(0xFF10B981); // Green (Safe)
@@ -1261,6 +1324,19 @@ class _SettingRowWidgetState extends State<_SettingRowWidget> {
                     widget.settingKey,
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
                   ),
+                  if (widget.showTooltips && description != null)
+                    Tooltip(
+                      message: description,
+                      padding: const EdgeInsets.all(8),
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E2638),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: const Color(0xFF4DEAEA)),
+                      ),
+                      textStyle: const TextStyle(color: Colors.white, fontSize: 11),
+                      child: const Icon(Icons.info_outline, color: Color(0xFF4DEAEA), size: 14),
+                    ),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                     decoration: BoxDecoration(
@@ -1294,6 +1370,13 @@ class _SettingRowWidgetState extends State<_SettingRowWidget> {
                 isModified ? "${widget.namespace.toUpperCase()} • Default: ${widget.defaultValue}" : widget.namespace.toUpperCase(),
                 style: TextStyle(color: isModified ? const Color(0xFF10B981) : const Color(0xFF6B7280), fontSize: 9, fontWeight: FontWeight.bold),
               ),
+              if (widget.showTooltips && description != null) ...[
+                const SizedBox(height: 3),
+                Text(
+                  description,
+                  style: const TextStyle(color: Color(0xFF4DEAEA), fontSize: 10, fontStyle: FontStyle.italic),
+                ),
+              ],
             ],
           );
 
