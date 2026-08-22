@@ -816,91 +816,98 @@ class _FDroidScreenState extends State<FDroidScreen> {
         final statusText = _installingApps[app.packageName];
         final isInstalled = _installedPackageNames.contains(app.packageName);
 
-        return InkWell(
-          onTap: () => _showAppDetailsModal(app),
-          child: Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF121622),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: isInstalled ? const Color(0xFF10B981) : const Color(0xFF1F2636), width: isInstalled ? 2 : 1),
-            ),
-            child: Row(
-              children: [
-                ClipRRect(
+        return Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: const Color(0xFF121622),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: isInstalled ? const Color(0xFF10B981) : const Color(0xFF1F2636), width: isInstalled ? 2 : 1),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap: () => _showAppDetailsModal(app),
                   borderRadius: BorderRadius.circular(8),
-                  child: app.iconUrl.isNotEmpty
-                      ? Image.network(
-                          app.iconUrl,
-                          width: 40,
-                          height: 40,
-                          fit: BoxFit.cover,
-                          errorBuilder: (c, e, s) => Container(
-                            width: 40,
-                            height: 40,
-                            color: const Color(0xFF1F2636),
-                            child: const Icon(Icons.android, color: Colors.white, size: 20),
-                          ),
-                        )
-                      : Container(
-                          width: 40,
-                          height: 40,
-                          color: const Color(0xFF1F2636),
-                          child: const Icon(Icons.android, color: Colors.white, size: 20),
-                        ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  flex: 3,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
                     children: [
-                      Text(app.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
-                      SelectableText(app.packageName, style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 11)),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: app.iconUrl.isNotEmpty
+                            ? Image.network(
+                                app.iconUrl,
+                                width: 40,
+                                height: 40,
+                                fit: BoxFit.cover,
+                                errorBuilder: (c, e, s) => Container(
+                                  width: 40,
+                                  height: 40,
+                                  color: const Color(0xFF1F2636),
+                                  child: const Icon(Icons.android, color: Colors.white, size: 20),
+                                ),
+                              )
+                            : Container(
+                                width: 40,
+                                height: 40,
+                                color: const Color(0xFF1F2636),
+                                child: const Icon(Icons.android, color: Colors.white, size: 20),
+                              ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(app.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                            SelectableText(app.packageName, style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 11)),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        flex: 4,
+                        child: Text(app.summary, style: const TextStyle(color: Color(0xFF6B7280), fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(color: const Color(0xFF1F2636), borderRadius: BorderRadius.circular(6)),
+                        child: Text(app.version, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                      ),
                     ],
                   ),
                 ),
-                Expanded(
-                  flex: 4,
-                  child: Text(app.summary, style: const TextStyle(color: Color(0xFF6B7280), fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(color: const Color(0xFF1F2636), borderRadius: BorderRadius.circular(6)),
-                  child: Text(app.version, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                ),
-                const SizedBox(width: 12),
-                if (isInstalled && !isInstalling)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 6),
-                    child: IconButton(
-                      icon: const Icon(Icons.delete_forever, color: Color(0xFFFF5252), size: 18),
-                      onPressed: () => _uninstallFDroidApp(app),
-                      tooltip: 'Uninstall ${app.name} from phone',
-                    ),
-                  ),
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isInstalling
-                        ? const Color(0xFFFFB74D)
-                        : (isInstalled ? const Color(0xFF064E3B) : Colors.white),
-                    foregroundColor: isInstalled ? const Color(0xFF34D399) : Colors.black,
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    side: isInstalled ? const BorderSide(color: Color(0xFF10B981)) : BorderSide.none,
-                  ),
-                  onPressed: isInstalling ? null : () => _installFDroidApp(app),
-                  icon: isInstalling
-                      ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-                      : Icon(isInstalled ? Icons.check_circle : Icons.download, size: 14),
-                  label: Text(
-                    isInstalling
-                        ? (statusText ?? "INSTALLING...")
-                        : (isInstalled ? "INSTALLED" : "INSTALL"),
-                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(width: 12),
+              if (isInstalled && !isInstalling)
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: IconButton(
+                    icon: const Icon(Icons.delete_forever, color: Color(0xFFFF5252), size: 18),
+                    onPressed: () => _uninstallFDroidApp(app),
+                    tooltip: 'Uninstall ${app.name} from phone',
                   ),
                 ),
-              ],
-            ),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isInstalling
+                      ? const Color(0xFFFFB74D)
+                      : (isInstalled ? const Color(0xFF064E3B) : Colors.white),
+                  foregroundColor: isInstalled ? const Color(0xFF34D399) : Colors.black,
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  side: isInstalled ? const BorderSide(color: Color(0xFF10B981)) : BorderSide.none,
+                ),
+                onPressed: isInstalling ? null : () => _installFDroidApp(app),
+                icon: isInstalling
+                    ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                    : Icon(isInstalled ? Icons.check_circle : Icons.download, size: 14),
+                label: Text(
+                  isInstalling
+                      ? (statusText ?? "INSTALLING...")
+                      : (isInstalled ? "INSTALLED" : "INSTALL"),
+                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
           ),
         );
       },
