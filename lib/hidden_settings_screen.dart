@@ -1245,108 +1245,139 @@ class _SettingRowWidgetState extends State<_SettingRowWidget> {
           width: isModified ? 2 : 1,
         ),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 4,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    SelectableText(widget.settingKey, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                    const SizedBox(width: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                      decoration: BoxDecoration(
-                        color: riskColor.withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: riskColor, width: 1),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(riskIcon, color: riskColor, size: 10),
-                          const SizedBox(width: 3),
-                          Text(riskLabel, style: TextStyle(color: riskColor, fontSize: 8, fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                    ),
-                    if (isModified) ...[
-                      const SizedBox(width: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF064E3B),
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: const Color(0xFF10B981)),
-                        ),
-                        child: const Text('MODIFIED', style: TextStyle(color: Color(0xFF34D399), fontSize: 9, fontWeight: FontWeight.bold)),
-                      ),
-                    ],
-                  ],
-                ),
-                Text(
-                  isModified ? "${widget.namespace.toUpperCase()} • Default: ${widget.defaultValue}" : widget.namespace.toUpperCase(),
-                  style: TextStyle(color: isModified ? const Color(0xFF10B981) : const Color(0xFF6B7280), fontSize: 9, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          if (isModified)
-            Padding(
-              padding: const EdgeInsets.only(right: 6),
-              child: IconButton(
-                icon: const Icon(Icons.restore, color: Color(0xFF10B981), size: 18),
-                tooltip: 'Reset to phone default (${widget.defaultValue})',
-                onPressed: () => widget.onReset(widget.namespace, widget.settingKey),
-              ),
-            ),
-          if (isBool)
-            Row(
-              children: [
-                Text(isBoolActive ? '1 (ENABLED)' : '0 (DISABLED)', style: TextStyle(color: isBoolActive ? Colors.greenAccent : Colors.grey, fontSize: 11, fontWeight: FontWeight.bold)),
-                const SizedBox(width: 8),
-                Switch(
-                  value: isBoolActive,
-                  activeColor: isModified ? const Color(0xFF10B981) : Colors.white,
-                  onChanged: (val) {
-                    widget.onUpdate(widget.namespace, widget.settingKey, val ? '1' : '0');
-                  },
-                ),
-              ],
-            )
-          else
-            Expanded(
-              flex: 5,
-              child: Row(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isNarrow = constraints.maxWidth < 480;
+
+          final headerInfo = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 6,
+                runSpacing: 4,
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _textCtrl,
-                      style: const TextStyle(color: Colors.white, fontSize: 12),
-                      decoration: InputDecoration(
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                        filled: true,
-                        fillColor: const Color(0xFF0B0C10),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: const BorderSide(color: Color(0xFF1F2636))),
-                      ),
+                  SelectableText(
+                    widget.settingKey,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: riskColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: riskColor, width: 1),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(riskIcon, color: riskColor, size: 10),
+                        const SizedBox(width: 3),
+                        Text(riskLabel, style: TextStyle(color: riskColor, fontSize: 8, fontWeight: FontWeight.bold)),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E2638), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6)),
-                    onPressed: () {
-                      widget.onUpdate(widget.namespace, widget.settingKey, _textCtrl.text.trim());
-                    },
-                    child: const Text('SAVE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
-                  ),
+                  if (isModified)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF064E3B),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: const Color(0xFF10B981)),
+                      ),
+                      child: const Text('MODIFIED', style: TextStyle(color: Color(0xFF34D399), fontSize: 9, fontWeight: FontWeight.bold)),
+                    ),
                 ],
               ),
-            ),
-        ],
+              const SizedBox(height: 2),
+              Text(
+                isModified ? "${widget.namespace.toUpperCase()} • Default: ${widget.defaultValue}" : widget.namespace.toUpperCase(),
+                style: TextStyle(color: isModified ? const Color(0xFF10B981) : const Color(0xFF6B7280), fontSize: 9, fontWeight: FontWeight.bold),
+              ),
+            ],
+          );
+
+          final inputControls = Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isModified)
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: IconButton(
+                    icon: const Icon(Icons.restore, color: Color(0xFF10B981), size: 18),
+                    tooltip: 'Reset to phone default (${widget.defaultValue})',
+                    onPressed: () => widget.onReset(widget.namespace, widget.settingKey),
+                  ),
+                ),
+              if (isBool)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      isBoolActive ? '1 (ENABLED)' : '0 (DISABLED)',
+                      style: TextStyle(color: isBoolActive ? Colors.greenAccent : Colors.grey, fontSize: 11, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(width: 8),
+                    Switch(
+                      value: isBoolActive,
+                      activeThumbColor: isModified ? const Color(0xFF10B981) : Colors.white,
+                      onChanged: (val) {
+                        widget.onUpdate(widget.namespace, widget.settingKey, val ? '1' : '0');
+                      },
+                    ),
+                  ],
+                )
+              else
+                Flexible(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: TextField(
+                          controller: _textCtrl,
+                          style: const TextStyle(color: Colors.white, fontSize: 12),
+                          decoration: InputDecoration(
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            filled: true,
+                            fillColor: const Color(0xFF0B0C10),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: const BorderSide(color: Color(0xFF1F2636))),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E2638), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6)),
+                        onPressed: () {
+                          widget.onUpdate(widget.namespace, widget.settingKey, _textCtrl.text.trim());
+                        },
+                        child: const Text('SAVE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          );
+
+          if (isNarrow) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                headerInfo,
+                const SizedBox(height: 8),
+                inputControls,
+              ],
+            );
+          }
+
+          return Row(
+            children: [
+              Expanded(flex: 4, child: headerInfo),
+              const SizedBox(width: 12),
+              Expanded(flex: 5, child: inputControls),
+            ],
+          );
+        },
       ),
     );
   }
