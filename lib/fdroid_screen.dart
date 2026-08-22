@@ -306,10 +306,16 @@ class _FDroidScreenState extends State<FDroidScreen> {
   ];
 
   bool _isShowingDetailsModal = false;
+  DateTime? _lastModalTime;
 
   void _showAppDetailsModal(FDroidApp app) {
+    final now = DateTime.now();
+    if (_lastModalTime != null && now.difference(_lastModalTime!).inMilliseconds < 500) {
+      return;
+    }
     if (_isShowingDetailsModal) return;
     _isShowingDetailsModal = true;
+    _lastModalTime = now;
 
     showDialog(
       context: context,

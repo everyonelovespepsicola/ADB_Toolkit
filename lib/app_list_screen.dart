@@ -445,10 +445,16 @@ class _AppListScreenState extends State<AppListScreen> {
   }
 
   bool _isShowingPermissionsModal = false;
+  DateTime? _lastPermModalTime;
 
   void _showPermissionsModal(AppPackageInfo pkg) {
+    final now = DateTime.now();
+    if (_lastPermModalTime != null && now.difference(_lastPermModalTime!).inMilliseconds < 500) {
+      return;
+    }
     if (_isShowingPermissionsModal) return;
     _isShowingPermissionsModal = true;
+    _lastPermModalTime = now;
 
     final serial = widget.selectedDeviceSerial ?? (widget.connectedDevices.isNotEmpty ? widget.connectedDevices.first.serial : null);
     if (serial == null) {
