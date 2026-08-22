@@ -466,4 +466,47 @@ class AdbManager {
       return false;
     }
   }
+
+  // Get all key-value settings for a namespace (global, secure, or system)
+  static Future<Map<String, String>> getSettingsList(String serial, String namespace) async {
+    final Map<String, String> settingsMap = {};
+    try {
+      final res = await runAdb(['-s', serial, 'shell', 'settings', 'list', namespace]);
+      if (res.exitCode == 0) {
+        final lines = res.stdout.toString().split('\n');
+        for (final line in lines) {
+          final trimmed = line.trim();
+          final eqIdx = trimmed.indexOf('=');
+          if (eqIdx != -1) {
+            final key = trimmed.substring(0, eqIdx);
+            final val = trimmed.substring(eqIdx + 1);
+            settingsMap[key] = val;
+          }
+        }
+      }
+    } catch (_) {}
+    return settingsMap;
+  }
+
+  // Put / Update a specific setting key-value
+  static Future<bool> putSetting(String serial, String namespace, String key, String value) async {
+    try {
+      final res = await runAdb(['-s', serial, 'shell', 'settings', 'put', namespace, key, value]);
+      return res.exitCode == 0;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // Get a single setting value
+  static Future<String?> getSetting(String serial, String namespace, String key) async {
+    try {
+      final res = await runAdb(['-s', serial, 'shell', 'settings', 'get', namespace, key]);
+      if (res.exitCode == 0) {
+        final val = res.stdout.toString().trim();
+        if (val != 'null') return val;
+      }
+    } catch (_) {}
+    return null;
+  }
 }

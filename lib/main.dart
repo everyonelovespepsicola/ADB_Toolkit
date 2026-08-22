@@ -5,6 +5,7 @@ import 'dropzone_installer.dart';
 import 'app_list_screen.dart';
 import 'wifi_adb_screen.dart';
 import 'fdroid_screen.dart';
+import 'hidden_settings_screen.dart';
 import 'theme.dart';
 
 void main() {
@@ -106,6 +107,10 @@ class _MainTabShellState extends State<MainTabShell> {
       WifiAdbScreen(
         connectedDevices: _connectedDevices,
         onDevicesUpdated: _refreshDevices,
+      ),
+      HiddenSettingsScreen(
+        connectedDevices: _connectedDevices,
+        selectedDeviceSerial: _selectedDeviceSerial,
       ),
       _buildSettingsView(),
     ];
@@ -227,8 +232,15 @@ class _MainTabShellState extends State<MainTabShell> {
             ),
             Expanded(
               child: _buildDockButton(
-                label: '⚙️ SETTINGS',
+                label: '🛠️ HIDDEN SETTINGS',
                 index: 4,
+                activeColor: Colors.white,
+              ),
+            ),
+            Expanded(
+              child: _buildDockButton(
+                label: '⚙️ SETTINGS',
+                index: 5,
                 activeColor: Colors.white,
               ),
             ),
