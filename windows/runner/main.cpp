@@ -35,7 +35,7 @@ LONG WINAPI CreateCrashMinidump(EXCEPTION_POINTERS* pExceptionPointers) {
       mdei.ExceptionPointers = pExceptionPointers;
       mdei.ClientPointers = FALSE;
 
-      MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpWithNormal, &mdei, NULL, NULL);
+      MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, &mdei, NULL, NULL);
       CloseHandle(hFile);
     }
   }

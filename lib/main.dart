@@ -409,6 +409,7 @@ class _MainTabShellState extends State<MainTabShell> {
                 ),
               ],
             ),
+          ),
           const SizedBox(height: 14),
           Container(
             width: double.infinity,
