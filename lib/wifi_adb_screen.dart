@@ -15,7 +15,10 @@ class WifiAdbScreen extends StatefulWidget {
   State<WifiAdbScreen> createState() => _WifiAdbScreenState();
 }
 
-class _WifiAdbScreenState extends State<WifiAdbScreen> {
+class _WifiAdbScreenState extends State<WifiAdbScreen> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   final TextEditingController _pairIpPortController = TextEditingController();
   final TextEditingController _pairCodeController = TextEditingController();
 
@@ -121,6 +124,7 @@ class _WifiAdbScreenState extends State<WifiAdbScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final usbDevices = widget.connectedDevices.where((d) => !d.isWifi).toList();
 
     return SingleChildScrollView(

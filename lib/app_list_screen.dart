@@ -16,7 +16,10 @@ class AppListScreen extends StatefulWidget {
   State<AppListScreen> createState() => _AppListScreenState();
 }
 
-class _AppListScreenState extends State<AppListScreen> {
+class _AppListScreenState extends State<AppListScreen> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   String _selectedTab = 'user'; // 'user', 'system', 'disabled'
   List<AppPackageInfo> _packages = [];
   bool _isLoading = false;
@@ -127,6 +130,7 @@ class _AppListScreenState extends State<AppListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final serial = widget.selectedDeviceSerial ?? (widget.connectedDevices.isNotEmpty ? widget.connectedDevices.first.serial : null);
 
     final filtered = _packages.where((p) {

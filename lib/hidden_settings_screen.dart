@@ -16,7 +16,10 @@ class HiddenSettingsScreen extends StatefulWidget {
   State<HiddenSettingsScreen> createState() => _HiddenSettingsScreenState();
 }
 
-class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> {
+class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   String _selectedNamespace = 'global'; // 'global', 'secure', 'system'
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
@@ -200,6 +203,7 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final currentMap = _settingsCache[_selectedNamespace] ?? {};
     final filteredEntries = currentMap.entries.where((e) {
       final q = _searchQuery.toLowerCase();
@@ -239,149 +243,155 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> {
               ),
               const SizedBox(height: 12),
 
-              // Featured Quick Tweaks Row
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  // 🚀 Animation Scale Card
-                  _buildQuickTweakCard(
-                    title: '🚀 UI ANIMATION SCALE',
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text("${_animScale.toStringAsFixed(1)}x", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                        const SizedBox(width: 6),
-                        SizedBox(
-                          width: 120,
-                          child: Slider(
-                            value: _animScale.clamp(0.0, 2.0),
-                            min: 0.0,
-                            max: 2.0,
-                            divisions: 4,
-                            activeColor: Colors.white,
-                            onChanged: (val) => _setAnimScale(val),
+              // Featured Quick Tweaks Row (Horizontal Scroll - Zero Reflow Collisions on Window Resize)
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    // 🚀 Animation Scale Card
+                    _buildQuickTweakCard(
+                      title: '🚀 UI ANIMATION SCALE',
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text("${_animScale.toStringAsFixed(1)}x", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                          const SizedBox(width: 6),
+                          SizedBox(
+                            width: 120,
+                            child: Slider(
+                              value: _animScale.clamp(0.0, 2.0),
+                              min: 0.0,
+                              max: 2.0,
+                              divisions: 4,
+                              activeColor: Colors.white,
+                              onChanged: (val) => _setAnimScale(val),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 10),
 
-                  // ☀️ Screen Brightness Card
-                  _buildQuickTweakCard(
-                    title: '☀️ SCREEN BRIGHTNESS',
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text("${_screenBrightness.round()}", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                        const SizedBox(width: 6),
-                        SizedBox(
-                          width: 120,
-                          child: Slider(
-                            value: _screenBrightness.clamp(0.0, 255.0),
-                            min: 0.0,
-                            max: 255.0,
-                            activeColor: Colors.white,
-                            onChanged: (val) {
-                              setState(() => _screenBrightness = val);
-                              _updateSetting('system', 'screen_brightness', val.round().toString());
+                    // ☀️ Screen Brightness Card
+                    _buildQuickTweakCard(
+                      title: '☀️ SCREEN BRIGHTNESS',
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text("${_screenBrightness.round()}", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                          const SizedBox(width: 6),
+                          SizedBox(
+                            width: 120,
+                            child: Slider(
+                              value: _screenBrightness.clamp(0.0, 255.0),
+                              min: 0.0,
+                              max: 255.0,
+                              activeColor: Colors.white,
+                              onChanged: (val) {
+                                setState(() => _screenBrightness = val);
+                                _updateSetting('system', 'screen_brightness', val.round().toString());
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+
+                    // ⏱️ Screen Timeout Card
+                    _buildQuickTweakCard(
+                      title: '⏱️ SCREEN TIMEOUT',
+                      child: DropdownButton<int>(
+                        value: [15000, 30000, 60000, 300000, 600000, 1800000, 86400000].contains(_screenTimeoutMs) ? _screenTimeoutMs : 60000,
+                        dropdownColor: const Color(0xFF121622),
+                        underline: const SizedBox(),
+                        style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                        items: const [
+                          DropdownMenuItem(value: 15000, child: Text('15 Seconds')),
+                          DropdownMenuItem(value: 30000, child: Text('30 Seconds')),
+                          DropdownMenuItem(value: 60000, child: Text('1 Minute')),
+                          DropdownMenuItem(value: 300000, child: Text('5 Minutes')),
+                          DropdownMenuItem(value: 600000, child: Text('10 Minutes')),
+                          DropdownMenuItem(value: 1800000, child: Text('30 Minutes')),
+                          DropdownMenuItem(value: 86400000, child: Text('Never (24 Hours)')),
+                        ],
+                        onChanged: (val) {
+                          if (val != null) {
+                            setState(() => _screenTimeoutMs = val);
+                            _updateSetting('system', 'screen_off_timeout', val.toString());
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+
+                    // ⚡ Stay Awake Card
+                    _buildQuickTweakCard(
+                      title: '⚡ STAY AWAKE ON USB',
+                      child: Switch(
+                        value: _stayAwake,
+                        activeColor: Colors.white,
+                        onChanged: (val) {
+                          setState(() => _stayAwake = val);
+                          _updateSetting('global', 'stay_on_while_plugged_in', val ? '3' : '0');
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+
+                    // 🔄 Auto-Rotate Card
+                    _buildQuickTweakCard(
+                      title: '🔄 AUTO-ROTATE SCREEN',
+                      child: Switch(
+                        value: _autoRotate,
+                        activeColor: Colors.white,
+                        onChanged: (val) {
+                          setState(() => _autoRotate = val);
+                          _updateSetting('system', 'accelerometer_rotation', val ? '1' : '0');
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+
+                    // 🛡️ Private AdBlock DNS Card
+                    _buildQuickTweakCard(
+                      title: '🛡️ AD-BLOCK PRIVATE DNS',
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: 140,
+                            child: Text(
+                              _privateDnsHost.isEmpty ? 'Off' : _privateDnsHost,
+                              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          PopupMenuButton<String>(
+                            icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                            color: const Color(0xFF121622),
+                            onSelected: (val) {
+                              setState(() => _privateDnsHost = val);
+                              if (val.isEmpty) {
+                                _updateSetting('global', 'private_dns_mode', 'off');
+                                _updateSetting('global', 'private_dns_specifier', '');
+                              } else {
+                                _updateSetting('global', 'private_dns_mode', 'hostname');
+                                _updateSetting('global', 'private_dns_specifier', val);
+                              }
                             },
+                            itemBuilder: (ctx) => const [
+                              PopupMenuItem(value: '', child: Text('Off')),
+                              PopupMenuItem(value: 'dns.adguard.com', child: Text('AdGuard (Block Ads)')),
+                              PopupMenuItem(value: 'family.adguard-dns.com', child: Text('AdGuard Family (Block Adult)')),
+                              PopupMenuItem(value: 'one.one.one.one', child: Text('Cloudflare 1.1.1.1')),
+                            ],
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-
-                  // ⏱️ Screen Timeout Card
-                  _buildQuickTweakCard(
-                    title: '⏱️ SCREEN TIMEOUT',
-                    child: DropdownButton<int>(
-                      value: [15000, 30000, 60000, 300000, 600000, 1800000, 86400000].contains(_screenTimeoutMs) ? _screenTimeoutMs : 60000,
-                      dropdownColor: const Color(0xFF121622),
-                      underline: const SizedBox(),
-                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                      items: const [
-                        DropdownMenuItem(value: 15000, child: Text('15 Seconds')),
-                        DropdownMenuItem(value: 30000, child: Text('30 Seconds')),
-                        DropdownMenuItem(value: 60000, child: Text('1 Minute')),
-                        DropdownMenuItem(value: 300000, child: Text('5 Minutes')),
-                        DropdownMenuItem(value: 600000, child: Text('10 Minutes')),
-                        DropdownMenuItem(value: 1800000, child: Text('30 Minutes')),
-                        DropdownMenuItem(value: 86400000, child: Text('Never (24 Hours)')),
-                      ],
-                      onChanged: (val) {
-                        if (val != null) {
-                          setState(() => _screenTimeoutMs = val);
-                          _updateSetting('system', 'screen_off_timeout', val.toString());
-                        }
-                      },
-                    ),
-                  ),
-
-                  // ⚡ Stay Awake Card
-                  _buildQuickTweakCard(
-                    title: '⚡ STAY AWAKE ON USB',
-                    child: Switch(
-                      value: _stayAwake,
-                      activeColor: Colors.white,
-                      onChanged: (val) {
-                        setState(() => _stayAwake = val);
-                        _updateSetting('global', 'stay_on_while_plugged_in', val ? '3' : '0');
-                      },
-                    ),
-                  ),
-
-                  // 🔄 Auto-Rotate Card
-                  _buildQuickTweakCard(
-                    title: '🔄 AUTO-ROTATE SCREEN',
-                    child: Switch(
-                      value: _autoRotate,
-                      activeColor: Colors.white,
-                      onChanged: (val) {
-                        setState(() => _autoRotate = val);
-                        _updateSetting('system', 'accelerometer_rotation', val ? '1' : '0');
-                      },
-                    ),
-                  ),
-
-                  // 🛡️ Private AdBlock DNS Card
-                  _buildQuickTweakCard(
-                    title: '🛡️ AD-BLOCK PRIVATE DNS',
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          width: 140,
-                          child: Text(
-                            _privateDnsHost.isEmpty ? 'Off' : _privateDnsHost,
-                            style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        PopupMenuButton<String>(
-                          icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                          color: const Color(0xFF121622),
-                          onSelected: (val) {
-                            setState(() => _privateDnsHost = val);
-                            if (val.isEmpty) {
-                              _updateSetting('global', 'private_dns_mode', 'off');
-                              _updateSetting('global', 'private_dns_specifier', '');
-                            } else {
-                              _updateSetting('global', 'private_dns_mode', 'hostname');
-                              _updateSetting('global', 'private_dns_specifier', val);
-                            }
-                          },
-                          itemBuilder: (ctx) => const [
-                            PopupMenuItem(value: '', child: Text('Off')),
-                            PopupMenuItem(value: 'dns.adguard.com', child: Text('AdGuard (Block Ads)')),
-                            PopupMenuItem(value: 'family.adguard-dns.com', child: Text('AdGuard Family (Block Adult)')),
-                            PopupMenuItem(value: 'one.one.one.one', child: Text('Cloudflare 1.1.1.1')),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(height: 12),
 
@@ -439,6 +449,7 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> {
                       ),
                     )
                   : ListView.separated(
+                      cacheExtent: 500,
                       padding: const EdgeInsets.all(12),
                       itemCount: filteredEntries.length,
                       separatorBuilder: (ctx, idx) => const SizedBox(height: 6),

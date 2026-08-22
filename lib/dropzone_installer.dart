@@ -31,7 +31,10 @@ class DropzoneInstaller extends StatefulWidget {
   State<DropzoneInstaller> createState() => _DropzoneInstallerState();
 }
 
-class _DropzoneInstallerState extends State<DropzoneInstaller> {
+class _DropzoneInstallerState extends State<DropzoneInstaller> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   bool _isDragging = false;
   bool _batchAllDevices = false;
   bool _setAsDeviceOwner = false;
@@ -129,6 +132,7 @@ class _DropzoneInstallerState extends State<DropzoneInstaller> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(

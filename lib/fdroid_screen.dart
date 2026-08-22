@@ -47,7 +47,10 @@ class FDroidScreen extends StatefulWidget {
   State<FDroidScreen> createState() => _FDroidScreenState();
 }
 
-class _FDroidScreenState extends State<FDroidScreen> {
+class _FDroidScreenState extends State<FDroidScreen> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   String _selectedCategory = 'All';
   String _searchQuery = '';
   String _viewMode = 'column'; // 'column' (list view default) or 'grid'
@@ -532,6 +535,7 @@ class _FDroidScreenState extends State<FDroidScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final filtered = _popularFDroidApps.where((app) {
       final q = _searchQuery.toLowerCase();
       final matchesSearch = q.isEmpty || app.name.toLowerCase().contains(q) || app.packageName.toLowerCase().contains(q) || app.summary.toLowerCase().contains(q);
