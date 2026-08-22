@@ -1,6 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'adb_manager.dart';
-import 'main.dart';
 
 class HiddenSettingsScreen extends StatefulWidget {
   final List<DeviceInfo> connectedDevices;
@@ -20,6 +20,8 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
   @override
   bool get wantKeepAlive => true;
 
+  static const String _snapshotPath = '/sdcard/.app_manager_defaults.json';
+
   String _selectedNamespace = 'global'; // 'global', 'secure', 'system'
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
@@ -28,7 +30,13 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
     'secure': {},
     'system': {},
   };
+  final Map<String, Map<String, String>> _defaultsCache = {
+    'global': {},
+    'secure': {},
+    'system': {},
+  };
   bool _isLoading = false;
+  bool _hasPhoneSnapshot = false;
 
   // Quick Tweaks State
   double _animScale = 1.0;
@@ -62,17 +70,61 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
       AdbManager.getSettingsList(serial, 'global'),
       AdbManager.getSettingsList(serial, 'secure'),
       AdbManager.getSettingsList(serial, 'system'),
+      AdbManager.readPhoneFile(serial, _snapshotPath),
     ]);
 
-    final globalSettings = results[0];
-    final secureSettings = results[1];
-    final systemSettings = results[2];
+    final globalSettings = results[0] as Map<String, String>;
+    final secureSettings = results[1] as Map<String, String>;
+    final systemSettings = results[2] as Map<String, String>;
+    final snapshotJson = results[3] as String?;
+
+    Map<String, String> defGlobal = {};
+    Map<String, String> defSecure = {};
+    Map<String, String> defSystem = {};
+    bool hasSnapshot = false;
+
+    if (snapshotJson != null && snapshotJson.trim().isNotEmpty) {
+      try {
+        final decoded = jsonDecode(snapshotJson) as Map<String, dynamic>;
+        if (decoded.containsKey('global')) {
+          defGlobal = Map<String, String>.from(decoded['global'] as Map);
+        }
+        if (decoded.containsKey('secure')) {
+          defSecure = Map<String, String>.from(decoded['secure'] as Map);
+        }
+        if (decoded.containsKey('system')) {
+          defSystem = Map<String, String>.from(decoded['system'] as Map);
+        }
+        hasSnapshot = true;
+      } catch (_) {}
+    }
+
+    if (!hasSnapshot) {
+      // Create initial baseline JSON snapshot on the phone
+      defGlobal = Map<String, String>.from(globalSettings);
+      defSecure = Map<String, String>.from(secureSettings);
+      defSystem = Map<String, String>.from(systemSettings);
+
+      final baselineMap = {
+        'global': defGlobal,
+        'secure': defSecure,
+        'system': defSystem,
+      };
+      final jsonContent = const JsonEncoder.withIndent('  ').convert(baselineMap);
+      await AdbManager.writePhoneFile(serial, _snapshotPath, jsonContent);
+      hasSnapshot = true;
+    }
 
     if (mounted) {
       setState(() {
         _settingsCache['global'] = globalSettings;
         _settingsCache['secure'] = secureSettings;
         _settingsCache['system'] = systemSettings;
+
+        _defaultsCache['global'] = defGlobal;
+        _defaultsCache['secure'] = defSecure;
+        _defaultsCache['system'] = defSystem;
+        _hasPhoneSnapshot = hasSnapshot;
 
         // Parse Quick Tweaks
         _animScale = double.tryParse(globalSettings['window_animation_scale'] ?? '1.0') ?? 1.0;
@@ -84,6 +136,13 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
 
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _resetSettingToDefault(String namespace, String key) async {
+    final defVal = _defaultsCache[namespace]?[key];
+    if (defVal != null) {
+      await _updateSetting(namespace, key, defVal);
     }
   }
 
@@ -205,10 +264,31 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
   Widget build(BuildContext context) {
     super.build(context);
     final currentMap = _settingsCache[_selectedNamespace] ?? {};
+    final defaultMap = _defaultsCache[_selectedNamespace] ?? {};
+
     final filteredEntries = currentMap.entries.where((e) {
       final q = _searchQuery.toLowerCase();
       return q.isEmpty || e.key.toLowerCase().contains(q) || e.value.toLowerCase().contains(q);
     }).toList();
+
+    // Quick tweaks default checks
+    final defAnimScale = double.tryParse(defaultMap['window_animation_scale'] ?? _defaultsCache['global']?['window_animation_scale'] ?? '1.0') ?? 1.0;
+    final animModified = _animScale != defAnimScale;
+
+    final defBrightness = double.tryParse(defaultMap['screen_brightness'] ?? _defaultsCache['system']?['screen_brightness'] ?? '128') ?? 128.0;
+    final brightnessModified = _screenBrightness != defBrightness;
+
+    final defTimeout = int.tryParse(defaultMap['screen_off_timeout'] ?? _defaultsCache['system']?['screen_off_timeout'] ?? '60000') ?? 60000;
+    final timeoutModified = _screenTimeoutMs != defTimeout;
+
+    final defStayAwake = ((defaultMap['stay_on_while_plugged_in'] ?? _defaultsCache['global']?['stay_on_while_plugged_in'] ?? '0') != '0');
+    final stayAwakeModified = _stayAwake != defStayAwake;
+
+    final defAutoRotate = ((defaultMap['accelerometer_rotation'] ?? _defaultsCache['system']?['accelerometer_rotation'] ?? '1') == '1');
+    final autoRotateModified = _autoRotate != defAutoRotate;
+
+    final defPrivateDns = defaultMap['private_dns_specifier'] ?? _defaultsCache['global']?['private_dns_specifier'] ?? '';
+    final privateDnsModified = _privateDnsHost != defPrivateDns;
 
     return Column(
       children: [
@@ -227,11 +307,29 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                     'HIDDEN SETTINGS & SYSTEM TWEAKS',
                     style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                   ),
+                  const SizedBox(width: 10),
+                  if (_hasPhoneSnapshot)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF064E3B),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFF10B981)),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.sd_storage, color: Color(0xFF34D399), size: 12),
+                          SizedBox(width: 4),
+                          Text('PHONE SNAPSHOT ACTIVE', style: TextStyle(color: Color(0xFF34D399), fontSize: 9, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
                   const Spacer(),
                   IconButton(
                     icon: const Icon(Icons.refresh, color: Colors.white),
                     onPressed: _loadSettings,
-                    tooltip: 'Re-fetch Settings from Phone',
+                    tooltip: 'Re-fetch Settings & Snapshot from Phone',
                   ),
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black),
@@ -251,6 +349,9 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                     // 🚀 Animation Scale Card
                     _buildQuickTweakCard(
                       title: '🚀 UI ANIMATION SCALE',
+                      isModified: animModified,
+                      onReset: () => _setAnimScale(defAnimScale),
+                      defaultHint: "${defAnimScale.toStringAsFixed(1)}x",
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -263,7 +364,7 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                               min: 0.0,
                               max: 2.0,
                               divisions: 4,
-                              activeColor: Colors.white,
+                              activeColor: animModified ? const Color(0xFF10B981) : Colors.white,
                               onChanged: (val) => _setAnimScale(val),
                             ),
                           ),
@@ -275,6 +376,12 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                     // ☀️ Screen Brightness Card
                     _buildQuickTweakCard(
                       title: '☀️ SCREEN BRIGHTNESS',
+                      isModified: brightnessModified,
+                      onReset: () {
+                        setState(() => _screenBrightness = defBrightness);
+                        _updateSetting('system', 'screen_brightness', defBrightness.round().toString());
+                      },
+                      defaultHint: "${defBrightness.round()}",
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -286,7 +393,7 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                               value: _screenBrightness.clamp(0.0, 255.0),
                               min: 0.0,
                               max: 255.0,
-                              activeColor: Colors.white,
+                              activeColor: brightnessModified ? const Color(0xFF10B981) : Colors.white,
                               onChanged: (val) {
                                 setState(() => _screenBrightness = val);
                                 _updateSetting('system', 'screen_brightness', val.round().toString());
@@ -301,6 +408,12 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                     // ⏱️ Screen Timeout Card
                     _buildQuickTweakCard(
                       title: '⏱️ SCREEN TIMEOUT',
+                      isModified: timeoutModified,
+                      onReset: () {
+                        setState(() => _screenTimeoutMs = defTimeout);
+                        _updateSetting('system', 'screen_off_timeout', defTimeout.toString());
+                      },
+                      defaultHint: "${defTimeout ~/ 1000}s",
                       child: DropdownButton<int>(
                         value: [15000, 30000, 60000, 300000, 600000, 1800000, 86400000].contains(_screenTimeoutMs) ? _screenTimeoutMs : 60000,
                         dropdownColor: const Color(0xFF121622),
@@ -328,9 +441,15 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                     // ⚡ Stay Awake Card
                     _buildQuickTweakCard(
                       title: '⚡ STAY AWAKE ON USB',
+                      isModified: stayAwakeModified,
+                      onReset: () {
+                        setState(() => _stayAwake = defStayAwake);
+                        _updateSetting('global', 'stay_on_while_plugged_in', defStayAwake ? '3' : '0');
+                      },
+                      defaultHint: defStayAwake ? 'On' : 'Off',
                       child: Switch(
                         value: _stayAwake,
-                        activeColor: Colors.white,
+                        activeColor: stayAwakeModified ? const Color(0xFF10B981) : Colors.white,
                         onChanged: (val) {
                           setState(() => _stayAwake = val);
                           _updateSetting('global', 'stay_on_while_plugged_in', val ? '3' : '0');
@@ -342,9 +461,15 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                     // 🔄 Auto-Rotate Card
                     _buildQuickTweakCard(
                       title: '🔄 AUTO-ROTATE SCREEN',
+                      isModified: autoRotateModified,
+                      onReset: () {
+                        setState(() => _autoRotate = defAutoRotate);
+                        _updateSetting('system', 'accelerometer_rotation', defAutoRotate ? '1' : '0');
+                      },
+                      defaultHint: defAutoRotate ? 'On' : 'Off',
                       child: Switch(
                         value: _autoRotate,
-                        activeColor: Colors.white,
+                        activeColor: autoRotateModified ? const Color(0xFF10B981) : Colors.white,
                         onChanged: (val) {
                           setState(() => _autoRotate = val);
                           _updateSetting('system', 'accelerometer_rotation', val ? '1' : '0');
@@ -356,6 +481,18 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                     // 🛡️ Private AdBlock DNS Card
                     _buildQuickTweakCard(
                       title: '🛡️ AD-BLOCK PRIVATE DNS',
+                      isModified: privateDnsModified,
+                      onReset: () {
+                        setState(() => _privateDnsHost = defPrivateDns);
+                        if (defPrivateDns.isEmpty) {
+                          _updateSetting('global', 'private_dns_mode', 'off');
+                          _updateSetting('global', 'private_dns_specifier', '');
+                        } else {
+                          _updateSetting('global', 'private_dns_mode', 'hostname');
+                          _updateSetting('global', 'private_dns_specifier', defPrivateDns);
+                        }
+                      },
+                      defaultHint: defPrivateDns.isEmpty ? 'Off' : defPrivateDns,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -455,12 +592,16 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                       separatorBuilder: (ctx, idx) => const SizedBox(height: 6),
                       itemBuilder: (ctx, idx) {
                         final entry = filteredEntries[idx];
+                        final defVal = _defaultsCache[_selectedNamespace]?[entry.key];
+
                         return _SettingRowWidget(
                           key: ValueKey("${_selectedNamespace}_${entry.key}"),
                           settingKey: entry.key,
                           settingValue: entry.value,
+                          defaultValue: defVal,
                           namespace: _selectedNamespace,
                           onUpdate: _updateSetting,
+                          onReset: _resetSettingToDefault,
                         );
                       },
                     ),
@@ -469,18 +610,49 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
     );
   }
 
-  Widget _buildQuickTweakCard({required String title, required Widget child}) {
+  Widget _buildQuickTweakCard({
+    required String title,
+    required Widget child,
+    bool isModified = false,
+    VoidCallback? onReset,
+    String? defaultHint,
+  }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: const Color(0xFF121622),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFF1F2636)),
+        border: Border.all(
+          color: isModified ? const Color(0xFF10B981) : const Color(0xFF1F2636),
+          width: isModified ? 2 : 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 10, fontWeight: FontWeight.bold)),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  color: isModified ? const Color(0xFF10B981) : const Color(0xFF9CA3AF),
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              if (isModified && onReset != null) ...[
+                const SizedBox(width: 4),
+                InkWell(
+                  onTap: onReset,
+                  child: Tooltip(
+                    message: defaultHint != null ? 'Reset to phone default ($defaultHint)' : 'Reset to phone default',
+                    child: const Icon(Icons.restore, color: Color(0xFF10B981), size: 14),
+                  ),
+                ),
+              ],
+            ],
+          ),
           const SizedBox(height: 4),
           child,
         ],
@@ -515,15 +687,19 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
 class _SettingRowWidget extends StatefulWidget {
   final String settingKey;
   final String settingValue;
+  final String? defaultValue;
   final String namespace;
   final Function(String ns, String key, String value) onUpdate;
+  final Function(String ns, String key) onReset;
 
   const _SettingRowWidget({
     Key? key,
     required this.settingKey,
     required this.settingValue,
+    this.defaultValue,
     required this.namespace,
     required this.onUpdate,
+    required this.onReset,
   }) : super(key: key);
 
   @override
@@ -557,13 +733,17 @@ class _SettingRowWidgetState extends State<_SettingRowWidget> {
   Widget build(BuildContext context) {
     final isBool = widget.settingValue == '0' || widget.settingValue == '1';
     final isBoolActive = widget.settingValue == '1';
+    final isModified = widget.defaultValue != null && widget.defaultValue != widget.settingValue;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: const Color(0xFF121622),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFF1F2636)),
+        border: Border.all(
+          color: isModified ? const Color(0xFF10B981) : const Color(0xFF1F2636),
+          width: isModified ? 2 : 1,
+        ),
       ),
       child: Row(
         children: [
@@ -572,12 +752,40 @@ class _SettingRowWidgetState extends State<_SettingRowWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SelectableText(widget.settingKey, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                Text(widget.namespace.toUpperCase(), style: const TextStyle(color: Color(0xFF6B7280), fontSize: 9, fontWeight: FontWeight.bold)),
+                Row(
+                  children: [
+                    SelectableText(widget.settingKey, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                    if (isModified) ...[
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF064E3B),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: const Color(0xFF10B981)),
+                        ),
+                        child: const Text('MODIFIED', style: TextStyle(color: Color(0xFF34D399), fontSize: 9, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ],
+                ),
+                Text(
+                  isModified ? "${widget.namespace.toUpperCase()} • Default: ${widget.defaultValue}" : widget.namespace.toUpperCase(),
+                  style: TextStyle(color: isModified ? const Color(0xFF10B981) : const Color(0xFF6B7280), fontSize: 9, fontWeight: FontWeight.bold),
+                ),
               ],
             ),
           ),
           const SizedBox(width: 12),
+          if (isModified)
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: IconButton(
+                icon: const Icon(Icons.restore, color: Color(0xFF10B981), size: 18),
+                tooltip: 'Reset to phone default (${widget.defaultValue})',
+                onPressed: () => widget.onReset(widget.namespace, widget.settingKey),
+              ),
+            ),
           if (isBool)
             Row(
               children: [
@@ -585,7 +793,7 @@ class _SettingRowWidgetState extends State<_SettingRowWidget> {
                 const SizedBox(width: 8),
                 Switch(
                   value: isBoolActive,
-                  activeColor: Colors.white,
+                  activeColor: isModified ? const Color(0xFF10B981) : Colors.white,
                   onChanged: (val) {
                     widget.onUpdate(widget.namespace, widget.settingKey, val ? '1' : '0');
                   },

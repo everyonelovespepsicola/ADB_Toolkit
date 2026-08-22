@@ -533,4 +533,29 @@ class AdbManager {
       return {"success": false, "message": e.toString()};
     }
   }
+
+  // Read text file content directly from Android phone
+  static Future<String?> readPhoneFile(String serial, String filePath) async {
+    try {
+      final res = await runAdb(['-s', serial, 'shell', 'cat', filePath]);
+      if (res.exitCode == 0) {
+        final out = res.stdout.toString();
+        if (!out.contains("No such file or directory") && !out.contains("Permission denied") && out.trim().isNotEmpty) {
+          return out;
+        }
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  // Write text content directly to a file on the Android phone using base64 decoding
+  static Future<bool> writePhoneFile(String serial, String filePath, String content) async {
+    try {
+      final b64 = base64Encode(utf8.encode(content));
+      final res = await runAdb(['-s', serial, 'shell', 'echo "$b64" | base64 -d > "$filePath"']);
+      return res.exitCode == 0;
+    } catch (_) {
+      return false;
+    }
+  }
 }
