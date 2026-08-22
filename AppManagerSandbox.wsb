@@ -9,6 +9,6 @@
     </MappedFolder>
   </MappedFolders>
   <LogonCommand>
-    <Command>explorer.exe C:\Users\WDAGUtilityAccount\Desktop\appmanager-windows-release</Command>
+    <Command>C:\Users\WDAGUtilityAccount\Desktop\appmanager-windows-release\setup_runtimes.bat</Command>
   </LogonCommand>
 </Configuration>
