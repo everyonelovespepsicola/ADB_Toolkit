@@ -298,11 +298,28 @@ class AdbManager {
   static Future<List<AppPackageInfo>> listPackages(String serial, {String filter = 'user'}) async {
     final list = <AppPackageInfo>[];
     try {
+      // Pre-fetch real file modification/install timestamps from Android /data/app
+      final Map<String, int> pathTimestamps = {};
+      try {
+        final statRes = await runAdb(['-s', serial, 'shell', 'stat -c "%n %Y" /data/app/*/*.apk /data/app/*/*/*.apk /system/app/*/*.apk /system/priv-app/*/*.apk 2>/dev/null']);
+        if (statRes.exitCode == 0) {
+          final statLines = statRes.stdout.toString().split('\n');
+          for (final sLine in statLines) {
+            final parts = sLine.trim().split(' ');
+            if (parts.length >= 2) {
+              final apkP = parts[0].trim();
+              final ts = int.tryParse(parts[1].trim());
+              if (ts != null) pathTimestamps[apkP] = ts;
+            }
+          }
+        }
+      } catch (_) {}
+
       final flag = filter == 'system' ? '-s' : (filter == 'disabled' ? '-d' : '-3');
       final res = await runAdb(['-s', serial, 'shell', 'pm', 'list', 'packages', '-f', flag]);
       if (res.exitCode == 0) {
         final lines = res.stdout.toString().split('\n');
-        int index = 0;
+        int fallbackIndex = 0;
         for (final line in lines) {
           final trimmed = line.trim();
           if (trimmed.startsWith('package:')) {
@@ -311,14 +328,18 @@ class AdbManager {
             if (eqIdx != -1) {
               final path = raw.substring(0, eqIdx);
               final pkg = raw.substring(eqIdx + 1);
-              index++;
+              fallbackIndex++;
+
+              // Use real stat timestamp if available, fallback to index
+              int realTimestamp = pathTimestamps[path] ?? fallbackIndex;
+
               list.add(
                 AppPackageInfo(
                   packageName: pkg,
                   apkPath: path,
                   isSystem: filter == 'system',
                   isDisabled: filter == 'disabled',
-                  installTimestamp: index,
+                  installTimestamp: realTimestamp,
                 ),
               );
             }

@@ -442,15 +442,16 @@ class _AppListScreenState extends State<AppListScreen> {
         _loadPackages();
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? color : const Color(0xFF1A1D28),
+          color: isSelected ? Colors.white : const Color(0xFF1E2638),
           borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: isSelected ? Colors.white : const Color(0xFF2A3448)),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: Colors.white,
+            color: isSelected ? Colors.black : const Color(0xFF9CA3AF),
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             fontSize: 12,
           ),

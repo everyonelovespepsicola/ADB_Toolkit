@@ -140,13 +140,34 @@ class _WifiAdbScreenState extends State<WifiAdbScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Icon(Icons.usb, color: Colors.white),
-                    SizedBox(width: 8),
-                    Text(
-                      'ONE-CLICK USB-TO-WIRELESS SWITCH (PORT 5555)',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                    const Row(
+                      children: [
+                        Icon(Icons.usb, color: Colors.white),
+                        SizedBox(width: 8),
+                        Text(
+                          'ONE-CLICK USB-TO-WIRELESS SWITCH (PORT 5555)',
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1E2638),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      ),
+                      onPressed: () {
+                        widget.onDevicesUpdated();
+                        _scanMdns();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('🔄 Refreshing connected ADB & Wi-Fi devices...'), duration: Duration(seconds: 2)),
+                        );
+                      },
+                      icon: const Icon(Icons.refresh, size: 14),
+                      label: const Text('REFRESH DEVICES', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),

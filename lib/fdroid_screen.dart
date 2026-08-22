@@ -50,7 +50,7 @@ class FDroidScreen extends StatefulWidget {
 class _FDroidScreenState extends State<FDroidScreen> {
   String _selectedCategory = 'All';
   String _searchQuery = '';
-  String _viewMode = 'grid'; // 'grid' or 'column'
+  String _viewMode = 'column'; // 'column' (list view default) or 'grid'
   final TextEditingController _searchController = TextEditingController();
   final Map<String, String> _installingApps = {}; // pkg -> status log
   Set<String> _installedPackageNames = {};
