@@ -9,8 +9,33 @@ import 'fdroid_screen.dart';
 import 'hidden_settings_screen.dart';
 import 'theme.dart';
 
+void _logCrash(dynamic error, StackTrace? stackTrace) async {
+  try {
+    final envAppData = Platform.environment['APPDATA'];
+    if (envAppData != null) {
+      final crashDir = Directory("$envAppData\\com.appmanager.app\\app_manager\\crashes");
+      if (!await crashDir.exists()) {
+        await crashDir.create(recursive: true);
+      }
+      final logFile = File("${crashDir.path}\\dart_crash_logs.txt");
+      final now = DateTime.now().toIso8601String();
+      final content = "[$now] ERROR: $error\nSTACKTRACE:\n$stackTrace\n----------------------------------------\n\n";
+      await logFile.writeAsString(content, mode: FileMode.append);
+    }
+  } catch (_) {}
+}
+
 void main() {
-  runApp(const AppManagerApp());
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    _logCrash(details.exception, details.stack);
+  };
+
+  runZonedGuarded(() {
+    runApp(const AppManagerApp());
+  }, (error, stackTrace) {
+    _logCrash(error, stackTrace);
+  });
 }
 
 class AppManagerApp extends StatelessWidget {
@@ -381,6 +406,99 @@ class _MainTabShellState extends State<MainTabShell> {
                   },
                   icon: const Icon(Icons.cleaning_services, size: 16),
                   label: const Text('CLEAR LOCAL APPDATA CACHE', style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+          const SizedBox(height: 14),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF121622),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF1F2636)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('CRASH DIAGNOSTICS & MINIDUMP LOGGER:', style: TextStyle(color: Color(0xFF4DEAEA), fontSize: 12, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                const Text(
+                  'Automated 2-Layer Crash Handler:\n  • Level 1 (Dart/Flutter): Intercepts uncaught Dart exceptions to dart_crash_logs.txt.\n  • Level 2 (Win32 C++): MiniDumpWriteDump writes native .dmp minidumps for Visual Studio / x64dbg.',
+                  style: TextStyle(color: Colors.white, fontSize: 12),
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E2638), foregroundColor: Colors.white),
+                      onPressed: () async {
+                        try {
+                          final envAppData = Platform.environment['APPDATA'];
+                          if (envAppData != null) {
+                            final crashPath = "$envAppData\\com.appmanager.app\\app_manager\\crashes";
+                            final crashDir = Directory(crashPath);
+                            if (!await crashDir.exists()) {
+                              await crashDir.create(recursive: true);
+                            }
+                            await Process.run('explorer.exe', [crashPath]);
+                          }
+                        } catch (e) {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('🔴 Unable to open folder: $e')));
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.folder_open, size: 16),
+                      label: const Text('OPEN CRASH DUMPS FOLDER', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+                    ),
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black),
+                      onPressed: () async {
+                        try {
+                          final envAppData = Platform.environment['APPDATA'];
+                          if (envAppData != null) {
+                            final logFile = File("$envAppData\\com.appmanager.app\\app_manager\\crashes\\dart_crash_logs.txt");
+                            final logs = await logFile.exists() ? await logFile.readAsString() : "No Dart crash logs recorded yet!";
+                            if (mounted) {
+                              showDialog(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  backgroundColor: const Color(0xFF121622),
+                                  title: const Text('DART CRASH LOGS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                                  content: SizedBox(
+                                    width: 600,
+                                    height: 350,
+                                    child: SingleChildScrollView(
+                                      child: SelectableText(logs, style: const TextStyle(color: Color(0xFF4DEAEA), fontFamily: 'monospace', fontSize: 11)),
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        if (ctx.mounted && Navigator.canPop(ctx)) {
+                                          Navigator.of(ctx).pop();
+                                        }
+                                      },
+                                      child: const Text('Close', style: TextStyle(color: Colors.grey)),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                          }
+                        } catch (e) {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('🔴 Error reading logs: $e')));
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.bug_report, size: 16),
+                      label: const Text('VIEW DART CRASH LOGS', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+                    ),
+                  ],
                 ),
               ],
             ),
