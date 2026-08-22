@@ -1346,19 +1346,6 @@ class _SettingRowWidgetState extends State<_SettingRowWidget> {
                     widget.settingKey,
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
                   ),
-                  if (widget.showTooltips && description != null)
-                    Tooltip(
-                      message: description,
-                      padding: const EdgeInsets.all(8),
-                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1E2638),
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: const Color(0xFF4DEAEA)),
-                      ),
-                      textStyle: const TextStyle(color: Colors.white, fontSize: 11),
-                      child: const Icon(Icons.info_outline, color: Color(0xFF4DEAEA), size: 14),
-                    ),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                     decoration: BoxDecoration(
@@ -1393,10 +1380,10 @@ class _SettingRowWidgetState extends State<_SettingRowWidget> {
                 style: TextStyle(color: isModified ? const Color(0xFF10B981) : const Color(0xFF6B7280), fontSize: 9, fontWeight: FontWeight.bold),
               ),
               if (widget.showTooltips && description != null) ...[
-                const SizedBox(height: 3),
+                const SizedBox(height: 4),
                 Text(
                   description,
-                  style: const TextStyle(color: Color(0xFF4DEAEA), fontSize: 10, fontStyle: FontStyle.italic),
+                  style: const TextStyle(color: Color(0xFF4DEAEA), fontSize: 11, fontStyle: FontStyle.italic),
                 ),
               ],
             ],
