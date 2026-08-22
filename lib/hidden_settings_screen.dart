@@ -76,8 +76,15 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _quickTweaksScrollController = ScrollController();
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _quickTweaksScrollController.dispose();
+    super.dispose();
+  }
+
   void _scrollQuickTweaks(double offset) {
-    if (!_quickTweaksScrollController.hasClients) return;
+    if (!_quickTweaksScrollController.hasClients || !_quickTweaksScrollController.position.hasContentDimensions) return;
     final target = (_quickTweaksScrollController.offset + offset).clamp(
       0.0,
       _quickTweaksScrollController.position.maxScrollExtent,
@@ -134,7 +141,21 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
 
   Future<void> _loadSettings() async {
     final serial = widget.selectedDeviceSerial;
-    if (serial == null) return;
+    if (serial == null) {
+      if (mounted) {
+        setState(() {
+          _settingsCache['global'] = {};
+          _settingsCache['secure'] = {};
+          _settingsCache['system'] = {};
+          _defaultsCache['global'] = {};
+          _defaultsCache['secure'] = {};
+          _defaultsCache['system'] = {};
+          _hasPhoneSnapshot = false;
+          _isLoading = false;
+        });
+      }
+      return;
+    }
 
     setState(() => _isLoading = true);
 
@@ -485,43 +506,56 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 10,
+                runSpacing: 8,
                 children: [
-                  const Icon(Icons.tune, color: Colors.white, size: 22),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'HIDDEN SETTINGS & FEATURED SYSTEM TWEAKS',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
-                  ),
-                  const SizedBox(width: 10),
-                  if (_hasPhoneSnapshot)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF064E3B),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFF10B981)),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.tune, color: Colors.white, size: 22),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'HIDDEN SETTINGS & FEATURED SYSTEM TWEAKS',
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                       ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.sd_storage, color: Color(0xFF34D399), size: 12),
-                          SizedBox(width: 4),
-                          Text('PHONE SNAPSHOT ACTIVE', style: TextStyle(color: Color(0xFF34D399), fontSize: 9, fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                    ),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.refresh, color: Colors.white),
-                    onPressed: _loadSettings,
-                    tooltip: 'Re-fetch Settings & Snapshot from Phone',
+                      const SizedBox(width: 10),
+                      if (_hasPhoneSnapshot)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF064E3B),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFF10B981)),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.sd_storage, color: Color(0xFF34D399), size: 12),
+                              SizedBox(width: 4),
+                              Text('PHONE SNAPSHOT ACTIVE', style: TextStyle(color: Color(0xFF34D399), fontSize: 9, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                        ),
+                    ],
                   ),
-                  ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black),
-                    onPressed: _showAddSettingModal,
-                    icon: const Icon(Icons.add, size: 16),
-                    label: const Text('ADD CUSTOM KEY', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.refresh, color: Colors.white),
+                        onPressed: _loadSettings,
+                        tooltip: 'Re-fetch Settings & Snapshot from Phone',
+                      ),
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black),
+                        onPressed: _showAddSettingModal,
+                        icon: const Icon(Icons.add, size: 16),
+                        label: const Text('ADD CUSTOM KEY', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -914,42 +948,93 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
               const SizedBox(height: 12),
 
               // Namespace Selectors & Search Input Bar
-              Row(
-                children: [
-                  _buildNamespaceTab('TWEAKS', 'tweaks'),
-                  const SizedBox(width: 8),
-                  _buildNamespaceTab('GLOBAL', 'global'),
-                  const SizedBox(width: 8),
-                  _buildNamespaceTab('SECURE', 'secure'),
-                  const SizedBox(width: 8),
-                  _buildNamespaceTab('SYSTEM', 'system'),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      style: const TextStyle(color: Colors.white, fontSize: 13),
-                      onChanged: (val) => setState(() => _searchQuery = val),
-                      decoration: InputDecoration(
-                        hintText: 'Search raw settings (e.g. anim, wifi, dark, battery)...',
-                        hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
-                        prefixIcon: const Icon(Icons.search, color: Colors.white),
-                        suffixIcon: _searchQuery.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.clear, color: Colors.grey),
-                                onPressed: () {
-                                  _searchController.clear();
-                                  setState(() => _searchQuery = '');
-                                },
-                              )
-                            : null,
-                        filled: true,
-                        fillColor: const Color(0xFF121622),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: const BorderSide(color: Color(0xFF1F2636))),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isNarrow = constraints.maxWidth < 650;
+                  if (isNarrow) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              _buildNamespaceTab('TWEAKS', 'tweaks'),
+                              const SizedBox(width: 8),
+                              _buildNamespaceTab('GLOBAL', 'global'),
+                              const SizedBox(width: 8),
+                              _buildNamespaceTab('SECURE', 'secure'),
+                              const SizedBox(width: 8),
+                              _buildNamespaceTab('SYSTEM', 'system'),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        TextField(
+                          controller: _searchController,
+                          style: const TextStyle(color: Colors.white, fontSize: 13),
+                          onChanged: (val) => setState(() => _searchQuery = val),
+                          decoration: InputDecoration(
+                            hintText: 'Search raw settings (e.g. anim, wifi, dark, battery)...',
+                            hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
+                            prefixIcon: const Icon(Icons.search, color: Colors.white),
+                            suffixIcon: _searchQuery.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.clear, color: Colors.grey),
+                                    onPressed: () {
+                                      _searchController.clear();
+                                      setState(() => _searchQuery = '');
+                                    },
+                                  )
+                                : null,
+                            filled: true,
+                            fillColor: const Color(0xFF121622),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: const BorderSide(color: Color(0xFF1F2636))),
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+
+                  return Row(
+                    children: [
+                      _buildNamespaceTab('TWEAKS', 'tweaks'),
+                      const SizedBox(width: 8),
+                      _buildNamespaceTab('GLOBAL', 'global'),
+                      const SizedBox(width: 8),
+                      _buildNamespaceTab('SECURE', 'secure'),
+                      const SizedBox(width: 8),
+                      _buildNamespaceTab('SYSTEM', 'system'),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: TextField(
+                          controller: _searchController,
+                          style: const TextStyle(color: Colors.white, fontSize: 13),
+                          onChanged: (val) => setState(() => _searchQuery = val),
+                          decoration: InputDecoration(
+                            hintText: 'Search raw settings (e.g. anim, wifi, dark, battery)...',
+                            hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
+                            prefixIcon: const Icon(Icons.search, color: Colors.white),
+                            suffixIcon: _searchQuery.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.clear, color: Colors.grey),
+                                    onPressed: () {
+                                      _searchController.clear();
+                                      setState(() => _searchQuery = '');
+                                    },
+                                  )
+                                : null,
+                            filled: true,
+                            fillColor: const Color(0xFF121622),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: const BorderSide(color: Color(0xFF1F2636))),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ],
+                    ],
+                  );
+                },
               ),
             ],
           ),
