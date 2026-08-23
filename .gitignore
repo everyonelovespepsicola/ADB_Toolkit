@@ -1,9 +1,15 @@
-# Miscellaneous
+# Miscellaneous / OS
 *.class
 *.log
 *.pyc
 *.swp
+*.tmp
+*.bak
 .DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
 .atom/
 .build/
 .buildlog/
@@ -11,38 +17,69 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+scratch/
 
-# IntelliJ related
+# Environment / Local Config
+.env
+.env.*
+!.env.example
+
+# IDE & Editor files
+# IntelliJ / Android Studio
 *.iml
 *.ipr
 *.iws
 .idea/
+out/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# Visual Studio Code
+.vscode/
 
-# Flutter/Dart/Pub related
+# Flutter / Dart / Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
+.flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
 /build/
 /coverage/
+lib/generated_plugin_registrant.dart
 
-# Symbolication related
+# Symbolication & Obfuscation
 app.*.symbols
-
-# Obfuscation related
 app.*.map.json
 
-# Android Studio will place build artifacts here
+# Android Studio & Gradle build artifacts
 /android/app/debug
 /android/app/profile
 /android/app/release
+.gradle/
+**/android/.gradle/
+**/android/captures/
+**/android/.cxx/
+local.properties
+**/android/local.properties
+key.properties
+**/*.keystore
+**/*.jks
+
+# Windows Desktop & C++ build artifacts
+windows/flutter/ephemeral/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+x64/
+x86/
+ARM/
+ARM64/
+[Dd]ebug/
+[Rr]elease/
+*.cache
+!*.[Cc]ache/
 
 # Widget Preview related
 .widget_preview/
+
