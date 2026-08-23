@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'adb_manager.dart';
 import 'dropzone_installer.dart';
 import 'app_list_screen.dart';
+import 'file_manager_screen.dart';
 import 'wifi_adb_screen.dart';
 import 'fdroid_screen.dart';
 import 'hidden_settings_screen.dart';
@@ -210,25 +211,31 @@ class _MainTabShellState extends State<MainTabShell> {
                 )
               : const SizedBox.shrink(),
           _currentIndex == 2
-              ? FDroidScreen(
+              ? FileManagerScreen(
                   connectedDevices: _connectedDevices,
                   selectedDeviceSerial: _selectedDeviceSerial,
                 )
               : const SizedBox.shrink(),
           _currentIndex == 3
+              ? FDroidScreen(
+                  connectedDevices: _connectedDevices,
+                  selectedDeviceSerial: _selectedDeviceSerial,
+                )
+              : const SizedBox.shrink(),
+          _currentIndex == 4
               ? WifiAdbScreen(
                   connectedDevices: _connectedDevices,
                   onDevicesUpdated: _refreshDevices,
                 )
               : const SizedBox.shrink(),
-          _currentIndex == 4
+          _currentIndex == 5
               ? HiddenSettingsScreen(
                   connectedDevices: _connectedDevices,
                   selectedDeviceSerial: _selectedDeviceSerial,
                   showTooltips: _showTooltips,
                 )
               : const SizedBox.shrink(),
-          _currentIndex == 5 ? _buildSettingsView() : const SizedBox.shrink(),
+          _currentIndex == 6 ? _buildSettingsView() : const SizedBox.shrink(),
         ],
       ),
       bottomNavigationBar: Container(
@@ -255,29 +262,36 @@ class _MainTabShellState extends State<MainTabShell> {
             ),
             Expanded(
               child: _buildDockButton(
-                label: '🛍️ F-DROID STORE',
+                label: '📁 FILE MANAGER',
                 index: 2,
                 activeColor: Colors.white,
               ),
             ),
             Expanded(
               child: _buildDockButton(
-                label: '📶 WI-FI ADB',
+                label: '🛍️ F-DROID STORE',
                 index: 3,
                 activeColor: Colors.white,
               ),
             ),
             Expanded(
               child: _buildDockButton(
-                label: '🛠️ HIDDEN SETTINGS',
+                label: '📶 WI-FI ADB',
                 index: 4,
                 activeColor: Colors.white,
               ),
             ),
             Expanded(
               child: _buildDockButton(
-                label: '⚙️ SETTINGS',
+                label: '🛠️ HIDDEN SETTINGS',
                 index: 5,
+                activeColor: Colors.white,
+              ),
+            ),
+            Expanded(
+              child: _buildDockButton(
+                label: '⚙️ SETTINGS',
+                index: 6,
                 activeColor: Colors.white,
               ),
             ),

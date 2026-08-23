@@ -558,4 +558,156 @@ class AdbManager {
       return false;
     }
   }
+
+  // Browse files/folders on phone over ADB shell ls -la
+  static Future<List<AdbFileEntry>> listDirectory(String serial, String remotePath) async {
+    final entries = <AdbFileEntry>[];
+    try {
+      final cleanPath = remotePath.endsWith('/') ? remotePath : '$remotePath/';
+      final res = await runAdb(['-s', serial, 'shell', 'ls', '-la', cleanPath]);
+      if (res.exitCode == 0) {
+        final lines = res.stdout.toString().split('\n');
+        for (final line in lines) {
+          final trimmed = line.trim();
+          if (trimmed.isEmpty || trimmed.startsWith('total ')) continue;
+          final parts = trimmed.split(RegExp(r'\s+'));
+          if (parts.length >= 8) {
+            final permissions = parts[0];
+            final isDirectory = permissions.startsWith('d') || permissions.startsWith('l');
+            final nameIndex = parts.length > 8 ? 8 : 7;
+            final name = parts.sublist(nameIndex).join(' ');
+            if (name == '.' || name == '..') continue;
+
+            final sizeString = parts[4];
+            final size = int.tryParse(sizeString) ?? 0;
+            final date = "${parts[5]} ${parts[6]} ${parts[7]}";
+
+            entries.add(AdbFileEntry(
+              name: name,
+              path: "$cleanPath$name",
+              isDirectory: isDirectory,
+              sizeBytes: size,
+              modifiedDate: date,
+              permissions: permissions,
+            ));
+          }
+        }
+      }
+    } catch (_) {}
+
+    // Sort: Folders first (A-Z), then Files (A-Z)
+    entries.sort((a, b) {
+      if (a.isDirectory && !b.isDirectory) return -1;
+      if (!a.isDirectory && b.isDirectory) return 1;
+      return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+    });
+    return entries;
+  }
+
+  // Delete file or folder on phone via ADB (rm -rf)
+  static Future<bool> deleteRemotePath(String serial, String remotePath) async {
+    try {
+      final res = await runAdb(['-s', serial, 'shell', 'rm', '-rf', remotePath]);
+      return res.exitCode == 0;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // Create new folder on phone via ADB (mkdir -p)
+  static Future<bool> createRemoteDirectory(String serial, String remotePath) async {
+    try {
+      final res = await runAdb(['-s', serial, 'shell', 'mkdir', '-p', remotePath]);
+      return res.exitCode == 0;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // Push local PC file to Phone over ADB
+  static Future<bool> pushFileToPhone(String serial, String localPath, String remotePath) async {
+    try {
+      final res = await runAdb(['-s', serial, 'push', localPath, remotePath]);
+      return res.exitCode == 0;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // Pull remote Phone file/folder to PC over ADB
+  static Future<bool> pullFileFromPhone(String serial, String remotePath, String localPath) async {
+    try {
+      final res = await runAdb(['-s', serial, 'pull', remotePath, localPath]);
+      return res.exitCode == 0;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // Backup /sdcard/Android/data/<packageName>/ to target local directory
+  static Future<Map<String, dynamic>> backupAppData(String serial, String packageName, String targetLocalDir) async {
+    try {
+      final remoteSource = "/sdcard/Android/data/$packageName";
+      final saveFolder = Directory("$targetLocalDir/$packageName");
+      if (!await saveFolder.exists()) {
+        await saveFolder.create(recursive: true);
+      }
+
+      final res = await runAdb(['-s', serial, 'pull', remoteSource, saveFolder.path]);
+      final out = res.stdout.toString() + res.stderr.toString();
+      final success = res.exitCode == 0 || out.contains("pulled") || out.contains("files pulled");
+      return {
+        "success": success,
+        "message": success ? "🟢 App data backed up to ${saveFolder.path}!" : "🔴 Backup failed: $out",
+        "path": saveFolder.path,
+      };
+    } catch (e) {
+      return {"success": false, "message": e.toString()};
+    }
+  }
+
+  // Restore local app data backup folder back to /sdcard/Android/data/<packageName>/
+  static Future<Map<String, dynamic>> restoreAppData(String serial, String packageName, String localSourceDir) async {
+    try {
+      final remoteDest = "/sdcard/Android/data/$packageName";
+      // Ensure target directory exists on phone
+      await createRemoteDirectory(serial, remoteDest);
+
+      final res = await runAdb(['-s', serial, 'push', "$localSourceDir/.", remoteDest]);
+      final out = res.stdout.toString() + res.stderr.toString();
+      final success = res.exitCode == 0 || out.contains("pushed") || out.contains("files pushed");
+      return {
+        "success": success,
+        "message": success ? "🟢 App data restored to $remoteDest!" : "🔴 Restore failed: $out",
+      };
+    } catch (e) {
+      return {"success": false, "message": e.toString()};
+    }
+  }
+}
+
+class AdbFileEntry {
+  final String name;
+  final String path;
+  final bool isDirectory;
+  final int sizeBytes;
+  final String modifiedDate;
+  final String permissions;
+
+  AdbFileEntry({
+    required this.name,
+    required this.path,
+    required this.isDirectory,
+    required this.sizeBytes,
+    required this.modifiedDate,
+    required this.permissions,
+  });
+
+  String get formattedSize {
+    if (isDirectory) return "Folder";
+    if (sizeBytes < 1024) return "$sizeBytes B";
+    if (sizeBytes < 1024 * 1024) return "${(sizeBytes / 1024).toStringAsFixed(1)} KB";
+    if (sizeBytes < 1024 * 1024 * 1024) return "${(sizeBytes / (1024 * 1024)).toStringAsFixed(1)} MB";
+    return "${(sizeBytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB";
+  }
 }
