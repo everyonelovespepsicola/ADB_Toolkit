@@ -144,3 +144,32 @@ Rigid horizontal `Row` widgets inside `_SettingRowWidget` and top headers overfl
 - **Release Build**: Compiled release executable (`build\windows\x64\runner\Release\app_manager.exe`).
 - **Windows Sandbox Package**: Updated [AppManagerSandbox.wsb](file:///c:/projects/android_apps/app_manager/AppManagerSandbox.wsb) and bundled VC++ runtimes.
 - **Git Tracked**: All changes staged and committed across repository commits.
+
+---
+
+## 5. Incident 2: Regression on File Manager Tab & Permanent Rule Enforcement
+
+> [!WARNING]
+> **Incident Description**: Window resizing crash reproduced on the new **File Manager** tab (even with zero Android devices connected) after attempting to make all tabs persistent in memory inside `IndexedStack`.
+
+### Detailed Technical Breakdown
+1. **The Native OLE Hook Conflict**:
+   - `DropzoneInstaller` (Tab 0) registers native Win32 COM/OLE drag-and-drop message handlers via `desktop_drop`.
+   - When tab memory persistence was enabled (`_currentIndex == 0 ? ... : SizedBox.shrink()` removed), `DropzoneInstaller` remained mounted in native memory at all times.
+   - When the user resized or dragged the application window while on **any other tab** (e.g. `FileManagerScreen`), the native Windows OS dispatched `WM_SIZE` and `WM_PAINT` messages concurrently to the mounted OLE drop target and the active Flutter DirectX rasterizer, resulting in a native `STATUS_ACCESS_VIOLATION` (`0xC0000005`) crash to desktop inside `flutter_windows.dll`.
+
+2. **Why Phone Connection Was Not Required**:
+   - The crash was completely independent of ADB device polling or network activity; it was triggered strictly by the concurrent Win32 `WM_SIZE` message handling between `desktop_drop` OLE hooks and DirectX surface swapchain reallocation.
+
+### Mandatory Architectural Policy
+To guarantee 100% window scaling stability across all host GPU environments:
+
+1. **Strict Tab Isolation in `lib/main.dart`**:
+   - All tabs inside `IndexedStack` MUST use lazy-unmounting:
+     ```dart
+     _currentIndex == N ? TabWidget(...) : const SizedBox.shrink()
+     ```
+   - This ensures `DropzoneInstaller`'s native OLE drag-and-drop hooks are cleanly unmounted whenever the user is not actively on the Installer tab.
+
+2. **Responsive Component Guidelines**:
+   - All top toolbars and button headers (such as `lib/file_manager_screen.dart`) MUST use flexible `Wrap` widgets (`spacing: 8`, `runSpacing: 8`) instead of rigid `Row` widgets to prevent `RenderFlex` calculation strains during rapid window drag passes.
