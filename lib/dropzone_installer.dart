@@ -228,20 +228,20 @@ class _DropzoneInstallerState extends State<DropzoneInstaller> with AutomaticKee
               width: double.infinity,
               height: 180,
               decoration: BoxDecoration(
-                color: _isDragging ? const Color(0xFF162A38) : const Color(0xFF0E121A),
+                color: _isDragging ? const Color(0xFF162A20) : const Color(0xFF181818),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: _isDragging ? const Color(0xFF00FF66) : const Color(0xFF2196F3),
+                  color: _isDragging ? const Color(0xFF00FF66) : const Color(0xFF2D2D2D),
                   width: _isDragging ? 2.5 : 1.5,
                 ),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.system_update_alt,
+                  const Icon(
+                    Icons.cloud_upload,
                     size: 52,
-                    color: _isDragging ? const Color(0xFF00FF66) : const Color(0xFF2196F3),
+                    color: Color(0xFF00FF66),
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -251,18 +251,18 @@ class _DropzoneInstallerState extends State<DropzoneInstaller> with AutomaticKee
                   const SizedBox(height: 6),
                   const Text(
                     "Auto-grants permissions & bypasses Android 15 target SDK block",
-                    style: TextStyle(color: Color(0xFF708090), fontSize: 11),
+                    style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 11),
                   ),
                   const SizedBox(height: 12),
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2196F3),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                     ),
                     onPressed: _pickFiles,
                     icon: const Icon(Icons.folder_open, size: 18),
-                    label: const Text('Browse Files'),
+                    label: const Text('Browse Files', style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),

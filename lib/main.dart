@@ -329,21 +329,21 @@ class _MainTabShellState extends State<MainTabShell> {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF121622),
+              color: const Color(0xFF181818),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF1F2636)),
+              border: Border.all(color: const Color(0xFF2D2D2D)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                const Row(
                   children: [
-                    const Icon(Icons.language, color: Color(0xFF4DEAEA), size: 20),
-                    const SizedBox(width: 8),
-                    const Expanded(
+                    Icon(Icons.language, color: Colors.white, size: 20),
+                    SizedBox(width: 8),
+                    Expanded(
                       child: Text(
                         'APP DISPLAY LANGUAGE (DYNAMIC ON-THE-FLY AUTO-TRANSLATE):',
-                        style: TextStyle(color: Color(0xFF4DEAEA), fontSize: 12, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -351,7 +351,7 @@ class _MainTabShellState extends State<MainTabShell> {
                 const SizedBox(height: 6),
                 Text(
                   'Current Mode: ${TranslationService().selectedLanguageCode == 'auto' ? "🌐 Auto-Detecting Windows OS Default (${TranslationService().effectiveLanguageCode.toUpperCase()})" : "Selected ${TranslationService().selectedLanguageCode.toUpperCase()}"}',
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                  style: const TextStyle(color: Colors.white70, fontSize: 12),
                 ),
                 const SizedBox(height: 10),
                 Container(
@@ -359,7 +359,7 @@ class _MainTabShellState extends State<MainTabShell> {
                   decoration: BoxDecoration(
                     color: const Color(0xFF242424),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFF444444)),
+                    border: Border.all(color: const Color(0xFF383838)),
                   ),
                   child: DropdownButton<String>(
                     value: TranslationService().selectedLanguageCode,
@@ -396,9 +396,9 @@ class _MainTabShellState extends State<MainTabShell> {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF121622),
+              color: const Color(0xFF181818),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF1F2636)),
+              border: Border.all(color: const Color(0xFF2D2D2D)),
             ),
             child: Row(
               children: [
@@ -408,14 +408,14 @@ class _MainTabShellState extends State<MainTabShell> {
                     children: [
                       const Text(
                         'SHOW SETTING EXPLANATION TOOLTIPS:',
-                        style: TextStyle(color: Color(0xFF4DEAEA), fontSize: 12, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         _showTooltips
                             ? '🟢 Enabled: Explanatory tooltips & descriptions will appear next to Android settings keys across the app.'
                             : '🔴 Disabled (Default): Tooltip descriptions are hidden for a clean, minimal interface.',
-                        style: const TextStyle(color: Colors.white, fontSize: 12),
+                        style: const TextStyle(color: Colors.white70, fontSize: 12),
                       ),
                     ],
                   ),
@@ -423,7 +423,7 @@ class _MainTabShellState extends State<MainTabShell> {
                 const SizedBox(width: 12),
                 Switch(
                   value: _showTooltips,
-                  activeThumbColor: const Color(0xFF4DEAEA),
+                  activeColor: const Color(0xFF00FF66),
                   onChanged: (val) => setState(() => _showTooltips = val),
                 ),
               ],
@@ -434,9 +434,9 @@ class _MainTabShellState extends State<MainTabShell> {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF121622),
+              color: const Color(0xFF181818),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF1F2636)),
+              border: Border.all(color: const Color(0xFF2D2D2D)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -459,9 +459,9 @@ class _MainTabShellState extends State<MainTabShell> {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF121622),
+              color: const Color(0xFF181818),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF1F2636)),
+              border: Border.all(color: const Color(0xFF2D2D2D)),
             ),
             child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -480,16 +480,16 @@ class _MainTabShellState extends State<MainTabShell> {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF121622),
+              color: const Color(0xFF181818),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF1F2636)),
+              border: Border.all(color: const Color(0xFF2D2D2D)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text('LOCAL APPDATA STORAGE & CACHE:', style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 12, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
-                const Text('Clears cached app icon PNGs and temporary crash dump files from AppData while preserving platform-tools ADB executables.', style: TextStyle(color: Colors.white, fontSize: 12)),
+                const Text('Clears cached app icon PNGs and temporary crash dump files from AppData while preserving platform-tools ADB executables.', style: TextStyle(color: Colors.white70, fontSize: 12)),
                 const SizedBox(height: 12),
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD32F2F), foregroundColor: Colors.white),
@@ -531,18 +531,18 @@ class _MainTabShellState extends State<MainTabShell> {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF121622),
+              color: const Color(0xFF181818),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF1F2636)),
+              border: Border.all(color: const Color(0xFF2D2D2D)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('CRASH DIAGNOSTICS & MINIDUMP LOGGER:', style: TextStyle(color: Color(0xFF4DEAEA), fontSize: 12, fontWeight: FontWeight.bold)),
+                const Text('CRASH DIAGNOSTICS & MINIDUMP LOGGER:', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 const Text(
                   'Automated 2-Layer Crash Handler:\n  • Level 1 (Dart/Flutter): Intercepts uncaught Dart exceptions to dart_crash_logs.txt.\n  • Level 2 (Win32 C++): MiniDumpWriteDump writes native .dmp minidumps for Visual Studio / x64dbg.',
-                  style: TextStyle(color: Colors.white, fontSize: 12),
+                  style: TextStyle(color: Colors.white70, fontSize: 12),
                 ),
                 const SizedBox(height: 12),
                 Wrap(
@@ -589,7 +589,7 @@ class _MainTabShellState extends State<MainTabShell> {
                                     width: 600,
                                     height: 350,
                                     child: SingleChildScrollView(
-                                      child: SelectableText(logs, style: const TextStyle(color: Color(0xFF4DEAEA), fontFamily: 'monospace', fontSize: 11)),
+                                      child: SelectableText(logs, style: const TextStyle(color: Color(0xFF00FF66), fontFamily: 'monospace', fontSize: 11)),
                                     ),
                                   ),
                                   actions: [
