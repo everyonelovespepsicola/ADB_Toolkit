@@ -887,92 +887,101 @@ class _FDroidScreenState extends State<FDroidScreen> with AutomaticKeepAliveClie
                         ),
                       ),
                       const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(app.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                            SelectableText(app.packageName, style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 11)),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                        color: Colors.white70,
+                        size: 20,
+                      ),
                     ],
-                    Icon(
-                      isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                      color: Colors.white70,
-                      size: 20,
-                    ),
-                  ],
-                ),
-              ),
+                  ),
 
-              // Expanded Morphing Panel (Reveals Summary, Description & Action Controls)
-              if (isExpanded) ...[
-                const Divider(color: Color(0xFF1F2636), height: 20),
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(color: const Color(0xFF1F2636), borderRadius: BorderRadius.circular(6)),
-                      child: Text(app.version, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(color: const Color(0xFF2A1C30), borderRadius: BorderRadius.circular(6)),
-                      child: Text(app.license, style: const TextStyle(color: Color(0xFFFFB74D), fontSize: 11, fontWeight: FontWeight.bold)),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(color: const Color(0xFF1C2234), borderRadius: BorderRadius.circular(6)),
-                      child: Text(app.mainCategory, style: const TextStyle(color: Color(0xFF90A0B0), fontSize: 11)),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Text(app.summary, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
-                const SizedBox(height: 6),
-                Text(
-                  app.description.replaceAll(RegExp(r'<[^>]*>'), ''),
-                  style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 12, height: 1.4),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("Developer: ${app.author}", style: const TextStyle(color: Color(0xFF6B7280), fontSize: 11)),
+                  // Expanded Morphing Panel (Reveals Summary, Description & Action Controls)
+                  if (isExpanded) ...[
+                    const Divider(color: Color(0xFF2D2D2D), height: 20),
                     Row(
                       children: [
-                        if (isInstalled && !isInstalling)
-                          ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFD32F2F),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(color: const Color(0xFF2D2D2D), borderRadius: BorderRadius.circular(6)),
+                          child: Text(app.version, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(color: const Color(0xFF2A1C30), borderRadius: BorderRadius.circular(6)),
+                          child: Text(app.license, style: const TextStyle(color: Color(0xFFFFB74D), fontSize: 11, fontWeight: FontWeight.bold)),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(color: const Color(0xFF242424), borderRadius: BorderRadius.circular(6)),
+                          child: Text(app.mainCategory, style: const TextStyle(color: Color(0xFF90A0B0), fontSize: 11)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Text(app.summary, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 6),
+                    Text(
+                      app.description.replaceAll(RegExp(r'<[^>]*>'), ''),
+                      style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 12, height: 1.4),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Developer: ${app.author}", style: const TextStyle(color: Color(0xFF6B7280), fontSize: 11)),
+                        Row(
+                          children: [
+                            if (isInstalled && !isInstalling)
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFD32F2F),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                ),
+                                onPressed: () => _uninstallFDroidApp(app),
+                                icon: const Icon(Icons.delete_forever, size: 16),
+                                label: const Text('UNINSTALL', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                              ),
+                            if (isInstalled && !isInstalling) const SizedBox(width: 8),
+                            ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: isInstalling
+                                    ? const Color(0xFFFFB74D)
+                                    : (isInstalled ? const Color(0xFF064E3B) : Colors.white),
+                                foregroundColor: isInstalled ? const Color(0xFF34D399) : Colors.black,
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                side: isInstalled ? const BorderSide(color: Color(0xFF10B981)) : BorderSide.none,
+                              ),
+                              onPressed: isInstalling ? null : () => _installFDroidApp(app),
+                              icon: isInstalling
+                                  ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                                  : Icon(isInstalled ? Icons.check_circle : Icons.download, size: 16),
+                              label: Text(
+                                isInstalling
+                                    ? (statusText ?? "INSTALLING...")
+                                    : (isInstalled ? "INSTALLED (RE-INSTALL)" : "INSTALL TO PHONE"),
+                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                              ),
                             ),
-                            onPressed: () => _uninstallFDroidApp(app),
-                            icon: const Icon(Icons.delete_forever, size: 16),
-                            label: const Text('UNINSTALL', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                          ),
-                        if (isInstalled && !isInstalling) const SizedBox(width: 8),
-                        ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: isInstalling
-                                ? const Color(0xFFFFB74D)
-                                : (isInstalled ? const Color(0xFF064E3B) : Colors.white),
-                            foregroundColor: isInstalled ? const Color(0xFF34D399) : Colors.black,
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                            side: isInstalled ? const BorderSide(color: Color(0xFF10B981)) : BorderSide.none,
-                          ),
-                          onPressed: isInstalling ? null : () => _installFDroidApp(app),
-                          icon: isInstalling
-                              ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-                              : Icon(isInstalled ? Icons.check_circle : Icons.download, size: 16),
-                          label: Text(
-                            isInstalling
-                                ? (statusText ?? "INSTALLING...")
-                                : (isInstalled ? "INSTALLED (RE-INSTALL)" : "INSTALL TO PHONE"),
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-                          ),
+                          ],
                         ),
                       ],
                     ),
                   ],
-                ),
-              ],
-            ],
+                ],
+              ),
+            ),
           ),
         );
       },
