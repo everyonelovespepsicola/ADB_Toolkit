@@ -11,29 +11,29 @@ class MaterialTheme {
       primary: Color(0xFFFFFFFF),
       surfaceTint: Color(0xFFFFFFFF),
       onPrimary: Color(0xFF000000),
-      primaryContainer: Color(0xFF1E2638),
+      primaryContainer: Color(0xFF242424),
       onPrimaryContainer: Color(0xFFFFFFFF),
       secondary: Color(0xFFE5E7EB),
       onSecondary: Color(0xFF000000),
-      secondaryContainer: Color(0xFF1E2638),
+      secondaryContainer: Color(0xFF242424),
       onSecondaryContainer: Color(0xFFFFFFFF),
       tertiary: Color(0xFFD1D5DB),
       onTertiary: Color(0xFF000000),
-      tertiaryContainer: Color(0xFF1E2638),
+      tertiaryContainer: Color(0xFF242424),
       onTertiaryContainer: Color(0xFFFFFFFF),
       error: Color(0xFFFF5252),
       onError: Color(0xFF000000),
       errorContainer: Color(0xFF3E1418),
       onErrorContainer: Color(0xFFFF5252),
-      surface: Color(0xFF121622),
+      surface: Color(0xFF181818),
       onSurface: Color(0xFFFFFFFF),
       onSurfaceVariant: Color(0xFF9CA3AF),
-      outline: Color(0xFF1F2636),
-      outlineVariant: Color(0xFF2A3448),
+      outline: Color(0xFF2D2D2D),
+      outlineVariant: Color(0xFF383838),
       shadow: Color(0xFF000000),
       scrim: Color(0xFF000000),
       inverseSurface: Color(0xFFFFFFFF),
-      inversePrimary: Color(0xFF0B0C10),
+      inversePrimary: Color(0xFF0D0D0D),
     );
   }
 
@@ -43,17 +43,17 @@ class MaterialTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       colorScheme: scheme,
-      scaffoldBackgroundColor: const Color(0xFF0B0C10),
-      canvasColor: const Color(0xFF0B0C10),
-      cardColor: const Color(0xFF121622),
-      dialogBackgroundColor: const Color(0xFF121622),
+      scaffoldBackgroundColor: const Color(0xFF0D0D0D),
+      canvasColor: const Color(0xFF0D0D0D),
+      cardColor: const Color(0xFF181818),
+      dialogBackgroundColor: const Color(0xFF181818),
       appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFF10131B),
+        backgroundColor: Color(0xFF121212),
         foregroundColor: Colors.white,
         elevation: 0,
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: const Color(0xFF1A202C),
+        backgroundColor: const Color(0xFF202020),
         selectedColor: Colors.white,
         secondarySelectedColor: Colors.white,
         labelStyle: const TextStyle(color: Colors.white),
@@ -61,6 +61,5 @@ class MaterialTheme {
       ),
     );
   }
-
   ThemeData light() => dark();
 }

@@ -27,9 +27,9 @@ class ThemeStudioScreen extends StatefulWidget {
 }
 
 class _ThemeStudioScreenState extends State<ThemeStudioScreen> {
-  Color _backgroundColor = const Color(0xFF0B0C10);
-  Color _headerColor = const Color(0xFF10131B);
-  Color _surfaceColor = const Color(0xFF121622);
+  Color _backgroundColor = const Color(0xFF0D0D0D);
+  Color _headerColor = const Color(0xFF121212);
+  Color _surfaceColor = const Color(0xFF181818);
   Color _primaryColor = const Color(0xFF4DEAEA);
   Color _secondaryColor = const Color(0xFF2196F3);
   Color _tertiaryColor = const Color(0xFF00FF66);
