@@ -46,7 +46,6 @@ out/
 .pub/
 /build/
 /coverage/
-lib/generated_plugin_registrant.dart
 
 # Symbolication & Obfuscation
 app.*.symbols

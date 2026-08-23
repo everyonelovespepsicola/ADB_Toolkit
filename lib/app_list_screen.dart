@@ -156,7 +156,7 @@ class _AppListScreenState extends State<AppListScreen> with AutomaticKeepAliveCl
         // Controls Header (Tabs & Search Bar & Sort Dropdown)
         Container(
           padding: const EdgeInsets.all(12),
-          color: const Color(0xFF10131B),
+          color: const Color(0xFF121212),
           child: Column(
             children: [
               Row(
@@ -196,9 +196,11 @@ class _AppListScreenState extends State<AppListScreen> with AutomaticKeepAliveCl
                               )
                             : null,
                         filled: true,
-                        fillColor: const Color(0xFF121622),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: const BorderSide(color: Color(0xFF1F2636))),
+                        fillColor: const Color(0xFF181818),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: const BorderSide(color: Color(0xFF2D2D2D))),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: const BorderSide(color: Color(0xFF2D2D2D))),
+                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: const BorderSide(color: Color(0xFF4DEAEA))),
                       ),
                     ),
                   ),
@@ -208,9 +210,9 @@ class _AppListScreenState extends State<AppListScreen> with AutomaticKeepAliveCl
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF121622),
+                      color: const Color(0xFF181818),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFF1F2636)),
+                      border: Border.all(color: const Color(0xFF2D2D2D)),
                     ),
                     child: Row(
                       children: [
@@ -219,7 +221,7 @@ class _AppListScreenState extends State<AppListScreen> with AutomaticKeepAliveCl
                         DropdownButton<String>(
                           value: _sortBy,
                           underline: const SizedBox(),
-                          dropdownColor: const Color(0xFF121622),
+                          dropdownColor: const Color(0xFF181818),
                           style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                           items: const [
                             DropdownMenuItem(value: 'date_desc', child: Text('📅 Installed (Newest First)')),
@@ -243,7 +245,7 @@ class _AppListScreenState extends State<AppListScreen> with AutomaticKeepAliveCl
         // Packages Count Banner
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          color: const Color(0xFF141824),
+          color: const Color(0xFF181818),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -272,11 +274,11 @@ class _AppListScreenState extends State<AppListScreen> with AutomaticKeepAliveCl
                       itemBuilder: (ctx, idx) {
                         final pkg = filtered[idx];
                         return Card(
-                          color: const Color(0xFF121622),
-                          elevation: 1,
+                          color: const Color(0xFF181818),
+                          elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
-                            side: const BorderSide(color: Color(0xFF1F2636)),
+                            side: const BorderSide(color: Color(0xFF2D2D2D)),
                           ),
                           margin: const EdgeInsets.only(bottom: 8),
                           child: Padding(
@@ -321,7 +323,7 @@ class _AppListScreenState extends State<AppListScreen> with AutomaticKeepAliveCl
                                                 Container(
                                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                                   decoration: BoxDecoration(
-                                                    color: const Color(0xFF3E1F00),
+                                                    color: const Color(0xFF2D1F00),
                                                     borderRadius: BorderRadius.circular(10),
                                                     border: Border.all(color: const Color(0xFFFFB74D)),
                                                   ),
@@ -397,9 +399,10 @@ class _AppListScreenState extends State<AppListScreen> with AutomaticKeepAliveCl
                                         icon: Icon(_isCriticalApp(pkg.packageName) ? Icons.warning : Icons.ac_unit, size: 14),
                                         label: const Text("Freeze", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                                       ),
+                                    const SizedBox(width: 6),
                                     ElevatedButton.icon(
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFF1E2638),
+                                        backgroundColor: const Color(0xFF242424),
                                         foregroundColor: Colors.white,
                                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                       ),
@@ -410,7 +413,7 @@ class _AppListScreenState extends State<AppListScreen> with AutomaticKeepAliveCl
                                     const SizedBox(width: 6),
                                     ElevatedButton.icon(
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFF1E2638),
+                                        backgroundColor: const Color(0xFF242424),
                                         foregroundColor: Colors.white,
                                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                       ),
@@ -477,8 +480,8 @@ class _AppListScreenState extends State<AppListScreen> with AutomaticKeepAliveCl
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF121622),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Color(0xFF1F2636))),
+        backgroundColor: const Color(0xFF181818),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Color(0xFF2D2D2D))),
         title: Row(
           children: [
             const Icon(Icons.vpn_key, color: Colors.white),
@@ -525,9 +528,9 @@ class _AppListScreenState extends State<AppListScreen> with AutomaticKeepAliveCl
                   hintText: 'e.g. android.permission.CHANGE_CONFIGURATION',
                   hintStyle: TextStyle(color: Color(0xFF6B7280)),
                   filled: true,
-                  fillColor: Color(0xFF0B0C10),
+                  fillColor: Color(0xFF0D0D0D),
                   contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8)), borderSide: BorderSide(color: Color(0xFF1F2636))),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8)), borderSide: BorderSide(color: Color(0xFF2D2D2D))),
                 ),
               ),
               const SizedBox(height: 12),
@@ -535,7 +538,7 @@ class _AppListScreenState extends State<AppListScreen> with AutomaticKeepAliveCl
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E2638), foregroundColor: Colors.white),
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF242424), foregroundColor: Colors.white),
                     onPressed: () async {
                       final perm = permCtrl.text.trim();
                       if (perm.isNotEmpty) {
@@ -586,8 +589,8 @@ class _AppListScreenState extends State<AppListScreen> with AutomaticKeepAliveCl
 
   Widget _buildPermPresetChip(BuildContext ctx, String serial, String pkg, String label, String fullPerm) {
     return ActionChip(
-      backgroundColor: const Color(0xFF1E2638),
-      side: const BorderSide(color: Color(0xFF2A3448)),
+      backgroundColor: const Color(0xFF242424),
+      side: const BorderSide(color: Color(0xFF383838)),
       label: Text(label, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
       onPressed: () async {
         final res = await AdbManager.grantPermission(serial, pkg, fullPerm);
@@ -610,9 +613,9 @@ class _AppListScreenState extends State<AppListScreen> with AutomaticKeepAliveCl
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : const Color(0xFF1E2638),
+          color: isSelected ? Colors.white : const Color(0xFF242424),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isSelected ? Colors.white : const Color(0xFF2A3448)),
+          border: Border.all(color: isSelected ? Colors.white : const Color(0xFF383838)),
         ),
         child: Text(
           label,

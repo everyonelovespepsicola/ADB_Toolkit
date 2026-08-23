@@ -324,7 +324,7 @@ class _FDroidScreenState extends State<FDroidScreen> with AutomaticKeepAliveClie
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF121622),
+        backgroundColor: const Color(0xFF181818),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Color(0xFF1E283A))),
         title: Row(
           children: [
@@ -562,7 +562,7 @@ class _FDroidScreenState extends State<FDroidScreen> with AutomaticKeepAliveClie
         // Header & Category Bar
         Container(
           padding: const EdgeInsets.all(14),
-          color: const Color(0xFF10131B),
+          color: const Color(0xFF121212),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -587,7 +587,7 @@ class _FDroidScreenState extends State<FDroidScreen> with AutomaticKeepAliveClie
                   // View Mode Toggle (Grid vs List/Column)
                   Container(
                     margin: const EdgeInsets.only(right: 8),
-                    decoration: BoxDecoration(color: const Color(0xFF121622), borderRadius: BorderRadius.circular(8), border: Border.all(color: const Color(0xFF1F2636))),
+                    decoration: BoxDecoration(color: const Color(0xFF181818), borderRadius: BorderRadius.circular(8), border: Border.all(color: const Color(0xFF2D2D2D))),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -643,9 +643,11 @@ class _FDroidScreenState extends State<FDroidScreen> with AutomaticKeepAliveClie
                         )
                       : null,
                   filled: true,
-                  fillColor: const Color(0xFF121622),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: const BorderSide(color: Color(0xFF1F2636))),
+                  fillColor: const Color(0xFF181818),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: const BorderSide(color: Color(0xFF2D2D2D))),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: const BorderSide(color: Color(0xFF2D2D2D))),
+                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: const BorderSide(color: Color(0xFF00FF66))),
                 ),
               ),
               const SizedBox(height: 10),
@@ -665,7 +667,7 @@ class _FDroidScreenState extends State<FDroidScreen> with AutomaticKeepAliveClie
                         label: Text(cat, style: TextStyle(color: isSelected ? Colors.black : Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                         selected: isSelected,
                         selectedColor: Colors.white,
-                        backgroundColor: const Color(0xFF121622),
+                        backgroundColor: const Color(0xFF181818),
                         onSelected: (val) => setState(() => _selectedCategory = cat),
                       ),
                     );
@@ -705,38 +707,41 @@ class _FDroidScreenState extends State<FDroidScreen> with AutomaticKeepAliveClie
         return InkWell(
           onTap: () => _showAppDetailsModal(app),
           child: Card(
-            color: const Color(0xFF121622),
+            color: const Color(0xFF181818),
             elevation: 1,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(color: isInstalled ? const Color(0xFF10B981) : const Color(0xFF1F2636), width: isInstalled ? 2 : 1),
+              borderRadius: BorderRadius.circular(10),
+              side: BorderSide(color: isInstalled ? const Color(0xFF10B981) : const Color(0xFF2D2D2D), width: isInstalled ? 2 : 1),
             ),
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: app.iconUrl.isNotEmpty
-                        ? Image.network(
-                            app.iconUrl,
-                            width: 48,
-                            height: 48,
-                            fit: BoxFit.cover,
-                            errorBuilder: (c, e, s) => Container(
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2D2D2D),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: app.iconUrl.isNotEmpty
+                          ? Image.network(
+                              app.iconUrl,
                               width: 48,
                               height: 48,
-                              color: const Color(0xFF1F2636),
-                              child: const Icon(Icons.android, color: Colors.white),
-                            ),
-                          )
-                        : Container(
-                            width: 48,
-                            height: 48,
-                            color: const Color(0xFF1F2636),
-                            child: const Icon(Icons.android, color: Colors.white),
-                          ),
+                              fit: BoxFit.cover,
+                              errorBuilder: (c, e, s) => Container(
+                                width: 48,
+                                height: 48,
+                                color: const Color(0xFF2D2D2D),
+                                child: const Icon(Icons.android, color: Colors.greenAccent),
+                              ),
+                            )
+                          : const Icon(Icons.android, color: Colors.greenAccent),
+                    ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -756,7 +761,7 @@ class _FDroidScreenState extends State<FDroidScreen> with AutomaticKeepAliveClie
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(color: const Color(0xFF1F2636), borderRadius: BorderRadius.circular(6)),
+                              decoration: BoxDecoration(color: const Color(0xFF2D2D2D), borderRadius: BorderRadius.circular(6)),
                               child: Text(app.version, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                             ),
                           ],
@@ -764,7 +769,7 @@ class _FDroidScreenState extends State<FDroidScreen> with AutomaticKeepAliveClie
                         const SizedBox(height: 2),
                         Text(
                           app.summary,
-                          style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 11),
+                          style: const TextStyle(color: Colors.grey, fontSize: 11),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -783,7 +788,7 @@ class _FDroidScreenState extends State<FDroidScreen> with AutomaticKeepAliveClie
                                   Padding(
                                     padding: const EdgeInsets.only(right: 6),
                                     child: IconButton(
-                                      icon: const Icon(Icons.delete_forever, color: Color(0xFFFF5252), size: 16),
+                                      icon: const Icon(Icons.delete_forever, color: Color(0xFFEF4444), size: 16),
                                       onPressed: () => _uninstallFDroidApp(app),
                                       tooltip: 'Uninstall ${app.name} from phone',
                                     ),
@@ -791,7 +796,7 @@ class _FDroidScreenState extends State<FDroidScreen> with AutomaticKeepAliveClie
                                 ElevatedButton.icon(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: isInstalling
-                                        ? const Color(0xFFFFB74D)
+                                        ? const Color(0xFFF59E0B)
                                         : (isInstalled ? const Color(0xFF064E3B) : Colors.white),
                                     foregroundColor: isInstalled ? const Color(0xFF34D399) : Colors.black,
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -825,10 +830,9 @@ class _FDroidScreenState extends State<FDroidScreen> with AutomaticKeepAliveClie
   }
 
   Widget _buildColumnView(List<FDroidApp> apps) {
-    return ListView.separated(
+    return ListView.builder(
       padding: const EdgeInsets.all(12),
       itemCount: apps.length,
-      separatorBuilder: (ctx, idx) => const SizedBox(height: 8),
       itemBuilder: (ctx, idx) {
         final app = apps[idx];
         final isInstalling = _installingApps.containsKey(app.packageName);
@@ -836,78 +840,51 @@ class _FDroidScreenState extends State<FDroidScreen> with AutomaticKeepAliveClie
         final isInstalled = _installedPackageNames.contains(app.packageName);
         final isExpanded = _expandedPackageName == app.packageName;
 
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeInOut,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: isExpanded ? const Color(0xFF161C2C) : const Color(0xFF121622),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
+        return Card(
+          color: isExpanded ? const Color(0xFF222222) : const Color(0xFF181818),
+          elevation: isExpanded ? 3 : 1,
+          margin: const EdgeInsets.only(bottom: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: BorderSide(
               color: isExpanded
-                  ? Colors.white
-                  : (isInstalled ? const Color(0xFF10B981) : const Color(0xFF1F2636)),
-              width: isExpanded || isInstalled ? 2 : 1,
+                  ? const Color(0xFF00FF66)
+                  : (isInstalled ? const Color(0xFF10B981) : const Color(0xFF2D2D2D)),
+              width: isExpanded ? 1.5 : 1,
             ),
-            boxShadow: isExpanded
-                ? [BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 10, offset: const Offset(0, 4))]
-                : [],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header Row: Tap anywhere to Morph Expand/Collapse
-              InkWell(
-                onTap: () {
-                  setState(() {
-                    _expandedPackageName = isExpanded ? null : app.packageName;
-                  });
-                },
-                borderRadius: BorderRadius.circular(8),
-                child: Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: app.iconUrl.isNotEmpty
-                          ? Image.network(
-                              app.iconUrl,
-                              width: 44,
-                              height: 44,
-                              fit: BoxFit.cover,
-                              errorBuilder: (c, e, s) => Container(
-                                width: 44,
-                                height: 44,
-                                color: const Color(0xFF1F2636),
-                                child: const Icon(Icons.android, color: Colors.white, size: 22),
-                              ),
-                            )
-                          : Container(
-                              width: 44,
-                              height: 44,
-                              color: const Color(0xFF1F2636),
-                              child: const Icon(Icons.android, color: Colors.white, size: 22),
-                            ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      flex: 3,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(app.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-                          SelectableText(app.packageName, style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 11)),
-                        ],
-                      ),
-                    ),
-                    if (!isExpanded) ...[
-                      Expanded(
-                        flex: 4,
-                        child: Text(app.summary, style: const TextStyle(color: Color(0xFF6B7280), fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
-                      ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(10),
+            onTap: () {
+              setState(() {
+                _expandedPackageName = isExpanded ? null : app.packageName;
+              });
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(color: const Color(0xFF1F2636), borderRadius: BorderRadius.circular(6)),
-                        child: Text(app.version, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2D2D2D),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: app.iconUrl.isNotEmpty
+                              ? Image.network(
+                                  app.iconUrl,
+                                  width: 44,
+                                  height: 44,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (c, e, s) => const Icon(Icons.android, color: Colors.greenAccent, size: 22),
+                                )
+                              : const Icon(Icons.android, color: Colors.greenAccent, size: 22),
+                        ),
                       ),
                       const SizedBox(width: 12),
                     ],

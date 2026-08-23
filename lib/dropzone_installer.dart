@@ -308,7 +308,7 @@ class _DropzoneInstallerState extends State<DropzoneInstaller> with AutomaticKee
                 }
 
                 return Card(
-                  color: const Color(0xFF121622),
+                  color: const Color(0xFF181818),
                   margin: const EdgeInsets.only(bottom: 8),
                   child: ListTile(
                     leading: Icon(badgeIcon, color: badgeColor),

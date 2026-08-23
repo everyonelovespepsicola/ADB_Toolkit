@@ -137,9 +137,9 @@ class _WifiAdbScreenState extends State<WifiAdbScreen> with AutomaticKeepAliveCl
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF121622),
+              color: const Color(0xFF181818),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF1F2636)),
+              border: Border.all(color: const Color(0xFF2D2D2D)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,7 +159,7 @@ class _WifiAdbScreenState extends State<WifiAdbScreen> with AutomaticKeepAliveCl
                     ),
                     ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1E2638),
+                        backgroundColor: const Color(0xFF242424),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       ),
@@ -224,9 +224,9 @@ class _WifiAdbScreenState extends State<WifiAdbScreen> with AutomaticKeepAliveCl
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF121622),
+              color: const Color(0xFF181818),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF1F2636)),
+              border: Border.all(color: const Color(0xFF2D2D2D)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -258,9 +258,9 @@ class _WifiAdbScreenState extends State<WifiAdbScreen> with AutomaticKeepAliveCl
                           hintText: 'IP:Port (e.g. 192.168.1.50:38291)',
                           hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
                           filled: true,
-                          fillColor: const Color(0xFF0B0C10),
+                          fillColor: const Color(0xFF0D0D0D),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF1F2636))),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF2D2D2D))),
                         ),
                       ),
                     ),
@@ -304,9 +304,9 @@ class _WifiAdbScreenState extends State<WifiAdbScreen> with AutomaticKeepAliveCl
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF121622),
+              color: const Color(0xFF181818),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF1F2636)),
+              border: Border.all(color: const Color(0xFF2D2D2D)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -332,9 +332,9 @@ class _WifiAdbScreenState extends State<WifiAdbScreen> with AutomaticKeepAliveCl
                           hintText: 'IP:Port (e.g. 192.168.1.50:5555 or 192.168.1.50:41203)',
                           hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
                           filled: true,
-                          fillColor: const Color(0xFF0B0C10),
+                          fillColor: const Color(0xFF0D0D0D),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF1F2636))),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF2D2D2D))),
                         ),
                       ),
                     ),
@@ -361,9 +361,9 @@ class _WifiAdbScreenState extends State<WifiAdbScreen> with AutomaticKeepAliveCl
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF121622),
+              color: const Color(0xFF181818),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF1F2636)),
+              border: Border.all(color: const Color(0xFF2D2D2D)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -406,7 +406,7 @@ class _WifiAdbScreenState extends State<WifiAdbScreen> with AutomaticKeepAliveCl
                     itemBuilder: (ctx, idx) {
                       final service = _mdnsServices[idx];
                       return Card(
-                        color: const Color(0xFF1A1F2C),
+                        color: const Color(0xFF202020),
                         margin: const EdgeInsets.only(bottom: 6),
                         child: Material(
                           color: Colors.transparent,

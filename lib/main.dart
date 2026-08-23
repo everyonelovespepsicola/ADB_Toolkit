@@ -121,7 +121,7 @@ class _MainTabShellState extends State<MainTabShell> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF10131B),
+        backgroundColor: const Color(0xFF121212),
         elevation: 2,
         title: Row(
           children: [
@@ -299,7 +299,7 @@ class _MainTabShellState extends State<MainTabShell> {
         alignment: Alignment.center,
         margin: const EdgeInsets.all(4.0),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : const Color(0xFF1E2638),
+          color: isSelected ? Colors.white : const Color(0xFF242424),
           borderRadius: BorderRadius.circular(6),
         ),
         child: Text(
@@ -357,14 +357,14 @@ class _MainTabShellState extends State<MainTabShell> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1E2638),
+                    color: const Color(0xFF242424),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFF4DEAEA)),
+                    border: Border.all(color: const Color(0xFF444444)),
                   ),
                   child: DropdownButton<String>(
                     value: TranslationService().selectedLanguageCode,
                     underline: const SizedBox(),
-                    dropdownColor: const Color(0xFF1E2638),
+                    dropdownColor: const Color(0xFF242424),
                     style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                     isExpanded: true,
                     items: AppLanguageOption.options.map((opt) {
@@ -550,7 +550,7 @@ class _MainTabShellState extends State<MainTabShell> {
                   runSpacing: 10,
                   children: [
                     ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E2638), foregroundColor: Colors.white),
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF242424), foregroundColor: Colors.white),
                       onPressed: () async {
                         try {
                           final envAppData = Platform.environment['APPDATA'];
@@ -583,7 +583,7 @@ class _MainTabShellState extends State<MainTabShell> {
                               showDialog(
                                 context: context,
                                 builder: (ctx) => AlertDialog(
-                                  backgroundColor: const Color(0xFF121622),
+                                  backgroundColor: const Color(0xFF181818),
                                   title: const Text('DART CRASH LOGS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
                                   content: SizedBox(
                                     width: 600,

@@ -583,7 +583,7 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
         // Top Section: Header & Featured System Quick Tweaks
         Container(
           padding: const EdgeInsets.all(14),
-          color: const Color(0xFF10131B),
+          color: const Color(0xFF121212),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -901,7 +901,7 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                             defaultHint: "${defTimeout ~/ 1000}s",
                             child: DropdownButton<int>(
                               value: [15000, 30000, 60000, 300000, 600000, 1800000, 86400000].contains(_screenTimeoutMs) ? _screenTimeoutMs : 60000,
-                              dropdownColor: const Color(0xFF121622),
+                              dropdownColor: const Color(0xFF181818),
                               underline: const SizedBox(),
                               style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                               items: const [
@@ -994,7 +994,7 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                                 ),
                                 PopupMenuButton<String>(
                                   icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                                  color: const Color(0xFF121622),
+                                  color: const Color(0xFF181818),
                                   onSelected: (val) {
                                     setState(() => _privateDnsHost = val);
                                     if (val.isEmpty) {
@@ -1185,10 +1185,10 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFF121622),
+        color: const Color(0xFF181818),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: isModified ? const Color(0xFF10B981) : const Color(0xFF1F2636),
+          color: isModified ? const Color(0xFF10B981) : const Color(0xFF2D2D2D),
           width: isModified ? 2 : 1,
         ),
       ),
@@ -1234,9 +1234,9 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : const Color(0xFF121622),
+          color: isSelected ? Colors.white : const Color(0xFF181818),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isSelected ? Colors.white : const Color(0xFF1F2636)),
+          border: Border.all(color: isSelected ? Colors.white : const Color(0xFF2D2D2D)),
         ),
         child: Text(
           label,
@@ -1323,10 +1323,10 @@ class _SettingRowWidgetState extends State<_SettingRowWidget> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFF121622),
+        color: const Color(0xFF181818),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: isModified ? const Color(0xFF10B981) : const Color(0xFF1F2636),
+          color: isModified ? const Color(0xFF10B981) : const Color(0xFF2D2D2D),
           width: isModified ? 2 : 1,
         ),
       ),
@@ -1383,7 +1383,7 @@ class _SettingRowWidgetState extends State<_SettingRowWidget> {
                 const SizedBox(height: 4),
                 Text(
                   description,
-                  style: const TextStyle(color: Color(0xFF4DEAEA), fontSize: 11, fontStyle: FontStyle.italic),
+                  style: const TextStyle(color: Color(0xFFB3B3B3), fontSize: 11, fontStyle: FontStyle.italic),
                 ),
               ],
             ],
@@ -1432,14 +1432,14 @@ class _SettingRowWidgetState extends State<_SettingRowWidget> {
                             isDense: true,
                             contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                             filled: true,
-                            fillColor: const Color(0xFF0B0C10),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: const BorderSide(color: Color(0xFF1F2636))),
+                            fillColor: const Color(0xFF0D0D0D),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: const BorderSide(color: Color(0xFF2D2D2D))),
                           ),
                         ),
                       ),
                       const SizedBox(width: 8),
                       ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E2638), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6)),
+                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF242424), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6)),
                         onPressed: () {
                           widget.onUpdate(widget.namespace, widget.settingKey, _textCtrl.text.trim());
                         },
