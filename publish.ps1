@@ -26,6 +26,18 @@ if (Test-Path "$FLUTTER_SDK_DIR\bin\flutter.bat") {
 
 Set-Location $SCRIPT_DIR
 
+# 1.5 Terminate Any Running Instances of app_manager.exe to Prevent File Lock Failures
+Write-Host "[1.5/4] Scanning for running app_manager.exe processes..." -ForegroundColor Yellow
+$runningProcesses = Get-Process -Name "app_manager" -ErrorAction SilentlyContinue
+if ($runningProcesses) {
+    Write-Host "    [!] Found $($runningProcesses.Count) running instance(s) of app_manager.exe. Terminating..." -ForegroundColor Yellow
+    Stop-Process -Name "app_manager" -Force -ErrorAction SilentlyContinue
+    Start-Sleep -Milliseconds 500
+    Write-Host "    [+] Cleanly terminated running app_manager.exe processes." -ForegroundColor Green
+} else {
+    Write-Host "    [+] No running app_manager.exe processes detected." -ForegroundColor Green
+}
+
 # 2. Fetch Dart Dependencies
 Write-Host "[2/4] Resolving Dart Package Dependencies..." -ForegroundColor Yellow
 flutter pub get
