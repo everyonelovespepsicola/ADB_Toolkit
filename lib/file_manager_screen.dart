@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
 import 'adb_manager.dart';
 
@@ -487,6 +488,8 @@ class _FileManagerScreenState extends State<FileManagerScreen> with AutomaticKee
     return const Icon(Icons.insert_drive_file, color: Colors.grey, size: 28);
   }
 
+  bool _isDragging = false;
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -497,8 +500,41 @@ class _FileManagerScreenState extends State<FileManagerScreen> with AutomaticKee
       return e.name.toLowerCase().contains(q);
     }).toList();
 
-    return Column(
-      children: [
+    return DropTarget(
+      onDragEntered: (details) => setState(() => _isDragging = true),
+      onDragExited: (details) => setState(() => _isDragging = false),
+      onDragDone: (details) async {
+        setState(() => _isDragging = false);
+        if (serial == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('⚠️ Connect a phone to upload dropped files!')),
+          );
+          return;
+        }
+
+        if (details.files.isEmpty) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('📥 Uploading ${details.files.length} file(s) to $_currentPath...')),
+        );
+
+        int count = 0;
+        for (final file in details.files) {
+          final success = await AdbManager.pushFileToPhone(serial, file.path, _currentPath);
+          if (success) count++;
+        }
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('🟢 Uploaded $count / ${details.files.length} file(s) to $_currentPath!')),
+          );
+          _loadDirectory(_currentPath);
+        }
+      },
+      child: Stack(
+        children: [
+          Column(
+            children: [
         // 1. Top Action Toolbar (Backup, Restore, Push, Pull)
         Container(
           padding: const EdgeInsets.all(12),
@@ -682,6 +718,36 @@ class _FileManagerScreenState extends State<FileManagerScreen> with AutomaticKee
                     ),
         ),
       ],
-    );
-  }
+    ),
+    if (_isDragging)
+      Positioned.fill(
+        child: Container(
+          color: Colors.black.withOpacity(0.85),
+          child: Center(
+            child: Container(
+              margin: const EdgeInsets.all(32),
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: const Color(0xFF181818),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFF00FF66), width: 3),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.file_upload, color: Color(0xFF00FF66), size: 54),
+                  const SizedBox(height: 16),
+                  const Text('RELEASE TO UPLOAD TO PHONE', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Text('Target folder: $_currentPath', style: const TextStyle(color: Color(0xFF00FF66), fontSize: 13, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    ],
+   ),
+  );
+ }
 }
