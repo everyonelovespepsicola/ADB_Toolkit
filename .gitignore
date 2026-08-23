@@ -18,6 +18,7 @@ $RECYCLE.BIN/
 .swiftpm/
 migrate_working_dir/
 scratch/
+fdroidclient/
 
 # Environment / Local Config
 .env
