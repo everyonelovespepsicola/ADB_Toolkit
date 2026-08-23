@@ -334,6 +334,60 @@ class _FileManagerScreenState extends State<FileManagerScreen> with AutomaticKee
     }
   }
 
+  Widget _buildQuickShortcutsBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      color: const Color(0xFF181818),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            const Text('QUICK SHORTCUTS: ', style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 10, fontWeight: FontWeight.bold)),
+            const SizedBox(width: 6),
+            _buildShortcutChip('🏠 SDCard Root', '/sdcard', Colors.white),
+            const SizedBox(width: 6),
+            _buildShortcutChip('📥 Downloads', '/sdcard/Download', const Color(0xFF4FC3F7)),
+            const SizedBox(width: 6),
+            _buildShortcutChip('🎮 App Data', '/sdcard/Android/data', const Color(0xFF00FF66)),
+            const SizedBox(width: 6),
+            _buildShortcutChip('📦 Game OBBs', '/sdcard/Android/obb', const Color(0xFFCE93D8)),
+            const SizedBox(width: 6),
+            _buildShortcutChip('📷 Camera Photos', '/sdcard/DCIM', const Color(0xFFFFB74D)),
+            const SizedBox(width: 6),
+            _buildShortcutChip('🎵 Music', '/sdcard/Music', const Color(0xFFAED581)),
+            const SizedBox(width: 6),
+            _buildShortcutChip('📄 Documents', '/sdcard/Documents', const Color(0xFF81D4FA)),
+            const SizedBox(width: 6),
+            _buildShortcutChip('💾 External Storage', '/storage', const Color(0xFFFF8A65)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShortcutChip(String label, String path, Color activeColor) {
+    final isSelected = _currentPath == path;
+    return InkWell(
+      onTap: () => _loadDirectory(path),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: isSelected ? activeColor : const Color(0xFF242424),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: isSelected ? activeColor : const Color(0xFF383838)),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.black : Colors.white,
+            fontSize: 11,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildBreadcrumbBar() {
     final parts = _currentPath.split('/').where((p) => p.isNotEmpty).toList();
     return Container(
@@ -506,6 +560,9 @@ class _FileManagerScreenState extends State<FileManagerScreen> with AutomaticKee
             ],
           ),
         ),
+
+        // 1.5 Quick Shortcuts Bar
+        _buildQuickShortcutsBar(),
 
         // 2. Breadcrumb Navigation Bar
         _buildBreadcrumbBar(),

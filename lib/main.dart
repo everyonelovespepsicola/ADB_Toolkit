@@ -198,44 +198,32 @@ class _MainTabShellState extends State<MainTabShell> {
       body: IndexedStack(
         index: _currentIndex,
         children: [
-          _currentIndex == 0
-              ? DropzoneInstaller(
-                  connectedDevices: _connectedDevices,
-                  selectedDeviceSerial: _selectedDeviceSerial,
-                )
-              : const SizedBox.shrink(),
-          _currentIndex == 1
-              ? AppListScreen(
-                  connectedDevices: _connectedDevices,
-                  selectedDeviceSerial: _selectedDeviceSerial,
-                )
-              : const SizedBox.shrink(),
-          _currentIndex == 2
-              ? FileManagerScreen(
-                  connectedDevices: _connectedDevices,
-                  selectedDeviceSerial: _selectedDeviceSerial,
-                )
-              : const SizedBox.shrink(),
-          _currentIndex == 3
-              ? FDroidScreen(
-                  connectedDevices: _connectedDevices,
-                  selectedDeviceSerial: _selectedDeviceSerial,
-                )
-              : const SizedBox.shrink(),
-          _currentIndex == 4
-              ? WifiAdbScreen(
-                  connectedDevices: _connectedDevices,
-                  onDevicesUpdated: _refreshDevices,
-                )
-              : const SizedBox.shrink(),
-          _currentIndex == 5
-              ? HiddenSettingsScreen(
-                  connectedDevices: _connectedDevices,
-                  selectedDeviceSerial: _selectedDeviceSerial,
-                  showTooltips: _showTooltips,
-                )
-              : const SizedBox.shrink(),
-          _currentIndex == 6 ? _buildSettingsView() : const SizedBox.shrink(),
+          DropzoneInstaller(
+            connectedDevices: _connectedDevices,
+            selectedDeviceSerial: _selectedDeviceSerial,
+          ),
+          AppListScreen(
+            connectedDevices: _connectedDevices,
+            selectedDeviceSerial: _selectedDeviceSerial,
+          ),
+          FileManagerScreen(
+            connectedDevices: _connectedDevices,
+            selectedDeviceSerial: _selectedDeviceSerial,
+          ),
+          FDroidScreen(
+            connectedDevices: _connectedDevices,
+            selectedDeviceSerial: _selectedDeviceSerial,
+          ),
+          WifiAdbScreen(
+            connectedDevices: _connectedDevices,
+            onDevicesUpdated: _refreshDevices,
+          ),
+          HiddenSettingsScreen(
+            connectedDevices: _connectedDevices,
+            selectedDeviceSerial: _selectedDeviceSerial,
+            showTooltips: _showTooltips,
+          ),
+          _buildSettingsView(),
         ],
       ),
       bottomNavigationBar: Container(
