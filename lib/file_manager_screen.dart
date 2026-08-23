@@ -505,7 +505,11 @@ class _FileManagerScreenState extends State<FileManagerScreen> with AutomaticKee
           color: const Color(0xFF181818),
           child: Column(
             children: [
-              Row(
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
@@ -517,7 +521,6 @@ class _FileManagerScreenState extends State<FileManagerScreen> with AutomaticKee
                     icon: const Icon(Icons.inventory_2, size: 16),
                     label: const Text('📦 BATCH BACKUP APP DATA', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
                   ),
-                  const SizedBox(width: 8),
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF242424),
@@ -528,7 +531,6 @@ class _FileManagerScreenState extends State<FileManagerScreen> with AutomaticKee
                     icon: const Icon(Icons.restore, size: 16),
                     label: const Text('🔄 RESTORE APP DATA', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
                   ),
-                  const Spacer(),
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF242424),
