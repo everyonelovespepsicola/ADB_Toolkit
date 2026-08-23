@@ -1119,8 +1119,6 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
                       ),
                     ],
                   );
-                    ],
-                  );
                 },
               ),
             ],
