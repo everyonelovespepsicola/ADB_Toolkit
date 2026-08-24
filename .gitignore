@@ -17,6 +17,7 @@ $RECYCLE.BIN/
 .svn/
 .swiftpm/
 scratch/
+AGENTS.md
 
 # Environment / Local Credentials & Tokens
 .env
