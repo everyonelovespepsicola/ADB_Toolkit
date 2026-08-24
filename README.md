@@ -136,4 +136,4 @@ Release artifacts will be packaged into:
 ---
 
 ## 📄 License
-Distributed under the GPL-3.0 License. See `LICENSE` for more information.
+Distributed under the GPL-2.0 License. See `LICENSE` for more information.
