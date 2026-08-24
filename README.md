@@ -36,15 +36,11 @@
     </td>
   </tr>
   <tr>
-    <td width="33%" align="center">
+    <td width="50%" align="center">
       <img src="assets/7.png" alt="Settings & Diagnostics Tab" width="100%"><br>
       <b>7. ⚙️ Settings & Diagnostics</b>
     </td>
-    <td width="33%" align="center">
-      <img src="assets/theme_colors_chart.png" alt="Theme Creator Studio" width="100%"><br>
-      <b>8. 🎨 Theme Studio</b>
-    </td>
-    <td width="33%" align="center">
+    <td width="50%" align="center">
       <img src="assets/app_icon_flat_superhero.png" alt="ADB Toolkit Icon" width="100%"><br>
       <b>ADB Toolkit Suite</b>
     </td>
