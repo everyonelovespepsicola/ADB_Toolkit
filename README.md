@@ -42,7 +42,7 @@
     </td>
     <td width="33%" align="center">
       <br><br>
-      $$\text{} + \text{} + \text{Flutter} = \text{}$$
+      $$\text{} + \text{} + \text{} = \text{}$$
       <br><br>
       <b> </b>
     </td>
