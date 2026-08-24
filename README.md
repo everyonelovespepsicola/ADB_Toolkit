@@ -1,9 +1,5 @@
 # ADB Toolkit 📱⚡
 
-[![Flutter](https://img.shields.io/badge/Flutter-3.13+-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Web%20%7C%20Android-blueviolet)](https://github.com)
-[![License](https://img.shields.io/badge/License-GPL--3.0-green.svg)](LICENSE)
-
 **ADB Toolkit** is a modern, high-performance Windows Desktop and Web application built with Flutter to manage Android devices via USB and Wireless ADB (Android Debug Bridge). It features a sleek Material 3 dark-themed interface, version-aware Android 14/15 APK installer, full Android file manager, F-Droid open-source app store integration, hidden system settings editor, and wireless pairing tools.
 
 ---
