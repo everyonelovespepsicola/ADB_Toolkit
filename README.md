@@ -4,6 +4,55 @@
 
 ---
 
+## 📸 Application Showcase Gallery
+
+<table>
+  <tr>
+    <td width="33%" align="center">
+      <img src="assets/1.png" alt="Installer Tab" width="100%"><br>
+      <b>1. 📥 Dropzone Installer</b>
+    </td>
+    <td width="33%" align="center">
+      <img src="assets/2.png" alt="App Manager Tab" width="100%"><br>
+      <b>2. 📱 App Manager</b>
+    </td>
+    <td width="33%" align="center">
+      <img src="assets/3.png" alt="File Manager Tab" width="100%"><br>
+      <b>3. 📁 File Manager</b>
+    </td>
+  </tr>
+  <tr>
+    <td width="33%" align="center">
+      <img src="assets/4.png" alt="F-Droid Store Tab" width="100%"><br>
+      <b>4. 🛍️ F-Droid Store</b>
+    </td>
+    <td width="33%" align="center">
+      <img src="assets/5.png" alt="Wi-Fi ADB Tab" width="100%"><br>
+      <b>5. 📶 Wi-Fi ADB Manager</b>
+    </td>
+    <td width="33%" align="center">
+      <img src="assets/6.png" alt="Hidden Settings Tab" width="100%"><br>
+      <b>6. 🛠️ Hidden Settings & Tweaks</b>
+    </td>
+  </tr>
+  <tr>
+    <td width="33%" align="center">
+      <img src="assets/7.png" alt="Settings & Diagnostics Tab" width="100%"><br>
+      <b>7. ⚙️ Settings & Diagnostics</b>
+    </td>
+    <td width="33%" align="center">
+      <img src="assets/theme_colors_chart.png" alt="Theme Creator Studio" width="100%"><br>
+      <b>8. 🎨 Theme Studio</b>
+    </td>
+    <td width="33%" align="center">
+      <img src="assets/app_icon_flat_superhero.png" alt="ADB Toolkit Icon" width="100%"><br>
+      <b>ADB Toolkit Suite</b>
+    </td>
+  </tr>
+</table>
+
+---
+
 ## 🌟 Comprehensive Feature & Tab Guide
 
 ADB Toolkit is organized into 8 powerful tabs, each designed for specific Android management tasks:
