@@ -16,27 +16,27 @@ $RECYCLE.BIN/
 .history
 .svn/
 .swiftpm/
-migrate_working_dir/
 scratch/
-fdroidclient/
 
-# Environment / Local Config
+# Environment / Local Credentials & Tokens
 .env
 .env.*
 !.env.example
+local.properties
+**/android/local.properties
+key.properties
+**/*.keystore
+**/*.jks
 
 # IDE & Editor files
-# IntelliJ / Android Studio
 *.iml
 *.ipr
 *.iws
 .idea/
+.vscode/
 out/
 
-# Visual Studio Code
-.vscode/
-
-# Flutter / Dart / Pub related
+# Flutter / Dart / Pub build artifacts
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
@@ -59,11 +59,6 @@ app.*.map.json
 **/android/.gradle/
 **/android/captures/
 **/android/.cxx/
-local.properties
-**/android/local.properties
-key.properties
-**/*.keystore
-**/*.jks
 
 # Windows Desktop & C++ build artifacts
 windows/flutter/ephemeral/
@@ -82,4 +77,3 @@ ARM64/
 
 # Widget Preview related
 .widget_preview/
-
