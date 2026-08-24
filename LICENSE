@@ -278,3 +278,12 @@ PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGES.
 
                      END OF TERMS AND CONDITIONS
+
+-------------------------------------------------------------------------------
+
+ADDENDUM TO THE GNU GENERAL PUBLIC LICENSE VERSION 2: ANTI-TIVOIZATION EXCEPTION
+
+This software is distributed under the terms of the GNU General Public License Version 2, with the following additional restriction:
+
+Hardware devices that ship with this software, or upon which this software is intended to run, must not implement technical measures that prevent the user from installing and executing modified versions of this software. However, unlike the GNU General Public License Version 3, this addendum does not require the distributor to publicly share or provide the user with private cryptographic keys or signing certificates. The distributor must simply ensure that the device provides a mechanism (such as an unlocked bootloader, developer mode, or an option to disable signature verification) allowing the user to run their own modified builds without needing the manufacturer's keys.
+
