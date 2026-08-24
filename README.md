@@ -36,11 +36,17 @@
     </td>
   </tr>
   <tr>
-    <td width="50%" align="center">
+    <td width="33%" align="center">
       <img src="assets/7.png" alt="Settings & Diagnostics Tab" width="100%"><br>
       <b>7. ⚙️ Settings & Diagnostics</b>
     </td>
-    <td width="50%" align="center">
+    <td width="33%" align="center">
+      <br><br>
+      $$\text{ADB} + \text{Wireless Pairing} + \text{Flutter} = \text{ADB Toolkit}$$
+      <br><br>
+      <b>8. 🧮 Power Equation</b>
+    </td>
+    <td width="33%" align="center">
       <img src="assets/app_icon_flat_superhero.png" alt="ADB Toolkit Icon" width="100%"><br>
       <b>ADB Toolkit Suite</b>
     </td>
