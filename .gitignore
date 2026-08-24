@@ -46,6 +46,7 @@ out/
 .pub-cache/
 .pub/
 /build/
+/bin/
 /coverage/
 
 # Symbolication & Obfuscation
