@@ -42,9 +42,9 @@
     </td>
     <td width="33%" align="center">
       <br><br>
-      $$\text{ADB} + \text{Wireless Pairing} + \text{Flutter} = \text{ADB Toolkit}$$
+      $$\text{} + \text{} + \text{Flutter} = \text{}$$
       <br><br>
-      <b>8. 🧮 Power Equation</b>
+      <b> </b>
     </td>
     <td width="33%" align="center">
       <img src="assets/app_icon_flat_superhero.png" alt="ADB Toolkit Icon" width="100%"><br>
