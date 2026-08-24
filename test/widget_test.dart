@@ -6,7 +6,7 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:app_manager/adb_manager.dart';
+import 'package:adb_toolkit/adb_manager.dart';
 
 void main() {
   test('DeviceInfo display name test', () {

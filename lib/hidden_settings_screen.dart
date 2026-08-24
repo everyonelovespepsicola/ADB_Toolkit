@@ -144,7 +144,7 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
   @override
   bool get wantKeepAlive => true;
 
-  static const String _snapshotPath = '/sdcard/.app_manager_defaults.json';
+  static const String _snapshotPath = '/sdcard/.adb_toolkit_defaults.json';
 
   String _selectedNamespace = 'global'; // 'global', 'secure', 'system'
   String _searchQuery = '';
@@ -374,7 +374,7 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> with Automa
               const SizedBox(height: 8),
               Text(
                 key == 'adb_enabled' && value == '0'
-                    ? '⚠️ CRITICAL: Setting adb_enabled to 0 will immediately kill USB debugging on your Android device and disconnect App Manager!'
+                    ? '⚠️ CRITICAL: Setting adb_enabled to 0 will immediately kill USB debugging on your Android device and disconnect ADB Toolkit!'
                     : '⚠️ WARNING: Modifying critical Android system flags can cause ADB disconnection, lock features, or system instability.',
                 style: const TextStyle(color: Color(0xFFFCA5A5), fontSize: 12),
               ),

@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.appmanager.app" "\0"
-            VALUE "FileDescription", "app_manager" "\0"
+            VALUE "CompanyName", "com.adbtoolkit.app" "\0"
+            VALUE "FileDescription", "ADB Toolkit" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "app_manager" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.appmanager.app. All rights reserved." "\0"
-            VALUE "OriginalFilename", "app_manager.exe" "\0"
-            VALUE "ProductName", "app_manager" "\0"
+            VALUE "InternalName", "adb_toolkit" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 com.adbtoolkit.app. All rights reserved." "\0"
+            VALUE "OriginalFilename", "adb_toolkit.exe" "\0"
+            VALUE "ProductName", "ADB Toolkit" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

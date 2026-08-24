@@ -3,12 +3,12 @@
   <Networking>Enable</Networking>
   <MappedFolders>
     <MappedFolder>
-      <HostFolder>c:\projects\android_apps\app_manager\bin\appmanager-windows-release</HostFolder>
-      <SandboxFolder>C:\Users\WDAGUtilityAccount\Desktop\appmanager-windows-release</SandboxFolder>
+      <HostFolder>c:\projects\android_apps\ADB_Toolkit\bin\adbtoolkit-windows-release</HostFolder>
+      <SandboxFolder>C:\Users\WDAGUtilityAccount\Desktop\adbtoolkit-windows-release</SandboxFolder>
       <ReadOnly>false</ReadOnly>
     </MappedFolder>
   </MappedFolders>
   <LogonCommand>
-    <Command>C:\Users\WDAGUtilityAccount\Desktop\appmanager-windows-release\setup_runtimes.bat</Command>
+    <Command>C:\Users\WDAGUtilityAccount\Desktop\adbtoolkit-windows-release\setup_runtimes.bat</Command>
   </LogonCommand>
 </Configuration>

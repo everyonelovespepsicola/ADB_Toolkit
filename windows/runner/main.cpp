@@ -19,7 +19,7 @@ LONG WINAPI CreateCrashMinidump(EXCEPTION_POINTERS* pExceptionPointers) {
 
   wchar_t appDataPath[MAX_PATH];
   if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_APPDATA, NULL, 0, appDataPath))) {
-    std::wstring crashDir = std::wstring(appDataPath) + L"\\com.appmanager.app\\app_manager\\crashes";
+    std::wstring crashDir = std::wstring(appDataPath) + L"\\com.adbtoolkit.app\\adb_toolkit\\crashes";
     CreateDirectoryW(crashDir.c_str(), NULL);
 
     time_t rawtime;
@@ -69,7 +69,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   FlutterWindow window(project);
   Win32Window::Point origin(10, 10);
   Win32Window::Size size(1280, 720);
-  if (!window.Create(L"app_manager", origin, size)) {
+  if (!window.Create(L"ADB Toolkit", origin, size)) {
     return EXIT_FAILURE;
   }
   window.SetQuitOnClose(true);

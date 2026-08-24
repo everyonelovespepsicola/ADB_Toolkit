@@ -15,7 +15,7 @@ void _logCrash(dynamic error, StackTrace? stackTrace) async {
   try {
     final envAppData = Platform.environment['APPDATA'];
     if (envAppData != null) {
-      final crashDir = Directory("$envAppData\\com.appmanager.app\\app_manager\\crashes");
+      final crashDir = Directory("$envAppData\\com.adbtoolkit.app\\adb_toolkit\\crashes");
       if (!await crashDir.exists()) {
         await crashDir.create(recursive: true);
       }
@@ -34,21 +34,21 @@ void main() {
   };
 
   runZonedGuarded(() {
-    runApp(const AppManagerApp());
+    runApp(const AdbToolkitApp());
   }, (error, stackTrace) {
     _logCrash(error, stackTrace);
   });
 }
 
-class AppManagerApp extends StatelessWidget {
-  const AppManagerApp({Key? key}) : super(key: key);
+class AdbToolkitApp extends StatelessWidget {
+  const AdbToolkitApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     const materialTheme = MaterialTheme(TextTheme());
 
     return MaterialApp(
-      title: 'Android App Manager',
+      title: 'ADB Toolkit',
       debugShowCheckedModeBanner: false,
       theme: materialTheme.dark(),
       home: const MainTabShell(),
@@ -132,7 +132,7 @@ class _MainTabShellState extends State<MainTabShell> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Android App Manager',
+                  'ADB Toolkit',
                   style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 Text(
@@ -511,7 +511,7 @@ class _MainTabShellState extends State<MainTabShell> {
                     try {
                       final envAppData = Platform.environment['APPDATA'];
                       if (envAppData != null) {
-                        final appDataPath = "$envAppData\\com.appmanager.app\\app_manager";
+                        final appDataPath = "$envAppData\\com.adbtoolkit.app\\adb_toolkit";
                         final appDataDir = Directory(appDataPath);
                         if (await appDataDir.exists()) {
                           await for (final entity in appDataDir.list()) {
@@ -569,7 +569,7 @@ class _MainTabShellState extends State<MainTabShell> {
                         try {
                           final envAppData = Platform.environment['APPDATA'];
                           if (envAppData != null) {
-                            final crashPath = "$envAppData\\com.appmanager.app\\app_manager\\crashes";
+                            final crashPath = "$envAppData\\com.adbtoolkit.app\\adb_toolkit\\crashes";
                             final crashDir = Directory(crashPath);
                             if (!await crashDir.exists()) {
                               await crashDir.create(recursive: true);
@@ -591,7 +591,7 @@ class _MainTabShellState extends State<MainTabShell> {
                         try {
                           final envAppData = Platform.environment['APPDATA'];
                           if (envAppData != null) {
-                            final logFile = File("$envAppData\\com.appmanager.app\\app_manager\\crashes\\dart_crash_logs.txt");
+                            final logFile = File("$envAppData\\com.adbtoolkit.app\\adb_toolkit\\crashes\\dart_crash_logs.txt");
                             final logs = await logFile.exists() ? await logFile.readAsString() : "No Dart crash logs recorded yet!";
                             if (mounted) {
                               showDialog(

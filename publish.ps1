@@ -1,10 +1,10 @@
 # ==================================================
-# ANDROID APP MANAGER - FLUTTER AUTOMATED BUILD ORCHESTRATOR
+# ADB TOOLKIT - FLUTTER AUTOMATED BUILD ORCHESTRATOR
 # ==================================================
 $ErrorActionPreference = "Stop"
 
 Write-Host "==================================================" -ForegroundColor Cyan
-Write-Host "   ANDROID APP MANAGER - BUILD ORCHESTRATOR      " -ForegroundColor Cyan
+Write-Host "       ADB TOOLKIT - BUILD ORCHESTRATOR           " -ForegroundColor Cyan
 Write-Host "==================================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -26,16 +26,16 @@ if (Test-Path "$FLUTTER_SDK_DIR\bin\flutter.bat") {
 
 Set-Location $SCRIPT_DIR
 
-# 1.5 Terminate Any Running Instances of app_manager.exe to Prevent File Lock Failures
-Write-Host "[1.5/4] Scanning for running app_manager.exe processes..." -ForegroundColor Yellow
-$runningProcesses = Get-Process -Name "app_manager" -ErrorAction SilentlyContinue
+# 1.5 Terminate Any Running Instances of adb_toolkit.exe to Prevent File Lock Failures
+Write-Host "[1.5/4] Scanning for running adb_toolkit.exe processes..." -ForegroundColor Yellow
+$runningProcesses = Get-Process -Name "adb_toolkit" -ErrorAction SilentlyContinue
 if ($runningProcesses) {
-    Write-Host "    [!] Found $($runningProcesses.Count) running instance(s) of app_manager.exe. Terminating..." -ForegroundColor Yellow
-    Stop-Process -Name "app_manager" -Force -ErrorAction SilentlyContinue
+    Write-Host "    [!] Found $($runningProcesses.Count) running instance(s) of adb_toolkit.exe. Terminating..." -ForegroundColor Yellow
+    Stop-Process -Name "adb_toolkit" -Force -ErrorAction SilentlyContinue
     Start-Sleep -Milliseconds 500
-    Write-Host "    [+] Cleanly terminated running app_manager.exe processes." -ForegroundColor Green
+    Write-Host "    [+] Cleanly terminated running adb_toolkit.exe processes." -ForegroundColor Green
 } else {
-    Write-Host "    [+] No running app_manager.exe processes detected." -ForegroundColor Green
+    Write-Host "    [+] No running adb_toolkit.exe processes detected." -ForegroundColor Green
 }
 
 # 2. Fetch Dart Dependencies
@@ -62,14 +62,14 @@ Write-Host "[4/4] Packaging Release Artifacts..." -ForegroundColor Yellow
 if (-not (Test-Path $BIN_OUT)) { New-Item -ItemType Directory -Path $BIN_OUT -Force | Out-Null }
 
 $BUILT_EXE_DIR = "$SCRIPT_DIR\build\windows\x64\runner\Release"
-$TARGET_EXE_DIR = "$BIN_OUT\appmanager-windows-release"
+$TARGET_EXE_DIR = "$BIN_OUT\adbtoolkit-windows-release"
 $TARGET_THEME_DIR = "$BIN_OUT\theme-creator-windows-release"
 
 $BUILT_WEB_DIR = "$SCRIPT_DIR\build\web"
-$TARGET_WEB_DIR = "$BIN_OUT\appmanager-web-release"
+$TARGET_WEB_DIR = "$BIN_OUT\adbtoolkit-web-release"
 
 if (Test-Path $BUILT_EXE_DIR) {
-    Stop-Process -Name "app_manager" -ErrorAction SilentlyContinue
+    Stop-Process -Name "adb_toolkit" -ErrorAction SilentlyContinue
     Stop-Process -Name "theme_creator" -ErrorAction SilentlyContinue
     Start-Sleep -Milliseconds 500
     if (-not (Test-Path $TARGET_EXE_DIR)) { New-Item -ItemType Directory -Path $TARGET_EXE_DIR -Force | Out-Null }
@@ -85,8 +85,8 @@ if (Test-Path $BUILT_EXE_DIR) {
     if (Test-Path "$TARGET_THEME_DIR\theme_creator.exe") {
         Remove-Item "$TARGET_THEME_DIR\theme_creator.exe" -Force
     }
-    if (Test-Path "$TARGET_THEME_DIR\app_manager.exe") {
-        Rename-Item -Path "$TARGET_THEME_DIR\app_manager.exe" -NewName "theme_creator.exe" -Force
+    if (Test-Path "$TARGET_THEME_DIR\adb_toolkit.exe") {
+        Rename-Item -Path "$TARGET_THEME_DIR\adb_toolkit.exe" -NewName "theme_creator.exe" -Force
     }
 }
 
@@ -97,13 +97,13 @@ if (Test-Path $BUILT_WEB_DIR) {
     # Generate interactive Start/Stop Web Server Batch Script inside Web Release folder
     $BAT_SCRIPT = @"
 @echo off
-title Android App Manager Web Server
+title ADB Toolkit Web Server
 color 0A
 
 :MENU
 cls
 echo ==================================================
-echo   ANDROID APP MANAGER - WEB SERVER MANAGER
+echo       ADB TOOLKIT - WEB SERVER MANAGER
 echo ==================================================
 echo.
 echo  [1] Start Web Server and Open Browser (Port 8085)
@@ -158,8 +158,8 @@ exit
 
 Write-Host ""
 Write-Host "==================================================" -ForegroundColor Green
-Write-Host "  [+] Android App Manager Build Complete!" -ForegroundColor Green
-Write-Host "      Windows EXE: $TARGET_EXE_DIR\app_manager.exe" -ForegroundColor Yellow
+Write-Host "  [+] ADB Toolkit Build Complete!" -ForegroundColor Green
+Write-Host "      Windows EXE: $TARGET_EXE_DIR\adb_toolkit.exe" -ForegroundColor Yellow
 Write-Host "      Web HTML5:   $TARGET_WEB_DIR\index.html" -ForegroundColor Yellow
 Write-Host "      Web Manager: $TARGET_WEB_DIR\run_web_server.bat" -ForegroundColor Green
 Write-Host "==================================================" -ForegroundColor Green
